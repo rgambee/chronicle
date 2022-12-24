@@ -28,6 +28,38 @@ DEBUG = True
 ALLOWED_HOSTS: list[str] = []
 
 
+# Logging configuration
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "color": {
+            "class": "tracker.log.ColorFormatter",
+            "style": "{",
+            "format": "{asctime:s} {levelname:s} {name:s}:{lineno:d} {message:s}",
+            "datefmt": "%Y-%m-%dT%H:%M:%S",
+            "validate": True,
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "color",
+        },
+    },
+    "root": {
+        "level": "DEBUG" if DEBUG else "INFO",
+        "handlers": ["console"],
+    },
+    "loggers": {
+        "django": {
+            "level": "INFO" if DEBUG else "WARNING",
+        },
+    },
+}
+
+
 # Application definition
 
 INSTALLED_APPS = [
