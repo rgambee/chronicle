@@ -1,0 +1,22 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Entries{% endblock %}
+
+{% block content %}
+
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Amount</th>
+    <th>Category</th>
+  </tr>
+  {% for entry in entries %}
+    <tr>
+      <td>{{ entry.date }}</td>
+      <td>{{ entry.amount|floatformat:"-2" }}</td>
+      <td>{{ entry.category }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

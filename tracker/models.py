@@ -63,3 +63,6 @@ class Entry(models.Model):
             f"category={self.category}, "
             f"tags={tags})"
         )
+
+    def get_absolute_url(self) -> str:
+        return f"/entry/{self.id:d}/"
