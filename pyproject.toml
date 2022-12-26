@@ -20,6 +20,17 @@ ignore_errors = true
 # Discover python modules and packages in the file system subtree.
 recursive = true
 
+[tool.pylint.basic]
+# Allow leading digits in module names to accommodate Django's migration naming
+# conventions. It would be nice to configure this at the package/directory
+# level, but that's not currently supported. Pylint allows config files to
+# override one another, but it starts searching from the current working
+# directory, not the directory of the file being checked. Since it's most
+# convenient to run pylint from the project's root directory, this feature
+# doesn't help in this situation.
+# See here for the GitHub issue: https://github.com/PyCQA/pylint/issues/618
+module-rgx = "([0-9]+_)?[a-z_]+"
+
 [tool.pylint.format]
 # Maximum number of characters on a single line. 88 is black's default.
 max-line-length = 88
