@@ -31,6 +31,11 @@ recursive = true
 # See here for the GitHub issue: https://github.com/PyCQA/pylint/issues/618
 module-rgx = "([0-9]+_)?[a-z_]+"
 
+[tool.pylint.design]
+# Minimum number of public methods for a class. The default of 2 is overriden
+# to 0 because Meta classes inside Django Models often don't have any methods.
+min-public-methods = 0
+
 [tool.pylint.format]
 # Maximum number of characters on a single line. 88 is black's default.
 max-line-length = 88
