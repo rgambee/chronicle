@@ -39,6 +39,10 @@ class Entry(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, related_name="tagged_entries")
     comment = models.TextField(blank=True)
 
+    class Meta:
+        ordering = ["-date"]
+        verbose_name_plural = "entries"
+
     def __str__(self) -> str:
         return (
             f"{self.__class__.__name__}"
