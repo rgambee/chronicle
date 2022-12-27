@@ -35,6 +35,9 @@ module-rgx = "([0-9]+_)?[a-z_]+"
 # Minimum number of public methods for a class. The default of 2 is overriden
 # to 0 because Meta classes inside Django Models often don't have any methods.
 min-public-methods = 0
+# Django views make heavy use of inheritance. Simply subclassing ListView
+# is enough to exceed the default maximum number of parents (7).
+max-parents = 15
 
 [tool.pylint.format]
 # Maximum number of characters on a single line. 88 is black's default.
