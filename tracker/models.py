@@ -8,6 +8,13 @@ def get_empty_tag() -> "Tag":
 
 
 class Tag(models.Model):
+    """A Tag is a short string used to group Entries.
+
+    Tags are unique, so there isn't an id column.
+
+    A Tag may be blank (i.e. the empty string) but not null.
+    """
+
     name = models.CharField(
         max_length=50,
         primary_key=True,
@@ -26,6 +33,24 @@ class Tag(models.Model):
 
 
 class Entry(models.Model):
+    """An Entry is the main unit of data this app deals with.
+
+    Each one represents an amount of some sort, along with metadata describing when and
+    how it was allocated.
+
+    Fields
+        amount: The amount of some resource that was gained or lost, e.g. hours of time
+            spent on a task. In principle this could be negative or positive, for
+            instance to represent income and expenditures. However, at this time most of
+            the rest of the app assumes the amount is always positive.
+        date: The date when the resource was acquired or spent, which may be different
+            from the date this Entry was created. It's saved as a datetime for future-
+            proofing, though the rest of the app presently only uses the date portion.
+        category: The primary Tag used to group this Entry.
+        tags: Secondary Tags for additional grouping and filtering.
+        comment: A general text field for the user to save notes about this Entry.
+    """
+
     # DecimalField would be a good choice since it would make arithmetic more precise.
     # However, SQLite doesn't support decimal types.
     amount = models.FloatField()
