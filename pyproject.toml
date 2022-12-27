@@ -30,6 +30,14 @@ recursive = true
 # doesn't help in this situation.
 # See here for the GitHub issue: https://github.com/PyCQA/pylint/issues/618
 module-rgx = "([0-9]+_)?[a-z_]+"
+# Require docstrings for classes and methods of at least 10 lines.
+docstring-min-length = 10
+# Don't require docstrings for methods starting with `_`, which are not
+# considered part of the public API and are less important to document. Also
+# exclude classes starting with `Test`, which are used for unit testing.
+# Docstrings for test methods are required since they are displayed when the
+# test fails.
+no-docstring-rgx = "^_|^Test"
 
 [tool.pylint.design]
 # Minimum number of public methods for a class. The default of 2 is overriden
@@ -58,10 +66,7 @@ logging-format-style = "new"
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable = [
-    "missing-module-docstring",
-    "missing-class-docstring",
-]
+disable = ["missing-module-docstring"]
 # Warn about unused disable comments in code
 enable = ["useless-suppression"]
 
