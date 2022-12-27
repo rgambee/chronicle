@@ -41,8 +41,8 @@ class TestEntry(TestCase):
             repr(entry), "Entry(date=2001-01-23, amount=1, category=things, tags=[])"
         )
         entry.save()
-        entry.tags.create(name="that")  # pylint: disable=no-member
-        entry.tags.create(name="this")  # pylint: disable=no-member
+        entry.tags.create(name="that")
+        entry.tags.create(name="this")
         self.assertEqual(
             repr(entry),
             "Entry(date=2001-01-23, amount=1, category=things, tags=[that, this])",

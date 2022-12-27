@@ -3,7 +3,7 @@ from django.db import models
 
 def get_empty_tag() -> "Tag":
     """Get the empty Tag, or create it if it doesn't exist"""
-    tag, _ = Tag.objects.get_or_create(name="")  # pylint: disable=no-member
+    tag, _ = Tag.objects.get_or_create(name="")
     return tag
 
 
@@ -52,10 +52,8 @@ class Entry(models.Model):
 
     def __repr__(self) -> str:
         tags = "[]"
-        if self.id is not None:  # pylint: disable=no-member
-            tags = ", ".join(
-                str(t) for t in self.tags.all()  # pylint: disable=no-member
-            ).join("[]")
+        if self.id is not None:
+            tags = ", ".join(str(t) for t in self.tags.all()).join("[]")
         return (
             f"{self.__class__.__name__}"
             f"(date={self.date:%Y-%m-%d}, "
