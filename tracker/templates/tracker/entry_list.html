@@ -12,7 +12,7 @@
   </tr>
   {% for entry in entries %}
     <tr>
-      <td>{{ entry.date }}</td>
+      <td>{{ entry.date|date }}</td>
       <td>{{ entry.amount|floatformat:"-2" }}</td>
       <td>{{ entry.category }}</td>
     </tr>
