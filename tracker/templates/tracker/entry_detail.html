@@ -7,7 +7,7 @@
 <p><strong>Date:</strong> {{ entry.date|date }}</p>
 <p><strong>Amount:</strong> {{ entry.amount|floatformat:"-2" }}</p>
 <p><strong>Category:</strong> {{ entry.category }}</p>
-<p><strong>Tags:</strong> {{ entry.tags }}</p>
-<p><strong>Comment:</strong> {{ entry.comment }}</p>
+<p><strong>Tags:</strong> {{ entry.tags.all|join:", "|default:"No tags" }}</p>
+<p><strong>Comment:</strong> {{ entry.comment|default:"No comment" }}</p>
 
 {% endblock %}
