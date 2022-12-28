@@ -1,0 +1,13 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Entry Form{% endblock %}
+
+{% block content %}
+
+<form method="post">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Submit">
+</form>
+
+{% endblock %}

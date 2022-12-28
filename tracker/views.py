@@ -1,6 +1,8 @@
 from django.http import HttpRequest, HttpResponse
 from django.views.generic import DetailView, ListView
+from django.views.generic.edit import CreateView, UpdateView
 
+from tracker.forms import EntryForm
 from tracker.models import Entry
 
 
@@ -22,3 +24,15 @@ class EntryListView(ListView):  # type: ignore[type-arg]
     model = Entry
     paginate_by = 100
     context_object_name = "entries"
+
+
+class EntryCreate(CreateView):  # type: ignore[type-arg]
+    model = Entry
+    form_class = EntryForm
+    success_view = "new/"
+
+
+class EntryEdit(UpdateView):  # type: ignore[type-arg]
+    model = Entry
+    form_class = EntryForm
+    success_view = "new/"
