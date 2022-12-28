@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
@@ -24,6 +25,11 @@ class EntryListView(ListView):  # type: ignore[type-arg]
     model = Entry
     paginate_by = 100
     context_object_name = "entries"
+
+    def get_queryset(self) -> QuerySet[Entry]:
+        if "pk" in self.kwargs:
+            return Entry.objects.filter(category=self.kwargs["pk"])
+        return Entry.objects.all()
 
 
 class EntryCreate(CreateView):  # type: ignore[type-arg]
