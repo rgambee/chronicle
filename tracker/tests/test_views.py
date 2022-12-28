@@ -2,7 +2,8 @@ from django.test import Client
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
-from tracker.tests.utils import TrackerTestCase
+from tracker.models import Entry, Tag
+from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase
 
 
 class TestEntryDetail(TrackerTestCase):
@@ -30,3 +31,34 @@ class TestEntryDetail(TrackerTestCase):
         # one to test.
         response = Client().get("entry//abc/")
         self.assertEqual(response.status_code, 404)
+
+
+class TestEntryList(TrackerTestCase):
+    tags = (Tag("red"), Tag("blue"))
+    entries = (
+        Entry(amount=1.0, date=SAMPLE_DATE, category=tags[0]),
+        Entry(amount=2.0, date=SAMPLE_DATE, category=tags[1]),
+        Entry(amount=3.0, date=SAMPLE_DATE, category=tags[0]),
+    )
+
+    def test_all_entries(self) -> None:
+        """By default, the EntryListView should show all entries"""
+        response = Client().get(reverse("entries"))
+        self.assertQuerysetEqual(response.context["entries"], self.entries)
+
+    def test_entries_in_category(self) -> None:
+        """When examining a specific tag, only matching entries should be shown"""
+        for tag in self.tags:
+            with self.subTest(tag=tag.name):
+                response = Client().get(
+                    reverse("entries-in-category", args=(tag.name,))
+                )
+                self.assertQuerysetEqual(
+                    response.context["entries"],
+                    [ent for ent in self.entries if ent.category == tag],
+                )
+
+    def test_empty_category(self) -> None:
+        """When examining a nonexistent tag, no entries should be shown"""
+        response = Client().get(reverse("entries-in-category", args=("other",)))
+        self.assertQuerysetEqual(response.context["entries"], [])
