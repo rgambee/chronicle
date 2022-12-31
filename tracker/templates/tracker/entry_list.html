@@ -4,6 +4,14 @@
 
 {% block content %}
 
+<h2>New Entry</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Save">
+</form>
+
+<h2>Existing Entries</h2>
 <table>
   <tr>
     <th>Date</th>

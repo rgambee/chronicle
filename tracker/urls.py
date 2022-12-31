@@ -5,12 +5,11 @@ from tracker import views
 urlpatterns = [
     path("", views.index, name="index"),
     path("entry/<int:pk>/", views.EntryDetailView.as_view(), name="entry"),
-    path("entries/", views.EntryListView.as_view(), name="entries"),
+    path("entries/", views.EntryListAndCreate.as_view(), name="entries"),
     path(
         "entries/<str:category>/",
-        views.EntryListView.as_view(),
+        views.EntryListAndCreate.as_view(),
         name="entries-in-category",
     ),
-    path("new/", views.EntryCreate.as_view(), name="new"),
     path("edit/<int:pk>/", views.EntryEdit.as_view(), name="edit"),
 ]
