@@ -7,6 +7,13 @@ branch = true
 command_line = "manage.py test"
 source = ["."]
 
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "except ImportError"
+]
+
 [tool.django-stubs]
 django_settings_module = "chronicle.settings"
 
