@@ -27,8 +27,8 @@ class EntryListView(ListView):  # type: ignore[type-arg]
     context_object_name = "entries"
 
     def get_queryset(self) -> QuerySet[Entry]:
-        if "pk" in self.kwargs:
-            return Entry.objects.filter(category=self.kwargs["pk"])
+        if "category" in self.kwargs:
+            return Entry.objects.filter(category=self.kwargs["category"])
         return Entry.objects.all()
 
 
