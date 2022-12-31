@@ -94,3 +94,17 @@ class TestEntryEdit(TrackerTestCase):
         with self.assertLogs(level=logging.WARNING):
             response = Client().get(reverse("edit", args=(99,)))
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+
+class TestListAndCreate(TrackerTestCase):
+    def test_get(self) -> None:
+        """A GET request should return a form and a list of existing entries"""
+        response = Client().get(reverse("entries"))
+        self.assertContains(response, "</form>")
+        self.assertContains(response, "</table>")
+
+    def test_post(self) -> None:
+        """A POST request with valid data should be accepted"""
+        form = construct_entry_form()
+        response = Client().post(reverse("entries"), data=form.data)
+        self.assertRedirects(response, reverse("entries"))
