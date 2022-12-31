@@ -1,8 +1,8 @@
 from typing import Any, Optional, Sequence
 
 from tracker.forms import EntryForm
-from tracker.models import Tag
-from tracker.tests.utils import TrackerTestCase
+from tracker.models import Entry, Tag
+from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase
 
 
 def construct_entry_form(
@@ -100,3 +100,38 @@ class TestFormValidation(TrackerTestCase):
         self.good(comment="")
         self.good(comment="This comment is false.")
         self.good(comment=1)
+
+
+class TestFormChoices(TrackerTestCase):
+    tags = [Tag("red"), Tag("green"), Tag("blue")]
+    entries = [
+        Entry(amount=1.0, date=SAMPLE_DATE, category=Tag("red")),
+        Entry(amount=1.0, date=SAMPLE_DATE, category=Tag("red")),
+        Entry(amount=1.0, date=SAMPLE_DATE, category=Tag("green")),
+    ]
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        super().setUpTestData()
+        cls.entries[0].tags.set(cls.tags[1:])
+        cls.entries[1].tags.set(cls.tags[2:])
+
+    def test_category_order(self) -> None:
+        """Category choices should be in descending order of prevalence"""
+        form = EntryForm()
+        category_queryset = form.fields[
+            "category"
+        ].queryset  # type: ignore[attr-defined]
+        self.assertQuerysetEqual(
+            category_queryset,
+            [Tag("red"), Tag("green"), Tag("blue")],
+        )
+
+    def test_tags_order(self) -> None:
+        """Tag choices should be in descending order of prevalence"""
+        form = EntryForm()
+        tags_queryset = form.fields["tags"].queryset  # type: ignore[attr-defined]
+        self.assertQuerysetEqual(
+            tags_queryset,
+            [Tag("blue"), Tag("green"), Tag("red")],
+        )

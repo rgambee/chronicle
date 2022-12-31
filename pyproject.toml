@@ -92,7 +92,7 @@ check-quote-consistency = true
 
 [tool.pylint.typecheck]
 # Tell pylint about members that Django auto-generates
-generated-members = ["all", "create", "id", "objects"]
+generated-members = ["all", "create", "id", "objects", "set"]
 # Tells whether missing members accessed in mixin class should be ignored. A
 # class is considered mixin if its name matches the mixin-class-rgx option.
 # Tells whether to warn about missing members when the owner of the attribute is
