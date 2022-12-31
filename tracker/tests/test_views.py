@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.test import Client
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
@@ -10,12 +12,12 @@ class TestEntryDetail(TrackerTestCase):
     def test_present(self) -> None:
         """Viewing an existing entry should return a successful response"""
         response = Client().get(reverse("entry", args=(1,)))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_absent(self) -> None:
         """Viewing a nonexistent entry should return a 404 response"""
         response = Client().get(reverse("entry", args=(99,)))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_invalid_reverse(self) -> None:
         """Attempting to reverse an invalid entries should raise an error"""
@@ -30,7 +32,7 @@ class TestEntryDetail(TrackerTestCase):
         # The latter has a higher chance of matching a URL pattern, so it's the better
         # one to test.
         response = Client().get("entry//abc/")
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
 
 class TestEntryList(TrackerTestCase):
