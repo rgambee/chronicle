@@ -2,48 +2,43 @@ from typing import Any, Optional, Sequence
 
 from tracker.forms import EntryForm
 from tracker.models import Entry, Tag
-from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase
-
-
-def construct_entry_form(
-    amount: float = 1.234,
-    date: str = "2000-01-31",
-    category: Optional[str] = None,
-    tags: Optional[Sequence[str]] = None,
-    comment: str = "Example comment",
-) -> EntryForm:
-    """Construct an EntryForm with some default field values
-
-    Any value can be overridden. Category and tags default to class variables of
-    TestFormValidation.
-    """
-    if category is None:
-        category = TestFormValidation.tags[0].name
-    if tags is None:
-        tags = [tag.name for tag in TestFormValidation.tags[1:]]
-    return EntryForm(
-        data=dict(
-            amount=amount,
-            date=date,
-            category=category,
-            tags=tags,
-            comment=comment,
-        )
-    )
+from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase, construct_entry_form
 
 
 class TestFormValidation(TrackerTestCase):
     tags = [Tag("category1"), Tag("tag1"), Tag("tag2")]
     entries = []
 
+    @classmethod
+    def construct_entry_form(
+        cls,
+        *,
+        category: Optional[str] = None,
+        tags: Optional[Sequence[str]] = None,
+        **kwargs: Any,
+    ) -> EntryForm:
+        """Create a form with the given fields and assert that it's valid"""
+        if category is None:
+            category = cls.tags[0].name
+        if tags is None:
+            tags = [tag.name for tag in cls.tags[1:]]
+        return construct_entry_form(category=category, tags=tags, **kwargs)
+
     def good(self, **kwargs: Any) -> None:
-        form = construct_entry_form(**kwargs)
+        """Create a form with the given fields and assert that it's valid"""
+        form = self.construct_entry_form(**kwargs)
         self.assertEqual(form.errors, {})
 
     def bad(self, *, field: str, message: str, **kwargs: Any) -> None:
-        form = construct_entry_form(**kwargs)
+        """Create a form with the given fields and assert the given field is invalid"""
+        form = self.construct_entry_form(**kwargs)
         self.assertTrue(form.has_error(field))
         self.assertEqual(form.errors, {field: [message]})
+
+    def test_default(self) -> None:
+        """Check that the default form is valid"""
+        form = construct_entry_form()
+        self.assertEqual(form.errors, {})
 
     def test_amount_field(self) -> None:
         """Check that amounts are validated correctly"""

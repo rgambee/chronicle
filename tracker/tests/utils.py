@@ -3,9 +3,20 @@ from typing import Optional, Sequence
 from django.test import TestCase
 from django.utils import timezone
 
+from tracker.forms import EntryForm
 from tracker.models import Entry, Tag
 
 SAMPLE_DATE = timezone.make_aware(timezone.datetime(2001, 1, 23))
+
+
+class TrackerTestCase(TestCase):
+    tags: Optional[Sequence[Tag]] = None
+    entries: Optional[Sequence[Entry]] = None
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        super().setUpTestData()
+        init_db(tags=cls.tags, entries=cls.entries)
 
 
 def init_db(
@@ -33,11 +44,37 @@ def init_db(
         entry.save()
 
 
-class TrackerTestCase(TestCase):
-    tags: Optional[Sequence[Tag]] = None
-    entries: Optional[Sequence[Entry]] = None
+def construct_entry_form(
+    *,
+    amount: float = 1.234,
+    date: str = "2000-01-31",
+    category: Optional[str] = None,
+    tags: Sequence[str] = tuple(),
+    comment: str = "Example comment",
+) -> EntryForm:
+    """Construct an EntryForm with some default field values
 
-    @classmethod
-    def setUpTestData(cls) -> None:
-        super().setUpTestData()
-        init_db(tags=cls.tags, entries=cls.entries)
+    Any field can be overridden.
+
+    Category and tags default to ones already in the database, e.g. from calling
+    init_db().
+
+    If no tags have been added to the database and category is not provided, the
+    returned EntryForm will not pass validation.
+    """
+    if category is None or tags is None:
+        existing_tags = Tag.objects.all()
+        if existing_tags:
+            if category is None:
+                category = existing_tags[0].name
+            if tags is None:
+                tags = [tag.name for tag in existing_tags]
+    return EntryForm(
+        data=dict(
+            amount=amount,
+            date=date,
+            category=category,
+            tags=tags,
+            comment=comment,
+        )
+    )
