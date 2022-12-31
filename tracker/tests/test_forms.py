@@ -27,13 +27,17 @@ class TestFormValidation(TrackerTestCase):
     def good(self, **kwargs: Any) -> None:
         """Create a form with the given fields and assert that it's valid"""
         form = self.construct_entry_form(**kwargs)
-        self.assertEqual(form.errors, {})
+        # mypy requires the first argument to assertFormError be an instance of
+        # django.forms.Form. tracker.forms.EntryForm is a subclass of
+        # django.forms.BaseForm but not Form itself. It's possible the type stub for
+        # this function should be edited to accept BaseForms. For now, the
+        # `# type: ignore` comment silences the error.
+        self.assertFormError(form, field=None, errors=[])  # type: ignore[call-overload]
 
     def bad(self, *, field: str, message: str, **kwargs: Any) -> None:
         """Create a form with the given fields and assert the given field is invalid"""
         form = self.construct_entry_form(**kwargs)
-        self.assertTrue(form.has_error(field))
-        self.assertEqual(form.errors, {field: [message]})
+        self.assertFormError(form, field, errors=message)  # type: ignore[call-overload]
 
     def test_default(self) -> None:
         """Check that the default form is valid"""
