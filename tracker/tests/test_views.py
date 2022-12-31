@@ -1,3 +1,4 @@
+import logging
 from http import HTTPStatus
 
 from django.test import Client
@@ -16,7 +17,8 @@ class TestEntryDetail(TrackerTestCase):
 
     def test_absent(self) -> None:
         """Viewing a nonexistent entry should return a 404 response"""
-        response = Client().get(reverse("entry", args=(99,)))
+        with self.assertLogs(level=logging.WARNING):
+            response = Client().get(reverse("entry", args=(99,)))
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_invalid_reverse(self) -> None:
@@ -31,7 +33,8 @@ class TestEntryDetail(TrackerTestCase):
         #   entry//abc -> entry/abc
         # The latter has a higher chance of matching a URL pattern, so it's the better
         # one to test.
-        response = Client().get("entry//abc/")
+        with self.assertLogs(level=logging.WARNING):
+            response = Client().get("entry//abc/")
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
 
