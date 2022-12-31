@@ -39,4 +39,5 @@ class TrackerTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
+        super().setUpTestData()
         init_db(tags=cls.tags, entries=cls.entries)
