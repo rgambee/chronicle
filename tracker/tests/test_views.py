@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
 from tracker.models import Entry, Tag
-from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase
+from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase, construct_entry_form
 
 
 class TestEntryDetail(TrackerTestCase):
@@ -67,3 +67,30 @@ class TestEntryList(TrackerTestCase):
         """When examining a nonexistent tag, no entries should be shown"""
         response = Client().get(reverse("entries-in-category", args=("other",)))
         self.assertQuerysetEqual(response.context["entries"], [])
+
+
+class TestEntryEdit(TrackerTestCase):
+    tags = [Tag("tag1")]
+
+    def test_get(self) -> None:
+        """A GET request should return a form"""
+        response = Client().get(reverse("edit", args=(1,)))
+        self.assertContains(response, "</form>")
+
+    def test_post_valid(self) -> None:
+        """A POST request with valid data should be accepted"""
+        form = construct_entry_form()
+        response = Client().post(reverse("edit", args=(1,)), data=form.data)
+        self.assertRedirects(response, reverse("entry", args=(1,)))
+
+    def test_post_invalid(self) -> None:
+        """A POST request with invalid data should be returned for edits"""
+        form = construct_entry_form(category="")
+        response = Client().post(reverse("edit", args=(1,)), data=form.data)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_post_nonexistent(self) -> None:
+        """Trying to edit a nonexistent entry should return a 404"""
+        with self.assertLogs(level=logging.WARNING):
+            response = Client().get(reverse("edit", args=(99,)))
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
