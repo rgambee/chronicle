@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 def get_empty_tag() -> "Tag":
@@ -88,4 +89,4 @@ class Entry(models.Model):
         )
 
     def get_absolute_url(self) -> str:
-        return f"/entry/{self.id:d}/"
+        return reverse("entry", kwargs=dict(pk=self.id))
