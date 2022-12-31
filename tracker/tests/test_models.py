@@ -1,10 +1,14 @@
 from django.test import TestCase
 from django.utils import timezone
 
-from tracker.models import Entry, Tag
+from tracker.models import Entry, Tag, get_empty_tag
 
 
 class TestTag(TestCase):
+    def test_empty_tag(self) -> None:
+        empty_tag = get_empty_tag()
+        self.assertEqual(empty_tag.name, "")
+
     def test_str(self) -> None:
         """Short representation of Tag should be its name"""
         tag_name = "mytag"
