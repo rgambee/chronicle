@@ -2,6 +2,11 @@
 diff = true
 color = true
 
+[tool.coverage.run]
+branch = true
+command_line = "manage.py test"
+source = ["."]
+
 [tool.django-stubs]
 django_settings_module = "chronicle.settings"
 
