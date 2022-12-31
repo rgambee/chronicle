@@ -12,6 +12,7 @@ pylint = "*"
 black = "*"
 django-stubs = "*"
 isort = {extras = ["colors"], version = "*"}
+coverage = "*"
 
 [requires]
 python_version = "3.10"
