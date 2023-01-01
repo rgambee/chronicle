@@ -1,0 +1,9 @@
+{% include "django/forms/widgets/input.html" %}
+
+<datalist id="{{ widget.attrs.list }}">
+  {% for group_name, group_choices, group_index in widget.optgroups %}
+    {% for option in group_choices %}
+      {% include option.template_name with widget=option %}
+    {% endfor %}
+  {% endfor %}
+</datalist>
