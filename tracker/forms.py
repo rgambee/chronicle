@@ -3,6 +3,7 @@ import uuid
 from typing import Any, Optional
 
 from django import forms
+from django.db.models import Model
 from django.forms.widgets import ChoiceWidget
 from django.utils import timezone
 
@@ -42,6 +43,24 @@ class AutocompleteWidget(ChoiceWidget):
         return values[0]
 
 
+class GetOrCreateChoiceField(forms.ModelChoiceField):
+    """Variant of ModelChoiceField that creates the object if it doesn't exist
+
+    Ideally, the object would only be created if all the other validation checks pass.
+    But that's challenging to implement and unlikely to make a noticeable difference to
+    the user.
+    """
+
+    def to_python(self, value: Any) -> Optional[Model]:
+        """Create a new object for this value if it doesn't already exist"""
+        if value not in self.empty_values:
+            if self.queryset is None:
+                raise TypeError("queryset has not been set")
+            key = self.to_field_name or "pk"
+            self.queryset.get_or_create(**{key: value})
+        return super().to_python(value)
+
+
 class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
     """A form for creating or editing an Entry
 
@@ -54,7 +73,7 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
         initial=timezone.localdate,
         widget=forms.DateInput(attrs={"type": "date"}),
     )
-    category = forms.ModelChoiceField(
+    category = GetOrCreateChoiceField(
         queryset=None,
         empty_label=None,
         widget=AutocompleteWidget(attrs={"list": "id_category_list"}),
