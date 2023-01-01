@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
@@ -33,6 +33,7 @@ class EntryListView(ListView):  # type: ignore[type-arg]
     model = Entry
     paginate_by = 100
     context_object_name = "entries"
+    selected_category: Optional[str] = None
 
     def get_queryset(self) -> QuerySet[Entry]:
         if "category" in self.kwargs:
@@ -40,7 +41,10 @@ class EntryListView(ListView):  # type: ignore[type-arg]
         return Entry.objects.all()
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        return super().get_context_data(form=EntryForm(), **kwargs)
+        return super().get_context_data(
+            form=EntryForm(selected_category=self.selected_category),
+            **kwargs,
+        )
 
 
 class EntryCreate(FormView):  # type: ignore[type-arg]
@@ -82,7 +86,7 @@ class EntryListAndCreate(View):
     """
 
     def get(self, *args: Any, **kwargs: Any) -> HttpResponseBase:
-        view = EntryListView.as_view()
+        view = EntryListView.as_view(selected_category=kwargs.get("category"))
         return view(*args, **kwargs)
 
     def post(self, *args: Any, **kwargs: Any) -> HttpResponseBase:

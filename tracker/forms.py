@@ -1,6 +1,6 @@
 import logging
 import uuid
-from typing import Any
+from typing import Any, Optional
 
 from django import forms
 from django.forms.widgets import ChoiceWidget
@@ -71,7 +71,12 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
             "comment",
         ]
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        selected_category: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         # Sort the choices for the category and tags by the number of matching Entries,
         # descending so the most common appear fist.
@@ -79,5 +84,7 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
         tag_qs = Tag.most_common_tags()
         self.fields["category"].queryset = category_qs  # type: ignore[attr-defined]
         self.fields["tags"].queryset = tag_qs  # type: ignore[attr-defined]
-        if category_qs:
+        if selected_category is not None:
+            self.fields["category"].initial = selected_category
+        elif category_qs:
             self.fields["category"].initial = category_qs[0]
