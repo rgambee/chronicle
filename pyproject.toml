@@ -66,7 +66,7 @@ max-line-length = 88
 [tool.pylint.logging]
 # The type of string formatting that logging methods do. `old` means using %
 # formatting, `new` is for `{}` formatting.
-logging-format-style = "new"
+logging-format-style = "old"
 
 [tool.pylint."messages control"]
 # Disable the message, report, category or checker with the given id(s). You can
