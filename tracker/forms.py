@@ -1,5 +1,6 @@
+from typing import Any
+
 from django import forms
-from django.db.models import Count
 from django.utils import timezone
 
 from tracker.models import Entry, Tag
@@ -17,19 +18,8 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
         initial=timezone.localdate,
         widget=forms.DateInput(attrs={"type": "date"}),
     )
-    # Sort the choices for the category and tags by the number of matching Entries,
-    # descending so the most common appear fist.
-    category = forms.ModelChoiceField(
-        queryset=Tag.objects.exclude(name="")
-        .annotate(num_entries=Count("entries_in_category"))
-        .order_by("-num_entries")
-    )
-    tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.exclude(name="")
-        .annotate(num_entries=Count("tagged_entries"))
-        .order_by("-num_entries"),
-        required=False,
-    )
+    category = forms.ModelChoiceField(queryset=None, empty_label=None)
+    tags = forms.ModelMultipleChoiceField(queryset=None, required=False)
 
     class Meta:
         model = Entry
@@ -40,3 +30,14 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
             "tags",
             "comment",
         ]
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        # Sort the choices for the category and tags by the number of matching Entries,
+        # descending so the most common appear fist.
+        category_qs = Tag.most_common_categories()
+        tag_qs = Tag.most_common_tags()
+        self.fields["category"].queryset = category_qs  # type: ignore[attr-defined]
+        self.fields["tags"].queryset = tag_qs  # type: ignore[attr-defined]
+        if category_qs:
+            self.fields["category"].initial = category_qs[0]
