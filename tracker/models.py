@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.query import QuerySet
 from django.urls import reverse
 
 
@@ -31,6 +32,22 @@ class Tag(models.Model):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.name})"
+
+    @staticmethod
+    def most_common_categories() -> QuerySet["Tag"]:
+        return (
+            Tag.objects.exclude(name="")
+            .annotate(num_entries=models.Count("entries_in_category"))
+            .order_by("-num_entries")
+        )
+
+    @staticmethod
+    def most_common_tags() -> QuerySet["Tag"]:
+        return (
+            Tag.objects.exclude(name="")
+            .annotate(num_entries=models.Count("tagged_entries"))
+            .order_by("-num_entries")
+        )
 
 
 class Entry(models.Model):
