@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from tracker.models import Entry, Tag, get_empty_tag
+from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase
 
 
 class TestTag(TestCase):
@@ -53,3 +54,45 @@ class TestEntry(TestCase):
         )
         url = entry.get_absolute_url()
         self.assertRegex(url, r"^/entry/[0-9]+/$")
+
+
+# These two tests are separate classes because they require the test database to be in
+# different states.
+class TestCommonTagsEmpty(TestCase):
+    def test_categories(self) -> None:
+        """For an empty DB, no tags should be returned"""
+        self.assertQuerysetEqual(Tag.most_common_categories(), [])
+
+    def test_tags(self) -> None:
+        """For an empty DB, no tags should be returned"""
+        self.assertQuerysetEqual(Tag.most_common_tags(), [])
+
+
+class TestCommonTagsPopulated(TrackerTestCase):
+    tags = [Tag("a"), Tag("b"), Tag("c")]
+    entries = [
+        Entry(amount=1.0, date=SAMPLE_DATE, category=tags[1]),
+        Entry(amount=1.0, date=SAMPLE_DATE, category=tags[1]),
+        Entry(amount=1.0, date=SAMPLE_DATE, category=tags[2]),
+    ]
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        super().setUpTestData()
+        # Tags need to be applied after entries have been saved
+        cls.entries[0].tags.set([cls.tags[0], cls.tags[2]])
+        cls.entries[2].tags.set([cls.tags[2]])
+
+    def test_categories(self) -> None:
+        """Rows should be returned in decreasing category frequency"""
+        self.assertQuerysetEqual(
+            Tag.most_common_categories(),
+            [self.tags[1], self.tags[2], self.tags[0]],
+        )
+
+    def test_tags(self) -> None:
+        """Rows should be returned in decreasing tag frequency"""
+        self.assertQuerysetEqual(
+            Tag.most_common_tags(),
+            [self.tags[2], self.tags[0], self.tags[1]],
+        )
