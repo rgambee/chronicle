@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models import Count
+from django.utils import timezone
 
 from tracker.models import Entry, Tag
 
@@ -12,6 +13,10 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
     """
 
     amount = forms.FloatField(min_value=0.0)
+    date = forms.DateTimeField(
+        initial=timezone.localdate,
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
     # Sort the choices for the category and tags by the number of matching Entries,
     # descending so the most common appear fist.
     category = forms.ModelChoiceField(
