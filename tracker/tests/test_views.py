@@ -15,12 +15,14 @@ class TestEntryDetail(TrackerTestCase):
         """Viewing an existing entry should return a successful response"""
         response = Client().get(reverse("entry", args=(1,)))
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, "tracker/entry_detail.html")
 
     def test_absent(self) -> None:
         """Viewing a nonexistent entry should return a 404 response"""
         with self.assertLogs(level=logging.WARNING):
             response = Client().get(reverse("entry", args=(99,)))
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertTemplateNotUsed(response, "tracker/entry_detail.html")
 
     def test_invalid_reverse(self) -> None:
         """Attempting to reverse an invalid entries should raise an error"""
@@ -37,6 +39,7 @@ class TestEntryDetail(TrackerTestCase):
         with self.assertLogs(level=logging.WARNING):
             response = Client().get("entry//abc/")
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertTemplateNotUsed(response, "tracker/entry_detail.html")
 
 
 class TestEntryList(TrackerTestCase):
@@ -51,6 +54,8 @@ class TestEntryList(TrackerTestCase):
         """By default, the EntryListView should show all entries"""
         response = Client().get(reverse("entries"))
         self.assertQuerysetEqual(response.context["entries"], self.entries)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, "tracker/entry_list.html")
 
     def test_entries_in_category(self) -> None:
         """When examining a specific tag, only matching entries should be shown"""
@@ -63,11 +68,15 @@ class TestEntryList(TrackerTestCase):
                     response.context["entries"],
                     [ent for ent in self.entries if ent.category == tag],
                 )
+                self.assertEqual(response.status_code, HTTPStatus.OK)
+                self.assertTemplateUsed(response, "tracker/entry_list.html")
 
     def test_empty_category(self) -> None:
         """When examining a nonexistent tag, no entries should be shown"""
         response = Client().get(reverse("entries-in-category", args=("other",)))
         self.assertQuerysetEqual(response.context["entries"], [])
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, "tracker/entry_list.html")
 
 
 class TestEntryEdit(TrackerTestCase):
@@ -76,7 +85,8 @@ class TestEntryEdit(TrackerTestCase):
     def test_get(self) -> None:
         """A GET request should return a form"""
         response = Client().get(reverse("edit", args=(1,)))
-        self.assertContains(response, "</form>")
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, "tracker/entry_form.html")
 
     def test_post_valid(self) -> None:
         """A POST request with valid data should be accepted"""
@@ -97,23 +107,26 @@ class TestEntryEdit(TrackerTestCase):
         form = construct_entry_form(category="")
         response = Client().post(reverse("edit", args=(1,)), data=form.data)
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, "tracker/entry_form.html")
 
     def test_post_nonexistent(self) -> None:
         """Trying to edit a nonexistent entry should return a 404"""
         with self.assertLogs(level=logging.WARNING):
             response = Client().get(reverse("edit", args=(99,)))
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertTemplateNotUsed(response, "tracker/entry_form.html")
 
 
 class TestListAndCreate(TrackerTestCase):
     def test_get(self) -> None:
         """A GET request should return a form and a list of existing entries"""
         response = Client().get(reverse("entries"))
-        self.assertContains(response, "</form>")
-        self.assertContains(response, "</table>")
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, "tracker/entry_list.html")
 
     def test_post(self) -> None:
         """A POST request with valid data should be accepted"""
+        initial_count = Entry.objects.count()
         form = construct_entry_form()
         self.assertTrue(form.is_valid())
         response = Client().post(reverse("entries"), data=form.data, follow=True)
@@ -123,6 +136,7 @@ class TestListAndCreate(TrackerTestCase):
             EntryCreate().get_success_message(form.cleaned_data),
             status_code=HTTPStatus.OK,
         )
+        self.assertEqual(Entry.objects.count(), initial_count + 1)
 
 
 class TestEntryDelete(TrackerTestCase):
