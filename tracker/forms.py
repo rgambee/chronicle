@@ -30,6 +30,19 @@ class AutocompleteWidget(ChoiceWidget):
             # different timestamps.
             self.attrs["list"] = str(uuid.uuid1().time_low)
 
+    def get_context(
+        self,
+        name: str,
+        value: str,
+        attrs: Optional[dict[str, Any]],
+    ) -> dict[str, Any]:
+        context = super().get_context(name, value, attrs)
+        # Inert the input type into the context for the template to use. The parent
+        # class doesn't do this, presumably because it expects to always be rendered
+        # with a <select> tag.
+        context["widget"] = context.get("widget", {}) | {"type": self.input_type}
+        return context
+
     def format_value(self, value: Any) -> str:  # type: ignore[override]
         # ChoiceWidget.format_value() always returns a list for some reason. Perhaps
         # it's because it needs to support multiple ones being selected? That's not
