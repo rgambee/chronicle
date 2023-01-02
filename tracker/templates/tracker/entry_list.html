@@ -20,6 +20,7 @@
     <th>Tags</th>
     <th>Comment</th>
     <th>Edit</th>
+    <th>Delete</th>
   </tr>
   {% for entry in entries %}
     <tr>
@@ -33,6 +34,7 @@
       <td>{{ entry.tags.all|join:", "|default:"None"|truncatechars:25 }}</td>
       <td>{{ entry.comment|default:"None"|truncatechars:25}}
       <td><a href="{% url 'edit' entry.id %}">Edit</a></td>
+      <td><a href="{% url 'delete' entry.id %}">Delete</a></td>
     </tr>
   {% endfor %}
 </table>

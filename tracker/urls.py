@@ -12,4 +12,5 @@ urlpatterns = [
         name="entries-in-category",
     ),
     path("edit/<int:pk>/", views.EntryEdit.as_view(), name="edit"),
+    path("delete/<int:pk>/", views.EntryDelete.as_view(), name="delete"),
 ]

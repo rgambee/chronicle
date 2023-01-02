@@ -2,9 +2,9 @@ from typing import Any, Optional
 
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import DetailView, FormView, ListView
+from django.views.generic import DeleteView, DetailView, FormView, ListView
 from django.views.generic.edit import UpdateView
 
 from tracker.forms import EntryForm
@@ -92,3 +92,11 @@ class EntryListAndCreate(View):
     def post(self, *args: Any, **kwargs: Any) -> HttpResponseBase:
         view = EntryCreate.as_view()
         return view(*args, **kwargs)
+
+
+class EntryDelete(DeleteView):  # type: ignore[type-arg]
+    """Delete an entry, after asking for confirmation"""
+
+    model = Entry
+    context_object_name = "entry"
+    success_url = reverse_lazy("entries")
