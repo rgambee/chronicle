@@ -1,4 +1,3 @@
-import unittest
 from typing import Any, Optional, Sequence
 
 from tracker.forms import EntryForm
@@ -69,33 +68,35 @@ class TestFormValidation(TrackerTestCase):
         self.bad(date="November 1", field="date", message=invalid)
         self.bad(category="", field="category", message="This field is required.")
 
-    @unittest.expectedFailure
     def test_category_field(self) -> None:
         """Check that categories are validated correctly"""
+        # Existing category is ok
         self.good(category="category1")
-        self.bad(
-            category="category2",
-            field="category",
-            message=(
-                "Select a valid choice. "
-                "That choice is not one of the available choices."
-            ),
-        )
+        # New category is ok
+        self.good(category="category2")
+        # Missing category is not ok
         self.bad(category="", field="category", message="This field is required.")
 
-    @unittest.expectedFailure
     def test_tags_field(self) -> None:
         """Check that tags are validated correctly"""
+        # Existing tags are ok
         self.good(tags=["tag1"])
         self.good(tags=["tag2"])
+        # Multiple tags are ok
         self.good(tags=["tag1", "tag2"])
+        # 0 tags are ok
         self.good(tags=[])
-        unrecognized = "Select a valid choice. {} is not one of the available choices."
-        self.bad(tags=["tag3"], field="tags", message=unrecognized.format("tag3"))
-        self.bad(
-            tags=["tag1", "tag3"], field="tags", message=unrecognized.format("tag3")
-        )
-        self.bad(tags=[1], field="tags", message=unrecognized.format(1))
+        # New tags are ok
+        self.good(tags=["tag3"])
+        self.good(tags=["tag5", "tag6"])
+        # Mix of new and existing tags is ok
+        self.good(tags=["tag1", "tag4"])
+        # Anything that can be converted to a string is ok
+        self.good(tags=[1])
+        # Nested tags are not ok
+        self.bad(tags=[["tag1"]], field="tags", message="Enter a list of values.")
+        # A plain string is not ok
+        self.bad(tags="abc", field="tags", message="Enter a list of values.")
 
     def test_comment_field(self) -> None:
         """Check that comments are validated correctly"""
