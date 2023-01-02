@@ -1,5 +1,6 @@
 from typing import Any, Optional
 
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.urls import reverse, reverse_lazy
@@ -54,12 +55,13 @@ class EntryListView(ListView):  # type: ignore[type-arg]
         )
 
 
-class EntryCreate(CreateView):  # type: ignore[type-arg]
+class EntryCreate(SuccessMessageMixin, CreateView):  # type: ignore[type-arg]
     """Create a new entry using a form"""
 
     model = Entry
     form_class = EntryForm
     template_name = "tracker/entry_list.html"
+    success_message = "Entry on %(date)s was created successfully"
 
     def get_success_url(self) -> str:
         if "category" in self.kwargs:
@@ -69,12 +71,13 @@ class EntryCreate(CreateView):  # type: ignore[type-arg]
         return reverse("entries")
 
 
-class EntryEdit(UpdateView):  # type: ignore[type-arg]
+class EntryEdit(SuccessMessageMixin, UpdateView):  # type: ignore[type-arg]
     """Edit an existing entry using a form"""
 
     model = Entry
     form_class = EntryForm
     success_view = "new/"
+    success_message = "Entry on %(date)s was updated successfully"
 
 
 class EntryListAndCreate(View):
@@ -93,12 +96,13 @@ class EntryListAndCreate(View):
         return view(*args, **kwargs)
 
 
-class EntryDelete(DeleteView):  # type: ignore[type-arg]
+class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, misc]
     """Delete an entry, after asking for confirmation"""
 
     model = Entry
     context_object_name = "entry"
     success_url = reverse_lazy("entries")
+    success_message = "Entry was deleted successfully"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
