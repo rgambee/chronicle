@@ -7,6 +7,7 @@ from django.urls.exceptions import NoReverseMatch
 
 from tracker.models import Entry, Tag
 from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase, construct_entry_form
+from tracker.views import EntryCreate, EntryEdit
 
 
 class TestEntryDetail(TrackerTestCase):
@@ -80,8 +81,16 @@ class TestEntryEdit(TrackerTestCase):
     def test_post_valid(self) -> None:
         """A POST request with valid data should be accepted"""
         form = construct_entry_form()
-        response = Client().post(reverse("edit", args=(1,)), data=form.data)
+        self.assertTrue(form.is_valid())
+        response = Client().post(
+            reverse("edit", args=(1,)), data=form.data, follow=True
+        )
         self.assertRedirects(response, reverse("entry", args=(1,)))
+        self.assertContains(
+            response,
+            EntryEdit().get_success_message(form.cleaned_data),
+            status_code=HTTPStatus.OK,
+        )
 
     def test_post_invalid(self) -> None:
         """A POST request with invalid data should be returned for edits"""
@@ -106,5 +115,11 @@ class TestListAndCreate(TrackerTestCase):
     def test_post(self) -> None:
         """A POST request with valid data should be accepted"""
         form = construct_entry_form()
-        response = Client().post(reverse("entries"), data=form.data)
+        self.assertTrue(form.is_valid())
+        response = Client().post(reverse("entries"), data=form.data, follow=True)
         self.assertRedirects(response, reverse("entries"))
+        self.assertContains(
+            response,
+            EntryCreate().get_success_message(form.cleaned_data),
+            status_code=HTTPStatus.OK,
+        )
