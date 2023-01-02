@@ -70,6 +70,9 @@ class EntryCreate(SuccessMessageMixin, CreateView):  # type: ignore[type-arg]
             )
         return reverse("entries")
 
+    def get_success_message(self, cleaned_data: dict[str, Any]) -> str:
+        return self.success_message % dict(date=cleaned_data["date"].date())
+
 
 class EntryEdit(SuccessMessageMixin, UpdateView):  # type: ignore[type-arg]
     """Edit an existing entry using a form"""
@@ -78,6 +81,9 @@ class EntryEdit(SuccessMessageMixin, UpdateView):  # type: ignore[type-arg]
     form_class = EntryForm
     success_view = "new/"
     success_message = "Entry on %(date)s was updated successfully"
+
+    def get_success_message(self, cleaned_data: dict[str, Any]) -> str:
+        return self.success_message % dict(date=cleaned_data["date"].date())
 
 
 class EntryListAndCreate(View):
