@@ -26,6 +26,13 @@ class EntryDetailView(DetailView):  # type: ignore[type-arg]
     model = Entry
     context_object_name = "entry"
 
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        # This view uses the same template as EntryDelete. In this view, we want to show
+        # a link to point to let the user delete this entry.
+        context["show_delete_link"] = True
+        return context
+
 
 class EntryListView(ListView):  # type: ignore[type-arg]
     """View a list of many entries"""
@@ -100,3 +107,10 @@ class EntryDelete(DeleteView):  # type: ignore[type-arg]
     model = Entry
     context_object_name = "entry"
     success_url = reverse_lazy("entries")
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        # This view uses the same template as EntryDetailView. In this view, we don't
+        # want to show a delete link since we're already at that view.
+        context["show_delete_link"] = False
+        return context
