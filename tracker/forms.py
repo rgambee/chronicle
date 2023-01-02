@@ -1,9 +1,11 @@
 import logging
 import uuid
-from typing import Any, Optional
+from typing import Any, Iterable, Optional
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db.models import Model
+from django.db.models.query import QuerySet
 from django.forms.widgets import ChoiceWidget
 from django.utils import timezone
 
@@ -61,6 +63,52 @@ class GetOrCreateChoiceField(forms.ModelChoiceField):
         return super().to_python(value)
 
 
+class GetOrCreateMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """Variant of ModelMultipleChoiceField that creates objects if they don't exist
+
+    Ideally, the objects would only be created if all the other validation checks pass.
+    But that's challenging to implement and unlikely to make a noticeable difference to
+    the user.
+    """
+
+    def _check_values(self, value: Iterable[Any]) -> QuerySet[Model]:
+        """Check that the list of keys is valid and create objects for them if needed
+
+        The bulk of this method is copied from the parent class's implementation. The
+        end of the parent's method needs to be adjusted to not require that the objects
+        already exist. The cleanest solution is to copy the first part of the method and
+        append the modifications.
+        """
+
+        key_name = self.to_field_name or "pk"
+        # deduplicate given values to avoid creating many querysets or
+        # requiring the database backend deduplicate efficiently.
+        try:
+            value = frozenset(value)
+        except TypeError as error:
+            # list of lists isn't hashable, for example
+            raise ValidationError(
+                self.error_messages["invalid_list"],
+                code="invalid_list",
+            ) from error
+        if self.queryset is None:
+            raise TypeError("queryset has not been set")
+        for primary_key in value:
+            try:
+                self.queryset.filter(**{key_name: primary_key})
+            except (ValueError, TypeError) as error:
+                raise ValidationError(
+                    self.error_messages["invalid_pk_value"],
+                    code="invalid_pk_value",
+                    params={"pk": primary_key},
+                ) from error
+        # Create new objects for any missing that are missing. This is done in a
+        # separate loop so that we know the check above has passed for each element.
+        for primary_key in value:
+            self.queryset.get_or_create(**{key_name: primary_key})
+        return self.queryset.filter(**{f"{key_name}__in": value})
+
+
 class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
     """A form for creating or editing an Entry
 
@@ -78,7 +126,7 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
         empty_label=None,
         widget=AutocompleteWidget(attrs={"list": "id_category_list"}),
     )
-    tags = forms.ModelMultipleChoiceField(queryset=None, required=False)
+    tags = GetOrCreateMultipleChoiceField(queryset=None, required=False)
 
     class Meta:
         model = Entry
