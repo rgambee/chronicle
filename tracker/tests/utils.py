@@ -10,6 +10,8 @@ SAMPLE_DATE = timezone.make_aware(timezone.datetime(2001, 1, 23))
 
 
 class TrackerTestCase(TestCase):
+    """Parent class to help populate test database"""
+
     tags: Optional[Sequence[Tag]] = None
     entries: Optional[Sequence[Entry]] = None
 
@@ -17,6 +19,10 @@ class TrackerTestCase(TestCase):
     def setUpTestData(cls) -> None:
         super().setUpTestData()
         init_db(tags=cls.tags, entries=cls.entries)
+
+    @property
+    def entry_count(self) -> int:
+        return Entry.objects.count()
 
 
 def init_db(

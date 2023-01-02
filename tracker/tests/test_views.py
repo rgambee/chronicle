@@ -13,14 +13,14 @@ from tracker.views import EntryCreate, EntryDelete, EntryEdit
 class TestEntryDetail(TrackerTestCase):
     def test_present(self) -> None:
         """Viewing an existing entry should return a successful response"""
-        response = Client().get(reverse("entry", args=(1,)))
+        response = Client().get(reverse("entry", args=(self.entry_count,)))
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "tracker/entry_detail.html")
 
     def test_absent(self) -> None:
         """Viewing a nonexistent entry should return a 404 response"""
         with self.assertLogs(level=logging.WARNING):
-            response = Client().get(reverse("entry", args=(99,)))
+            response = Client().get(reverse("entry", args=(self.entry_count + 1,)))
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertTemplateNotUsed(response, "tracker/entry_detail.html")
 
@@ -84,7 +84,7 @@ class TestEntryEdit(TrackerTestCase):
 
     def test_get(self) -> None:
         """A GET request should return a form"""
-        response = Client().get(reverse("edit", args=(1,)))
+        response = Client().get(reverse("edit", args=(self.entry_count,)))
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "tracker/entry_form.html")
 
@@ -93,9 +93,9 @@ class TestEntryEdit(TrackerTestCase):
         form = construct_entry_form()
         self.assertTrue(form.is_valid())
         response = Client().post(
-            reverse("edit", args=(1,)), data=form.data, follow=True
+            reverse("edit", args=(self.entry_count,)), data=form.data, follow=True
         )
-        self.assertRedirects(response, reverse("entry", args=(1,)))
+        self.assertRedirects(response, reverse("entry", args=(self.entry_count,)))
         self.assertContains(
             response,
             EntryEdit().get_success_message(form.cleaned_data),
@@ -105,14 +105,16 @@ class TestEntryEdit(TrackerTestCase):
     def test_post_invalid(self) -> None:
         """A POST request with invalid data should be returned for edits"""
         form = construct_entry_form(category="")
-        response = Client().post(reverse("edit", args=(1,)), data=form.data)
+        response = Client().post(
+            reverse("edit", args=(self.entry_count,)), data=form.data
+        )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "tracker/entry_form.html")
 
     def test_post_nonexistent(self) -> None:
         """Trying to edit a nonexistent entry should return a 404"""
         with self.assertLogs(level=logging.WARNING):
-            response = Client().get(reverse("edit", args=(99,)))
+            response = Client().get(reverse("edit", args=(self.entry_count + 1,)))
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertTemplateNotUsed(response, "tracker/entry_form.html")
 
@@ -142,21 +144,23 @@ class TestListAndCreate(TrackerTestCase):
 class TestEntryDelete(TrackerTestCase):
     def test_get(self) -> None:
         """A GET request should ask for confirmation"""
-        response = Client().get(reverse("delete", args=(1,)))
+        response = Client().get(reverse("delete", args=(self.entry_count,)))
         self.assertTemplateUsed(response, "tracker/entry_confirm_delete.html")
         self.assertContains(response, "</form>")
 
     def test_get_nonexistent(self) -> None:
         """A GET request for a nonexistent entry should return a 404"""
         with self.assertLogs(level=logging.WARNING):
-            response = Client().get(reverse("delete", args=(99,)))
+            response = Client().get(reverse("delete", args=(self.entry_count + 1,)))
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertTemplateNotUsed(response, "tracker/entry_confirm_delete.html")
 
     def test_post(self) -> None:
         """A POST request should delete the corresponding object"""
         initial_count = Entry.objects.count()
-        response = Client().post(reverse("delete", args=(1,)), follow=True)
+        response = Client().post(
+            reverse("delete", args=(self.entry_count,)), follow=True
+        )
         self.assertRedirects(response, reverse("entries"))
         self.assertContains(
             response,
@@ -168,5 +172,7 @@ class TestEntryDelete(TrackerTestCase):
     def test_post_nonexistent(self) -> None:
         """A POST request for a nonexistent entry should return a 404"""
         with self.assertLogs(level=logging.WARNING):
-            response = Client().post(reverse("delete", args=(99,)), follow=True)
+            response = Client().post(
+                reverse("delete", args=(self.entry_count + 1,)), follow=True
+            )
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
