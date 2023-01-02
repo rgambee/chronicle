@@ -4,8 +4,8 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import DeleteView, DetailView, FormView, ListView
-from django.views.generic.edit import UpdateView
+from django.views.generic import DeleteView, DetailView, ListView
+from django.views.generic.edit import CreateView, UpdateView
 
 from tracker.forms import EntryForm
 from tracker.models import Entry
@@ -54,20 +54,12 @@ class EntryListView(ListView):  # type: ignore[type-arg]
         )
 
 
-class EntryCreate(FormView):  # type: ignore[type-arg]
+class EntryCreate(CreateView):  # type: ignore[type-arg]
     """Create a new entry using a form"""
 
     model = Entry
     form_class = EntryForm
     template_name = "tracker/entry_list.html"
-
-    def form_valid(self, form: EntryForm) -> HttpResponse:
-        """If the form is valid, save the associated model.
-
-        Copied from the ModelFormMixin.
-        """
-        form.save()
-        return super().form_valid(form)
 
     def get_success_url(self) -> str:
         if "category" in self.kwargs:
