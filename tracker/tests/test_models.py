@@ -56,8 +56,8 @@ class TestEntry(TestCase):
         self.assertRegex(url, r"^/entry/[0-9]+/$")
 
 
-# These two tests are separate classes because they require the test database to be in
-# different states.
+# The tests below are divided into separate classes because they require the test
+# database to be in different states.
 class TestCommonTagsEmpty(TestCase):
     def test_categories(self) -> None:
         """For an empty DB, no tags should be returned"""
@@ -66,6 +66,25 @@ class TestCommonTagsEmpty(TestCase):
     def test_tags(self) -> None:
         """For an empty DB, no tags should be returned"""
         self.assertQuerysetEqual(Tag.most_common_tags(), [])
+
+
+class TestCommonTagsNoEntries(TrackerTestCase):
+    tags = [Tag(""), Tag("b"), Tag("c"), Tag("a")]
+    entries = []
+
+    def test_categories(self) -> None:
+        """Ties should be broken by lexicographic order"""
+        self.assertQuerysetEqual(
+            Tag.most_common_categories(),
+            sorted(self.tags[1:], key=str),
+        )
+
+    def test_tags(self) -> None:
+        """Ties should be broken by lexicographic order"""
+        self.assertQuerysetEqual(
+            Tag.most_common_tags(),
+            sorted(self.tags[1:], key=str),
+        )
 
 
 class TestCommonTagsPopulated(TrackerTestCase):
