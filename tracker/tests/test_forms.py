@@ -4,7 +4,12 @@ from typing import Any, Optional, Sequence
 from django.test import Client
 from django.urls import reverse
 
-from tracker.forms import AutocompleteWidget, EntryForm
+from tracker.forms import (
+    AutocompleteWidget,
+    EntryForm,
+    GetOrCreateChoiceField,
+    GetOrCreateMultipleChoiceField,
+)
 from tracker.models import Entry, Tag
 from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase, construct_entry_form
 
@@ -48,6 +53,82 @@ class TestAutocompleteWidget(TrackerTestCase):
             self.assertEqual(widget.format_value([]), "")
         with self.assertLogs(level=logging.WARNING):
             self.assertEqual(widget.format_value([1, 2, 3]), "1")
+
+
+class TestGetOrCreateChoiceField(TrackerTestCase):
+    tags = [Tag("category1"), Tag("category2"), Tag("category3")]
+    entries = []
+
+    def test_queryset_none(self) -> None:
+        """Test that a queryset of None raises a TypeError"""
+        field = GetOrCreateChoiceField(queryset=None)
+        with self.assertRaises(TypeError):
+            field.to_python("any_tag")
+
+    def test_empty_value(self) -> None:
+        """Test that various empty values are converted to None"""
+        field = GetOrCreateChoiceField(queryset=Tag.objects)
+        self.assertIsNone(field.to_python(""))
+        self.assertIsNone(field.to_python([]))
+        self.assertIsNone(field.to_python(None))
+
+    def test_get_existing(self) -> None:
+        """Test an existing category is selected without adding new ones"""
+        existing_tags = Tag.objects
+        field = GetOrCreateChoiceField(queryset=existing_tags)
+        self.assertEqual(field.to_python(self.tags[0].name), self.tags[0])
+        self.assertQuerysetEqual(existing_tags.all(), self.tags, ordered=False)
+
+    def test_create(self) -> None:
+        """Test that a new category is created as needed"""
+        existing_tags = Tag.objects
+        new_tag = Tag("new")
+        field = GetOrCreateChoiceField(queryset=existing_tags)
+        self.assertEqual(field.to_python(new_tag.name), new_tag)
+        self.assertQuerysetEqual(
+            existing_tags.all(), self.tags + [new_tag], ordered=False
+        )
+
+
+class TestGetOrCreateMultipleChoiceField(TrackerTestCase):
+    tags = [Tag("tag1"), Tag("tag2"), Tag("tag3")]
+    entries = []
+
+    def test_queryset_none(self) -> None:
+        """Test that a queryset of None raises a TypeError"""
+        field = GetOrCreateMultipleChoiceField(queryset=None)
+        with self.assertRaises(TypeError):
+            # pylint: disable-next=protected-access
+            field._check_values([])
+
+    def test_get_existing(self) -> None:
+        """Test that existing tags are selected without adding new ones"""
+        existing_tags = Tag.objects
+        field = GetOrCreateMultipleChoiceField(queryset=existing_tags)
+        selected_tags = [self.tags[0], self.tags[2]]
+        self.assertQuerysetEqual(
+            # pylint: disable-next=protected-access
+            field._check_values(selected_tags),
+            selected_tags,
+            ordered=False,
+        )
+        self.assertQuerysetEqual(existing_tags.all(), self.tags, ordered=False)
+
+    def test_create(self) -> None:
+        """Test that new tags are created as needed"""
+        existing_tags = Tag.objects
+        field = GetOrCreateMultipleChoiceField(queryset=existing_tags)
+        new_tags = [Tag("newA"), Tag("newB")]
+        selected_tags = [self.tags[1]] + new_tags
+        self.assertQuerysetEqual(
+            # pylint: disable-next=protected-access
+            field._check_values(selected_tags),
+            selected_tags,
+            ordered=False,
+        )
+        self.assertQuerysetEqual(
+            existing_tags.all(), self.tags + new_tags, ordered=False
+        )
 
 
 class TestFormValidation(TrackerTestCase):
