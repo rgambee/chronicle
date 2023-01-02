@@ -69,7 +69,7 @@ class TestCommonTagsEmpty(TestCase):
 
 
 class TestCommonTagsPopulated(TrackerTestCase):
-    tags = [Tag("a"), Tag("b"), Tag("c")]
+    tags = [Tag("a"), Tag("b"), Tag("c"), Tag("")]
     entries = [
         Entry(amount=1.0, date=SAMPLE_DATE, category=tags[1]),
         Entry(amount=1.0, date=SAMPLE_DATE, category=tags[1]),
