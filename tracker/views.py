@@ -19,10 +19,23 @@ def index(_: HttpRequest) -> HttpResponse:
 
 
 def plot(request: HttpRequest) -> HttpResponse:
+    """View for visualizing data"""
+    serializable_entries = tuple(Entry.objects.order_by("date").values())
+    for entry in serializable_entries:
+        # Include datetime formatted as YYYY-mm-ddTHH:MM:SS.sss+HH:SS for use in
+        # JavaScript since that's the official ECMAScript format according to
+        # https://tc39.es/ecma262/#sec-date-time-string-format
+
+        # django-stubs sets the type of each element in Entry.objects.values() to
+        # TypedDict with a fixed set of keys. We want to add another key/value pair to
+        # the dict, so we suppress the mypy warning with `type: ignore[misc]`.
+        entry["datetime_iso"] = entry["date"].isoformat(  # type: ignore[misc]
+            sep="T", timespec="milliseconds"
+        )
     return render(
         request=request,
         template_name="tracker/plot.html",
-        context={"entry_list": tuple(Entry.objects.order_by("date").values())},
+        context={"entry_list": serializable_entries},
     )
 
 

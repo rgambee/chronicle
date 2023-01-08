@@ -1,7 +1,6 @@
 const myChart = echarts.init(document.getElementById("main"));
 const myData = JSON.parse(document.getElementById("my-data").textContent);
-const dates = myData.map(entry => entry.date);
-const amounts = myData.map(entry => entry.amount);
+const date_and_amount = myData.map(entry => [entry.datetime_iso, entry.amount]);
 
 var option = {
     title: {
@@ -12,14 +11,17 @@ var option = {
         data: ["Amount"]
     },
     xAxis: {
-        data: dates,
+        type: "time",
+        name: "Date",
     },
-    yAxis: {},
+    yAxis: {
+        name: "Amount",
+    },
     series: [
         {
             name: "Amount",
             type: "bar",
-            data: amounts,
+            data: date_and_amount,
         }
     ]
 };
