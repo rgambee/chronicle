@@ -1,6 +1,9 @@
+from datetime import datetime
 from typing import Any, Optional
 
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Sum
+from django.db.models.functions import TruncDay
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import render
@@ -19,23 +22,31 @@ def index(_: HttpRequest) -> HttpResponse:
 
 
 def plot(request: HttpRequest) -> HttpResponse:
-    """View for visualizing data"""
-    serializable_entries = tuple(Entry.objects.order_by("date").values())
-    for entry in serializable_entries:
-        # Include datetime formatted as YYYY-mm-ddTHH:MM:SS.sss+HH:SS for use in
-        # JavaScript since that's the official ECMAScript format according to
-        # https://tc39.es/ecma262/#sec-date-time-string-format
+    """Prepare data for visualization and then render the template"""
+    # Determine unique categories and dates
+    categories = Entry.objects.order_by("category_id").values("category_id").distinct()
+    dates = (
+        Entry.objects.order_by("date")
+        .annotate(day=TruncDay("date"))
+        .values("day")
+        .distinct()
+    )
+    # For each (category, date) pair, sum the amounts of the corresponding entries
+    aggregated: dict[str, dict[datetime, float]] = {}
+    for cat in categories:
+        aggregated[cat["category_id"]] = {}
+        for day in dates:
+            total = Entry.objects.filter(
+                category=cat["category_id"], date__date=day["day"]
+            ).aggregate(Sum("amount"))
+            if total is not None:
+                formatted_date = day["day"].date().isoformat()
+                aggregated[cat["category_id"]][formatted_date] = total["amount__sum"]
 
-        # django-stubs sets the type of each element in Entry.objects.values() to
-        # TypedDict with a fixed set of keys. We want to add another key/value pair to
-        # the dict, so we suppress the mypy warning with `type: ignore[misc]`.
-        entry["datetime_iso"] = entry["date"].isoformat(  # type: ignore[misc]
-            sep="T", timespec="milliseconds"
-        )
     return render(
         request=request,
         template_name="tracker/plot.html",
-        context={"entry_list": serializable_entries},
+        context={"entries": aggregated},
     )
 
 

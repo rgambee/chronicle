@@ -8,7 +8,7 @@
 
 <div id="main" style="width: 600px; height:400px;"></div>
 
-{{ entry_list|json_script:"my-data" }}
+{{ entries|json_script:"my-data" }}
 
 {% load static %}
 <script type="module" src="{% static 'tracker/plot.js' %}"></script>

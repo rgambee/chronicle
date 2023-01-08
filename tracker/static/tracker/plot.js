@@ -1,29 +1,29 @@
-const myChart = echarts.init(document.getElementById("main"));
-const myData = JSON.parse(document.getElementById("my-data").textContent);
-const date_and_amount = myData.map(entry => [entry.datetime_iso, entry.amount]);
+const chart = echarts.init(document.getElementById("main"));
+const data = JSON.parse(document.getElementById("my-data").textContent);
+let series = [];
+for (const [cat, date_obj] of Object.entries(data)) {
+    series.push({
+        name: cat,
+        type: "bar",
+        data: Object.entries(date_obj),
+    });
+}
 
 var option = {
     title: {
         text: "Amount by Date"
     },
     tooltip: {},
-    legend: {
-        data: ["Amount"]
-    },
+    legend: {},
     xAxis: {
         type: "time",
         name: "Date",
     },
     yAxis: {
+        type: "value",
         name: "Amount",
     },
-    series: [
-        {
-            name: "Amount",
-            type: "bar",
-            data: date_and_amount,
-        }
-    ]
+    series: series,
 };
 
-myChart.setOption(option);
+chart.setOption(option);
