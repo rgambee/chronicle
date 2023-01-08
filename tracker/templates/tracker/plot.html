@@ -1,0 +1,16 @@
+{% extends "tracker/base.html" %}
+
+{% block header %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js" integrity="sha512-OTbGFYPLe3jhy4bUwbB8nls0TFgz10kn0TLkmyA+l3FyivDs31zsXCjOis7YGDtE2Jsy0+fzW+3/OVoPVujPmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}
+
+{% block content %}
+
+<div id="main" style="width: 600px; height:400px;"></div>
+
+{{ entry_list|json_script:"my-data" }}
+
+{% load static %}
+<script type="module" src="{% static 'tracker/plot.js' %}"></script>
+
+{% endblock %}

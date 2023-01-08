@@ -3,6 +3,7 @@ from typing import Any, Optional
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseBase
+from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import DeleteView, DetailView, ListView
@@ -15,6 +16,14 @@ from tracker.models import Entry
 def index(_: HttpRequest) -> HttpResponse:
     """Placeholder view for the root url"""
     return HttpResponse("index")
+
+
+def plot(request: HttpRequest) -> HttpResponse:
+    return render(
+        request=request,
+        template_name="tracker/plot.html",
+        context={"entry_list": tuple(Entry.objects.order_by("date").values())},
+    )
 
 
 # These parent *View classes are generic class but don't have __class_getitem__()

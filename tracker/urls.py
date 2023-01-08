@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 
 from tracker import views
@@ -13,4 +15,5 @@ urlpatterns = [
     ),
     path("edit/<int:pk>/", views.EntryEdit.as_view(), name="edit"),
     path("delete/<int:pk>/", views.EntryDelete.as_view(), name="delete"),
-]
+    path("plot/", views.plot, name="plot"),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
