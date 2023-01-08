@@ -1,0 +1,17 @@
+{
+    "name": "chronicle",
+    "version": "0.0.1",
+    "description": "An app to track how you spend your time or money",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rgambee/chronicle.git"
+    },
+    "author": "Robert Gambee",
+    "homepage": "https://github.com/rgambee/chronicle",
+    "devDependencies": {
+        "eslint": "^8.31.0"
+    }
+}
