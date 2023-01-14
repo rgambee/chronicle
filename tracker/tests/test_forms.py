@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Optional, Sequence
 
-from django.test import Client
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from tracker.forms import (
@@ -9,9 +9,48 @@ from tracker.forms import (
     EntryForm,
     GetOrCreateChoiceField,
     GetOrCreateMultipleChoiceField,
+    NumberInputGFormat,
 )
 from tracker.models import Entry, Tag
 from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase, construct_entry_form
+
+
+class TestNumberWidget(TestCase):
+    def test_int(self) -> None:
+        """Ints should be formated as usual"""
+        widget = NumberInputGFormat()
+        for value in (0, 1, 999, -1, -123):
+            with self.subTest(value=value):
+                self.assertEqual(widget.format_value(value), str(value))
+
+    def test_round_float(self) -> None:
+        """Floats with nothing after the decimal point should be formatted like ints"""
+        widget = NumberInputGFormat()
+        for value in (0.0, 1.0, 5.0, -1.0, -25.0):
+            with self.subTest(value=value):
+                self.assertEqual(widget.format_value(value), str(int(value)))
+
+    def test_fractional_float(self) -> None:
+        """Digits after the decimal point should be preserved"""
+        widget = NumberInputGFormat()
+        for value in (0.1, 3.14, -1.23):
+            with self.subTest(value=value):
+                self.assertEqual(widget.format_value(value), str(value))
+
+    def test_nearly_round_float(self) -> None:
+        """Floats very close to an int should be formatted like the int"""
+        widget = NumberInputGFormat()
+        for value in (1.000001, 0.9999999):
+            with self.subTest(value=value):
+                self.assertEqual(widget.format_value(value), str(round(value)))
+
+    def test_non_numbers(self) -> None:
+        """Non-numbers should be formatted according to the parent class's rules"""
+        widget = NumberInputGFormat()
+        self.assertIsNone(widget.format_value(None))
+        for value in ("abc", widget):
+            with self.subTest(value=value):
+                self.assertEqual(widget.format_value(value), str(value))
 
 
 class TestAutocompleteWidget(TrackerTestCase):
