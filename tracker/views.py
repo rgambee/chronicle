@@ -27,6 +27,9 @@ def plot(request: HttpRequest) -> HttpResponse:
     categories = Entry.objects.order_by("category_id").values("category_id").distinct()
     dates = (
         Entry.objects.order_by("date")
+        # Assuming USE_TZ is true, the datetime is converted the TIME_ZONE setting
+        # before it's truncated. Source:
+        # https://docs.djangoproject.com/en/dev/ref/models/database-functions/#datetimefield-extracts
         .annotate(day=TruncDay("date"))
         .values("day")
         .distinct()
@@ -40,7 +43,9 @@ def plot(request: HttpRequest) -> HttpResponse:
                 category=cat["category_id"], date__date=day["day"]
             ).aggregate(Sum("amount"))
             if total is not None:
-                formatted_date = day["day"].date().isoformat()
+                # Match official ECMAScript date time format defined here:
+                # https://tc39.es/ecma262/#sec-date-time-string-format
+                formatted_date = day["day"].isoformat(timespec="milliseconds")
                 aggregated[cat["category_id"]][formatted_date] = total["amount__sum"]
 
     return render(
