@@ -87,11 +87,26 @@ function configureCalendarHeatmap(chart, data) {
         }
     }
     const dataArray = Array.from(dateTotals).sort();
+    let start = new Date();
+    let end = new Date();
+    if (dataArray.length > 0) {
+        start = new Date(dataArray.at(0).at(0));
+        end = new Date(dataArray.at(-1).at(0));
+    }
+    // Round to beginning of week (here assumed to start on Sunday)
+    start.setDate(start.getDate() - start.getDay());
+    // Set end to be at least N weeks later
+    const minWeeks = 4;
+    end = new Date(
+        Math.max(end, new Date(start.getTime() + minWeeks * 7 * 24 * 60 * 60 * 1000)),
+    );
+    // Round to end of week (here assumed to stop on Saturday)
+    end.setDate(end.getDate() + (6 - end.getDay()));
 
     const option = {
         tooltip: {},
         calendar: {
-            range: [dataArray.at(0).at(0), dataArray.at(-1).at(0)],
+            range: [start, end],
         },
         visualMap: {
             show: false,
