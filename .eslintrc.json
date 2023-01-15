@@ -28,6 +28,7 @@
             "unix"
         ],
         "no-var": "error",
+        "prefer-const": "error",
         "quotes": [
             "error",
             "double"

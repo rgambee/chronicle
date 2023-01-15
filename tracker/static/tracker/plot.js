@@ -1,6 +1,6 @@
 const chart = echarts.init(document.getElementById("main"));
 const data = JSON.parse(document.getElementById("my-data").textContent);
-let series = [];
+const series = [];
 for (const [cat, dateObj] of Object.entries(data)) {
     series.push({
         name: cat,
@@ -9,7 +9,7 @@ for (const [cat, dateObj] of Object.entries(data)) {
     });
 }
 
-let option = {
+const option = {
     title: {
         text: "Amount by Date"
     },
