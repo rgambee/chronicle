@@ -56,10 +56,20 @@ function configurePieChart(chart, data) {
         title: {
             text: "Amount Breakdown",
         },
-        tooltip: {},
+        tooltip: {
+            formatter: "<strong>{b}:</strong> {c} ({d}%)",
+        },
         legend: {},
         series: {
             type: "pie",
+            label: {
+                formatter: "{bold|{b}}\n{c} ({d}%)",
+                rich: {
+                    bold: {
+                        fontWeight: "bold",
+                    },
+                },
+            },
             data: seriesData,
         },
     };
