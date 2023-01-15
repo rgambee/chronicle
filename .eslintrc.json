@@ -18,6 +18,7 @@
     },
     "reportUnusedDisableDirectives": true,
     "rules": {
+        "camelcase": "error",
         "indent": [
             "error",
             4
