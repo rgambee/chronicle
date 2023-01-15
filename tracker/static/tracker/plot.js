@@ -41,7 +41,34 @@ function configureBarChart(chart, data) {
     chart.setOption(option);
 }
 
-const chart = echarts.init(document.getElementById("main"));
-const data = JSON.parse(document.getElementById("my-data").textContent);
+function configurePieChart(chart, data) {
+    const categoryTotals = new Map();
+    for (const [cat, dateObj] of Object.entries(data)) {
+        categoryTotals.set(cat, 0);
+        for (const amount of Object.values(dateObj)) {
+            categoryTotals.set(cat, categoryTotals.get(cat) + amount);
+        }
+    }
+    const seriesData = [];
+    categoryTotals.forEach((value, key) => seriesData.push({name: key, value: value}));
 
-configureBarChart(chart, data);
+    const option = {
+        title: {
+            text: "Amount Breakdown",
+        },
+        tooltip: {},
+        legend: {},
+        series: {
+            type: "pie",
+            data: seriesData,
+        },
+    };
+    chart.setOption(option);
+}
+
+const data = JSON.parse(document.getElementById("my-data").textContent);
+const barChart = echarts.init(document.getElementById("bar-chart"));
+const pieChart = echarts.init(document.getElementById("pie-chart"));
+
+configureBarChart(barChart, data);
+configurePieChart(pieChart, data);
