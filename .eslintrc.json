@@ -19,6 +19,10 @@
     "reportUnusedDisableDirectives": true,
     "rules": {
         "camelcase": "error",
+        "comma-dangle": [
+            "error",
+            "always-multiline"
+        ],
         "eqeqeq": "error",
         "guard-for-in": "error",
         "indent": [

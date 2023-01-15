@@ -23,7 +23,7 @@ function configureBarChart(chart, data) {
 
     const option = {
         title: {
-            text: "Amount by Date"
+            text: "Amount by Date",
         },
         tooltip: {},
         legend: {},
