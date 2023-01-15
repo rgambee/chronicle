@@ -76,9 +76,42 @@ function configurePieChart(chart, data) {
     chart.setOption(option);
 }
 
+function configureCalendarHeatmap(chart, data) {
+    const dateTotals = new Map();
+    for (const dateObj of Object.values(data)) {
+        for (const [date, amount] of Object.entries(dateObj)) {
+            if (!dateTotals.has(date)) {
+                dateTotals.set(date, 0);
+            }
+            dateTotals.set(date, dateTotals.get(date) + amount);
+        }
+    }
+    const dataArray = Array.from(dateTotals).sort();
+
+    const option = {
+        tooltip: {},
+        calendar: {
+            range: [dataArray.at(0).at(0), dataArray.at(-1).at(0)],
+        },
+        visualMap: {
+            show: false,
+            min: 0,
+            max: Math.max(...dateTotals.values()),
+        },
+        series: {
+            type: "heatmap",
+            coordinateSystem: "calendar",
+            data: dataArray,
+        },
+    };
+    chart.setOption(option);
+}
+
 const data = JSON.parse(document.getElementById("my-data").textContent);
 const barChart = echarts.init(document.getElementById("bar-chart"));
 const pieChart = echarts.init(document.getElementById("pie-chart"));
+const heatmapChart = echarts.init(document.getElementById("heatmap-chart"));
 
 configureBarChart(barChart, data);
 configurePieChart(pieChart, data);
+configureCalendarHeatmap(heatmapChart, data);
