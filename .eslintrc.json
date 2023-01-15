@@ -27,6 +27,7 @@
             "error",
             "unix"
         ],
+        "no-var": "error",
         "quotes": [
             "error",
             "double"

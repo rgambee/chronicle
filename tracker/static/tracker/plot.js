@@ -9,7 +9,7 @@ for (const [cat, dateObj] of Object.entries(data)) {
     });
 }
 
-var option = {
+let option = {
     title: {
         text: "Amount by Date"
     },
