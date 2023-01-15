@@ -19,6 +19,8 @@
     "reportUnusedDisableDirectives": true,
     "rules": {
         "camelcase": "error",
+        "eqeqeq": "error",
+        "guard-for-in": "error",
         "indent": [
             "error",
             4
@@ -27,6 +29,7 @@
             "error",
             "unix"
         ],
+        "no-use-before-define": "error",
         "no-var": "error",
         "prefer-const": "error",
         "quotes": [
