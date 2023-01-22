@@ -1,13 +1,15 @@
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
 from typing import Any, Optional
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Sum
 from django.db.models.functions import TruncDay
 from django.db.models.query import QuerySet
-from django.http import HttpRequest, HttpResponse, HttpResponseBase
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views import View
 from django.views.generic import DeleteView, DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
@@ -82,9 +84,16 @@ class EntryListView(ListView):  # type: ignore[type-arg]
     selected_category: Optional[str] = None
 
     def get_queryset(self) -> QuerySet[Entry]:
+        queryset = Entry.objects.all()
         if "category" in self.kwargs:
-            return Entry.objects.filter(category=self.kwargs["category"])
-        return Entry.objects.all()
+            queryset = queryset.filter(category=self.kwargs["category"])
+        try:
+            queryset = get_recent_entries(
+                queryset, self.kwargs.get("amount"), self.kwargs.get("unit")
+            )
+        except (TypeError, ValueError) as err:
+            raise Http404("Invalid date range") from err
+        return queryset
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         return super().get_context_data(
@@ -154,3 +163,67 @@ class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, mi
         # want to show a delete link since we're already at that view.
         context["show_delete_link"] = False
         return context
+
+
+def get_recent_entries(
+    queryset: QuerySet[Entry],
+    amount: Optional[int] = None,
+    unit: Optional[str] = None,
+    end: Optional[datetime] = None,
+) -> QuerySet[Entry]:
+    """Filter the given queryset to only contain recent entries
+
+    See the documentation for subtract_timedelta() for the requirements regarding the
+    `amount` and `unit` arguments.
+
+    `end` defaults to now.
+    """
+    if amount is not None and unit is not None:
+        if end is None:
+            end = timezone.now()
+        try:
+            start = subtract_timedelta(end, amount, unit)
+        except (TypeError, ValueError) as err:
+            raise Http404("Invalid date range") from err
+        queryset = queryset.filter(date__gte=start, date__lte=end)
+    elif amount is not None or unit is not None:
+        logging.error("Invalid arguments: amount=%s, unit=%s", amount, unit)
+        raise TypeError("Must provide both amount and unit")
+    return queryset
+
+
+def subtract_timedelta(end: datetime, amount: int, unit: str) -> datetime:
+    """Subtract the given amount of time from an end date
+
+    `amount` must be a non-negative integer.
+
+    `unit` may be one of the following:
+        "years"
+        "months"
+        "weeks"
+        "days"
+        "hours"
+        "minutes"
+        "seconds"
+    """
+    if amount < 0:
+        raise ValueError("Time delta amount may not be negative")
+    if unit == "years":
+        start = end.replace(year=end.year - amount)
+    elif unit == "months":
+        month = (end.month - amount - 1) % 12 + 1
+        year = end.year + (end.month - amount - 1) // 12
+        try:
+            start = end.replace(year=year, month=month)
+        except ValueError as err:
+            if str(err) == "day is out of range for month":
+                # Round invalid dates (like February 30th) forward to next valid one
+                year += month // 12
+                month = month % 12 + 1
+                start = end.replace(year=year, month=month, day=1)
+            else:
+                raise
+    else:
+        delta = timedelta(**{unit: amount})
+        start = end - delta
+    return start

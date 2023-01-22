@@ -1,13 +1,16 @@
 import logging
+from datetime import datetime
 from http import HTTPStatus
+from unittest.mock import MagicMock, patch
 
-from django.test import Client
+from django.test import Client, TestCase
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from django.utils.timezone import make_aware
 
 from tracker.models import Entry, Tag
-from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase, construct_entry_form
-from tracker.views import EntryCreate, EntryDelete, EntryEdit
+from tracker.tests.utils import TrackerTestCase, construct_entry_form
+from tracker.views import EntryCreate, EntryDelete, EntryEdit, subtract_timedelta
 
 
 class TestEntryDetail(TrackerTestCase):
@@ -45,9 +48,9 @@ class TestEntryDetail(TrackerTestCase):
 class TestEntryList(TrackerTestCase):
     tags = (Tag("red"), Tag("blue"))
     entries = (
-        Entry(amount=1.0, date=SAMPLE_DATE, category=tags[0]),
-        Entry(amount=2.0, date=SAMPLE_DATE, category=tags[1]),
-        Entry(amount=3.0, date=SAMPLE_DATE, category=tags[0]),
+        Entry(amount=1.0, date=make_aware(datetime(2000, 3, 1)), category=tags[0]),
+        Entry(amount=2.0, date=make_aware(datetime(2000, 2, 1)), category=tags[1]),
+        Entry(amount=3.0, date=make_aware(datetime(2000, 1, 1)), category=tags[0]),
     )
 
     def test_all_entries(self) -> None:
@@ -77,6 +80,102 @@ class TestEntryList(TrackerTestCase):
         self.assertQuerysetEqual(response.context["entries"], [])
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "tracker/entry_list.html")
+
+    @patch("tracker.views.timezone.now")
+    def test_recent_entries(self, now_mock: MagicMock) -> None:
+        """Queryset should be limited according to specified time span"""
+        now_mock.return_value = self.entries[0].date
+        response = Client().get(reverse("entries-recent", args=(1, "months")))
+        self.assertQuerysetEqual(
+            response.context["entries"],
+            self.entries[:2],
+        )
+
+    @patch("tracker.views.timezone.now")
+    def test_recent_in_category(self, now_mock: MagicMock) -> None:
+        """Queryset should be limited to time span and category"""
+        now_mock.return_value = self.entries[0].date
+        response = Client().get(
+            reverse("recent-in-category", args=(self.tags[0].name, 1, "months"))
+        )
+        self.assertQuerysetEqual(
+            response.context["entries"],
+            self.entries[:1],
+        )
+
+
+class TestSubtractTimedelta(TestCase):
+    def test_years(self) -> None:
+        """Subtracting years should leave other fields untouched"""
+        end = datetime(2000, 3, 21, 12, 34, 56)
+        start = subtract_timedelta(end, 0, "years")
+        self.assertEqual(start, end)
+        start = subtract_timedelta(end, 1, "years")
+        self.assertEqual(start, datetime(1999, 3, 21, 12, 34, 56))
+        start = subtract_timedelta(end, 100, "years")
+        self.assertEqual(start, datetime(1900, 3, 21, 12, 34, 56))
+
+    def test_months(self) -> None:
+        """Subtracting months should decrement year when appropriate"""
+        end = datetime(2000, 3, 21, 12, 34, 56)
+        start = subtract_timedelta(end, 0, "months")
+        self.assertEqual(start, end)
+        start = subtract_timedelta(end, 1, "months")
+        self.assertEqual(start, datetime(2000, 2, 21, 12, 34, 56))
+        start = subtract_timedelta(end, 3, "months")
+        self.assertEqual(start, datetime(1999, 12, 21, 12, 34, 56))
+        start = subtract_timedelta(end, 12, "months")
+        self.assertEqual(start, datetime(1999, 3, 21, 12, 34, 56))
+
+    def test_weeks(self) -> None:
+        """Subtracting weeks should follow the expected rules"""
+        end = datetime(2000, 3, 21, 12, 34, 56)
+        start = subtract_timedelta(end, 0, "weeks")
+        self.assertEqual(start, end)
+        start = subtract_timedelta(end, 1, "weeks")
+        self.assertEqual(start, datetime(2000, 3, 14, 12, 34, 56))
+        start = subtract_timedelta(end, 3, "weeks")
+        self.assertEqual(start, datetime(2000, 2, 29, 12, 34, 56))
+        start = subtract_timedelta(end, 8, "weeks")
+        self.assertEqual(start, datetime(2000, 1, 25, 12, 34, 56))
+
+    def test_days(self) -> None:
+        """Subtracting days should follow the expected rules"""
+        end = datetime(2000, 3, 21, 12, 34, 56)
+        start = subtract_timedelta(end, 0, "days")
+        self.assertEqual(start, end)
+        start = subtract_timedelta(end, 1, "days")
+        self.assertEqual(start, datetime(2000, 3, 20, 12, 34, 56))
+        start = subtract_timedelta(end, 21, "days")
+        self.assertEqual(start, datetime(2000, 2, 29, 12, 34, 56))
+
+    def test_negative_amount(self) -> None:
+        """A negative amount should raise a ValueError"""
+        end = datetime(2000, 3, 21, 12, 34, 56)
+        with self.assertRaises(ValueError):
+            subtract_timedelta(end, -1, "days")
+
+    def test_unrecognized_unit(self) -> None:
+        """Unrecognized units should raise a TypeError
+
+        A ValueError feels more appropriate to me, but the datetime.timedelta() raises a
+        TypeError in this situation.
+        """
+        end = datetime(2000, 3, 21, 12, 34, 56)
+        with self.assertRaises(TypeError):
+            subtract_timedelta(end, 1, "fortnights")
+
+    def test_day_out_of_range(self) -> None:
+        """Invalid dates (like February 30th) should shift forward to next valid one"""
+        end = datetime(2000, 3, 31, 12, 34, 56)
+        start = subtract_timedelta(end, 1, "months")
+        self.assertEqual(start, end.replace(day=1))
+        start = subtract_timedelta(end, 2, "months")
+        self.assertEqual(start, end.replace(month=1))
+        start = subtract_timedelta(end, 3, "months")
+        self.assertEqual(start, datetime(1999, 12, 31, 12, 34, 56))
+        start = subtract_timedelta(end, 4, "months")
+        self.assertEqual(start, datetime(1999, 12, 1, 12, 34, 56))
 
 
 class TestEntryEdit(TrackerTestCase):
