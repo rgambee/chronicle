@@ -188,3 +188,13 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
             self.fields["category"].initial = selected_category
         elif category_qs:
             self.fields["category"].initial = category_qs[0]
+
+
+class PreferencesForm(forms.Form):
+    week_start = forms.ChoiceField(
+        label="Week starts on",
+        choices=(
+            ("Sunday", "Sunday"),
+            ("Monday", "Monday"),
+        ),
+    )

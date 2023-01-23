@@ -6,15 +6,16 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Sum
 from django.db.models.functions import TruncDay
 from django.db.models.query import QuerySet
+from django.forms import Form
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
-from django.views.generic import DeleteView, DetailView, ListView
+from django.views.generic import DeleteView, DetailView, FormView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
-from tracker.forms import EntryForm
+from tracker.forms import EntryForm, PreferencesForm
 from tracker.models import Entry
 
 
@@ -168,6 +169,24 @@ class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, mi
         # want to show a delete link since we're already at that view.
         context["show_delete_link"] = False
         return context
+
+
+class PreferencesEdit(FormView):  # type: ignore[type-arg]
+    template_name = "tracker/preferences.html"
+    form_class = PreferencesForm
+    success_url = reverse_lazy("entries")
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        logging.info(request.session.items())
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        logging.info(request.session.items())
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form: Form) -> HttpResponse:
+        logging.info(form.cleaned_data)
+        return super().form_valid(form)
 
 
 def get_recent_entries(

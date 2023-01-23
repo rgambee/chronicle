@@ -27,4 +27,5 @@ urlpatterns = [
     path("delete/<int:pk>/", views.EntryDelete.as_view(), name="delete"),
     path("plot/", views.plot, name="plot"),
     path("plot/<int:amount><str:unit>/", views.plot, name="plot-recent"),
+    path("preferences/", views.PreferencesEdit.as_view(), name="preferences"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
