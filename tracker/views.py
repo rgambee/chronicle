@@ -23,12 +23,17 @@ def index(_: HttpRequest) -> HttpResponse:
     return HttpResponse("index")
 
 
-def plot(request: HttpRequest) -> HttpResponse:
+def plot(
+    request: HttpRequest,
+    amount: Optional[int] = None,
+    unit: Optional[str] = None,
+) -> HttpResponse:
     """Prepare data for visualization and then render the template"""
+    queryset = get_recent_entries(Entry.objects.all(), amount, unit)
     # Determine unique categories and dates
-    categories = Entry.objects.order_by("category_id").values("category_id").distinct()
+    categories = queryset.order_by("category_id").values("category_id").distinct()
     dates = (
-        Entry.objects.order_by("date")
+        queryset.order_by("date")
         # Assuming USE_TZ is true, the datetime is converted the TIME_ZONE setting
         # before it's truncated. Source:
         # https://docs.djangoproject.com/en/dev/ref/models/database-functions/#datetimefield-extracts
@@ -185,7 +190,7 @@ def get_recent_entries(
             start = subtract_timedelta(end, amount, unit)
         except (TypeError, ValueError) as err:
             raise Http404("Invalid date range") from err
-        queryset = queryset.filter(date__gte=start, date__lte=end)
+        queryset = queryset.filter(date__gte=start).filter(date__lte=end)
     elif amount is not None or unit is not None:
         logging.error("Invalid arguments: amount=%s, unit=%s", amount, unit)
         raise TypeError("Must provide both amount and unit")
