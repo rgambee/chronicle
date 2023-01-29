@@ -104,7 +104,23 @@ function configureCalendarHeatmap(chart, data) {
     end.setDate(end.getDate() + (6 - end.getDay()));
 
     const option = {
-        tooltip: {},
+        tooltip: {
+            formatter: (params) => {
+                const [date, amount] = params.data;
+                return [
+                    "Amount: ",
+                    amount.toString(),
+                    "<br />",
+                    new Date(date).toLocaleDateString(
+                        undefined,
+                        {
+                            month: "long",
+                            day: "numeric",
+                        },
+                    ),
+                ].join("");
+            },
+        },
         calendar: {
             range: [start, end],
         },
