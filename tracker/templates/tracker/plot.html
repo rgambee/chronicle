@@ -11,9 +11,15 @@
 
 {% block content %}
 
-<div id="bar-chart" style="width: 600px; height:400px;"></div>
-<div id="pie-chart" style="width: 600px; height:400px;"></div>
-<div id="heatmap-chart" style="width: 600px; height:400px;"></div>
+<div class="container">
+  <div class="row">
+    <div class="col-md" id="bar-chart" style="min-width: 650px; min-height:400px;"></div>
+    <div class="col-md" id="pie-chart" style="min-width: 650px; min-height:400px;"></div>
+  </div>
+  <div class="row">
+    <div class="col-lg" id="heatmap-chart" style="min-width: 650px; min-height:400px;"></div>
+  </div>
+</div>
 
 {{ entries|json_script:"my-data" }}
 
