@@ -1,9 +1,11 @@
 <form method="post" class="row{% if validation_styling %} style-validation{% endif %}"{% if validation_styling %} novalidate{% endif %}>
   {% csrf_token %}
   {{ form.as_div }}
-  <button type="submit" class="btn btn-primary">
-    {{ submit_text|default:"Submit" }}
-  </button>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary">
+      {{ submit_text|default:"Submit" }}
+    </button>
+  </div>
 </form>
 
 {% if validation_styling %}
