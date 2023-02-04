@@ -172,6 +172,8 @@ class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, mi
 
 
 class PreferencesEdit(FormView):  # type: ignore[type-arg]
+    """View for editing user preferences"""
+
     template_name = "tracker/preferences.html"
     form_class = PreferencesForm
     success_url = reverse_lazy("entries")
