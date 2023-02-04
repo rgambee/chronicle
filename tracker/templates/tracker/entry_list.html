@@ -5,11 +5,7 @@
 {% block content %}
 
 <h2>New Entry</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form }}
-  <button type="submit">Save</button>
-</form>
+{% include "tracker/form_template.html" %}
 
 <h2>Existing Entries</h2>
 <table class="table">
