@@ -66,6 +66,7 @@ class TestAutocompleteWidget(TrackerTestCase):
         <input
             type="text"
             id="id_category"
+            class="form-control"
             name="category"
             value="category1"
             list="id_category_list"
