@@ -161,7 +161,7 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
     )
     comment = forms.CharField(
         required=False,
-        widget=forms.Textarea(attrs={"rows": 2, "cols": 20}),
+        widget=forms.Textarea(attrs={"autocorrect": "on", "rows": 2, "cols": 20}),
     )
     tags = GetOrCreateMultipleChoiceField(queryset=None, required=False)
 
