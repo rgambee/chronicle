@@ -157,7 +157,9 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
     category = GetOrCreateChoiceField(
         queryset=None,
         empty_label=None,
-        widget=AutocompleteWidget(attrs={"list": "id_category_list"}),
+        widget=AutocompleteWidget(
+            attrs={"list": "id_category_list", "spellcheck": "true"}
+        ),
     )
     comment = forms.CharField(
         required=False,

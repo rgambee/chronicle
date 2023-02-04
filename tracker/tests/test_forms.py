@@ -70,6 +70,7 @@ class TestAutocompleteWidget(TrackerTestCase):
             name="category"
             value="category1"
             list="id_category_list"
+            spellcheck="true"
             required=""
         >
 
