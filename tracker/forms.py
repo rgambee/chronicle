@@ -159,6 +159,7 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
         empty_label=None,
         widget=AutocompleteWidget(attrs={"list": "id_category_list"}),
     )
+    comment = forms.CharField(widget=forms.Textarea(attrs={"rows": 2, "cols": 20}))
     tags = GetOrCreateMultipleChoiceField(queryset=None, required=False)
 
     class Meta:
