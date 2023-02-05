@@ -50,7 +50,7 @@ def plot(
             total = Entry.objects.filter(
                 category=cat["category_id"], date__date=day["day"]
             ).aggregate(Sum("amount"))
-            if total is not None:
+            if total["amount__sum"]:
                 # Match official ECMAScript date time format defined here:
                 # https://tc39.es/ecma262/#sec-date-time-string-format
                 formatted_date = day["day"].isoformat(timespec="milliseconds")
