@@ -10,7 +10,13 @@ from django.utils.timezone import make_aware
 
 from tracker.models import Entry, Tag
 from tracker.tests.utils import TrackerTestCase, construct_entry_form
-from tracker.views import EntryCreate, EntryDelete, EntryEdit, subtract_timedelta
+from tracker.views import (
+    EntryCreate,
+    EntryDelete,
+    EntryEdit,
+    get_recent_entries,
+    subtract_timedelta,
+)
 
 
 class TestEntryDetail(TrackerTestCase):
@@ -201,6 +207,97 @@ class TestEntryDelete(TrackerTestCase):
                 reverse("delete", args=(self.entry_count + 1,)), follow=True
             )
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+
+class TestRecentEntries(TrackerTestCase):
+    tags = (Tag("t"),)
+    entries = (
+        Entry(amount=1.0, date=make_aware(datetime(2000, 3, 1)), category=tags[0]),
+        Entry(amount=2.0, date=make_aware(datetime(2000, 3, 1)), category=tags[0]),
+        Entry(amount=3.0, date=make_aware(datetime(2000, 2, 25)), category=tags[0]),
+        Entry(amount=4.0, date=make_aware(datetime(2000, 2, 1)), category=tags[0]),
+        Entry(amount=5.0, date=make_aware(datetime(2000, 1, 1)), category=tags[0]),
+    )
+
+    def test_all_entries(self) -> None:
+        """If no optional arguments are given, all entries should be returned"""
+        self.assertQuerysetEqual(
+            get_recent_entries(Entry.objects.all()),
+            self.entries,
+        )
+
+    def test_one_year(self) -> None:
+        """Should return all entries within the previous year"""
+        self.assertQuerysetEqual(
+            get_recent_entries(
+                queryset=Entry.objects.all(),
+                amount=1,
+                unit="years",
+                end=make_aware(datetime(2000, 3, 1)),
+            ),
+            self.entries,
+        )
+
+    def test_one_month(self) -> None:
+        """Should return all entries within the previous month"""
+        self.assertQuerysetEqual(
+            get_recent_entries(
+                queryset=Entry.objects.all(),
+                amount=1,
+                unit="months",
+                end=make_aware(datetime(2000, 3, 1)),
+            ),
+            self.entries[:-1],
+        )
+
+    def test_one_week(self) -> None:
+        """Should return all entries within the previous week"""
+        self.assertQuerysetEqual(
+            get_recent_entries(
+                queryset=Entry.objects.all(),
+                amount=1,
+                unit="weeks",
+                end=make_aware(datetime(2000, 3, 1)),
+            ),
+            self.entries[:-2],
+        )
+
+    def test_one_day(self) -> None:
+        """Should return all entries within the previous day"""
+        self.assertQuerysetEqual(
+            get_recent_entries(
+                queryset=Entry.objects.all(),
+                amount=1,
+                unit="days",
+                end=make_aware(datetime(2000, 3, 1)),
+            ),
+            self.entries[:-3],
+        )
+
+    def test_order(self) -> None:
+        """Order of input queryset should be preserved"""
+        self.assertQuerysetEqual(
+            get_recent_entries(
+                queryset=Entry.objects.order_by("-amount"),
+                amount=1,
+                unit="years",
+                end=make_aware(datetime(2000, 3, 1)),
+            ),
+            self.entries[::-1],
+        )
+
+    @patch("tracker.views.timezone.now")
+    def test_default_end(self, now_mock: MagicMock) -> None:
+        """End date should default to today"""
+        now_mock.return_value = make_aware(datetime(2000, 2, 25))
+        self.assertQuerysetEqual(
+            get_recent_entries(
+                queryset=Entry.objects.all(),
+                amount=4,
+                unit="weeks",
+            ),
+            self.entries[2:-1],
+        )
 
 
 class TestSubtractTimedelta(TestCase):
