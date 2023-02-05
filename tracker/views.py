@@ -262,8 +262,17 @@ def aggregate_entries(queryset: QuerySet[Entry]) -> dict[str, dict[str, float]]:
                 category=cat["category_id"], date__date=day["day"]
             ).aggregate(Sum("amount"))
             if total["amount__sum"]:
-                # Match official ECMAScript date time format defined here:
-                # https://tc39.es/ecma262/#sec-date-time-string-format
-                formatted_date = day["day"].isoformat(timespec="milliseconds")
+                formatted_date = format_datetime_ecma(day["day"])
                 aggregated[cat["category_id"]][formatted_date] = total["amount__sum"]
     return aggregated
+
+
+def format_datetime_ecma(when: datetime) -> str:
+    """Format the given datetime according to the official ECMAScript spec
+
+    This aims to ensure maximum compatibility with different browsers.
+
+    The spec is defined here:
+    https://tc39.es/ecma262/#sec-date-time-string-format
+    """
+    return when.isoformat(timespec="milliseconds")
