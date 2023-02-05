@@ -18,7 +18,7 @@ function configureBarChart(chart, data) {
     series.push({
         name: "Daily Total",
         type: "line",
-        data: Array.from(dateTotals),
+        data: Array.from(dateTotals).sort(),
     });
 
     const option = {
