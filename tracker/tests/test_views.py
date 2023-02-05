@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 
@@ -14,6 +14,7 @@ from tracker.views import (
     EntryCreate,
     EntryDelete,
     EntryEdit,
+    format_datetime_ecma,
     get_recent_entries,
     subtract_timedelta,
 )
@@ -372,3 +373,22 @@ class TestSubtractTimedelta(TestCase):
         self.assertEqual(start, datetime(1999, 12, 31, 12, 34, 56))
         start = subtract_timedelta(end, 4, "months")
         self.assertEqual(start, datetime(1999, 12, 1, 12, 34, 56))
+
+
+class TestDatetimeFormat(TestCase):
+    def test_format(self) -> None:
+        """Datetimes should be converted to ISO-8601 format with timezone info"""
+        sample_dt = datetime(
+            year=2000,
+            month=1,
+            day=2,
+            hour=12,
+            minute=34,
+            second=56,
+            microsecond=987654,
+            tzinfo=timezone(timedelta(hours=12, minutes=34)),
+        )
+        self.assertEqual(
+            format_datetime_ecma(sample_dt),
+            "2000-01-02T12:34:56.987+12:34",
+        )
