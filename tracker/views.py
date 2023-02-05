@@ -214,7 +214,7 @@ def get_recent_entries(
         queryset = queryset.filter(date__gte=start).filter(date__lte=end)
     elif amount is not None or unit is not None:
         logging.error("Invalid arguments: amount=%s, unit=%s", amount, unit)
-        raise TypeError("Must provide both amount and unit")
+        raise TypeError("Must provide both amount and unit or neither")
     return queryset
 
 
