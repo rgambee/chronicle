@@ -211,6 +211,35 @@ class TestEntryDelete(TrackerTestCase):
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
 
+class TestPlotView(TrackerTestCase):
+    tags = (Tag("red"), Tag("blue"))
+    entries = (
+        Entry(amount=1.0, date=make_aware(datetime(2000, 3, 1)), category=tags[0]),
+        Entry(amount=2.0, date=make_aware(datetime(2000, 2, 1)), category=tags[1]),
+        Entry(amount=3.0, date=make_aware(datetime(2000, 1, 1)), category=tags[0]),
+    )
+
+    def test_get_all(self) -> None:
+        """A general GET request should aggregate all entries"""
+        response = Client().get(reverse("plot"))
+        self.assertTemplateUsed(response, "tracker/plot.html")
+        self.assertEqual(
+            response.context["entries"],
+            aggregate_entries(Entry.objects.all()),
+        )
+
+    @patch("tracker.views.timezone.now")
+    def test_get_recent(self, now_mock: MagicMock) -> None:
+        """A GET request that specifies a time range should narrow the entries"""
+        now_mock.return_value = self.entries[0].date
+        response = Client().get(reverse("plot-recent", args=(1, "months")))
+        self.assertTemplateUsed(response, "tracker/plot.html")
+        self.assertEqual(
+            response.context["entries"],
+            aggregate_entries(get_recent_entries(Entry.objects.all(), 1, "months")),
+        )
+
+
 class TestRecentEntries(TrackerTestCase):
     tags = (Tag("t"),)
     entries = (
