@@ -249,7 +249,7 @@ def aggregate_entries(queryset: QuerySet[Entry]) -> dict[str, dict[str, float]]:
     for cat in categories:
         aggregated[cat["category_id"]] = {}
         for day in dates:
-            total = Entry.objects.filter(
+            total = queryset.filter(
                 category=cat["category_id"],
                 date__date=day.date(),
             ).aggregate(Sum("amount"))
