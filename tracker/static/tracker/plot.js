@@ -133,6 +133,10 @@ function configureCalendarHeatmap(chart, data) {
             type: "heatmap",
             coordinateSystem: "calendar",
             data: dataArray,
+            label: {
+                show: true,
+                formatter: params => params.data[1].toString(),
+            },
         },
     };
     chart.setOption(option);
