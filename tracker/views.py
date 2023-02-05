@@ -8,7 +8,6 @@ from django.db.models.functions import TruncDay
 from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
-from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -132,19 +131,29 @@ class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, mi
         return context
 
 
-def plot(
-    request: HttpRequest,
-    amount: Optional[int] = None,
-    unit: Optional[str] = None,
-) -> HttpResponse:
-    """Prepare data for visualization and then render the template"""
-    queryset = get_recent_entries(Entry.objects.all(), amount, unit)
-    aggregated = aggregate_entries(queryset)
-    return render(
-        request=request,
-        template_name="tracker/plot.html",
-        context={"entries": aggregated},
-    )
+class PlotView(ListView):  # type: ignore[type-arg]
+    """Visualize entries with plots"""
+
+    model = Entry
+    template_name = "tracker/plot.html"
+
+    def get_queryset(self) -> QuerySet[Entry]:
+        return get_recent_entries(
+            Entry.objects.all(),
+            self.kwargs.get("amount"),
+            self.kwargs.get("unit"),
+        )
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        return super().get_context_data(
+            # aggregate_entries() expects a QuerySet, while object_list has the more
+            # general type SupportsPagination. In the case of this class, object_list
+            # is indeed a QuerySet, as returned by get_queryset(). If a child class were
+            # to override get_queryset() to turn a different type, that could cause an
+            # issue. But it's unlikely and can be addressed in the future if necessary.
+            entries=aggregate_entries(self.object_list),  # type: ignore[arg-type]
+            **kwargs,
+        )
 
 
 class PreferencesEdit(FormView):  # type: ignore[type-arg]
