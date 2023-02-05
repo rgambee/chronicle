@@ -4,7 +4,6 @@ from typing import Any, Optional
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Sum
-from django.db.models.functions import TruncDay
 from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
@@ -244,25 +243,18 @@ def aggregate_entries(queryset: QuerySet[Entry]) -> dict[str, dict[str, float]]:
     """Group entries first by category, then by date"""
     # Determine unique categories and dates
     categories = queryset.order_by("category_id").values("category_id").distinct()
-    dates = (
-        queryset.order_by("date")
-        # Assuming USE_TZ is true, the datetime is converted to the current timezone
-        # before it's truncated. Source:
-        # https://docs.djangoproject.com/en/dev/ref/models/database-functions/#datetimefield-extracts
-        .annotate(day=TruncDay("date"))
-        .values("day")
-        .distinct()
-    )
+    dates = queryset.datetimes(field_name="date", kind="day")
     # For each (category, date) pair, sum the amounts of the corresponding entries
     aggregated: dict[str, dict[str, float]] = {}
     for cat in categories:
         aggregated[cat["category_id"]] = {}
         for day in dates:
             total = Entry.objects.filter(
-                category=cat["category_id"], date__date=day["day"]
+                category=cat["category_id"],
+                date__date=day.date(),
             ).aggregate(Sum("amount"))
             if total["amount__sum"]:
-                formatted_date = format_datetime_ecma(day["day"])
+                formatted_date = format_datetime_ecma(day)
                 aggregated[cat["category_id"]][formatted_date] = total["amount__sum"]
     return aggregated
 
