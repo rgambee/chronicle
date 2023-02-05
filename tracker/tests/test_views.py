@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
-from django.utils.timezone import make_aware
+from django.utils.timezone import get_current_timezone, make_aware, override
 
 from tracker.models import Entry, Tag
 from tracker.tests.utils import TrackerTestCase, construct_entry_form
@@ -14,6 +14,7 @@ from tracker.views import (
     EntryCreate,
     EntryDelete,
     EntryEdit,
+    aggregate_entries,
     format_datetime_ecma,
     get_recent_entries,
     subtract_timedelta,
@@ -373,6 +374,114 @@ class TestSubtractTimedelta(TestCase):
         self.assertEqual(start, datetime(1999, 12, 31, 12, 34, 56))
         start = subtract_timedelta(end, 4, "months")
         self.assertEqual(start, datetime(1999, 12, 1, 12, 34, 56))
+
+
+class TestEntryAggregation(TrackerTestCase):
+    timezone_for_testing = timezone.utc
+    tags = (Tag("red"), Tag("blue"))
+    entries = (
+        Entry(
+            amount=1.0,
+            date=datetime(2000, 3, 1, tzinfo=timezone_for_testing),
+            category=tags[0],
+        ),
+        Entry(
+            amount=2.0,
+            date=datetime(2000, 2, 1, tzinfo=timezone_for_testing),
+            category=tags[1],
+        ),
+        Entry(
+            amount=3.0,
+            date=datetime(2000, 1, 1, tzinfo=timezone_for_testing),
+            category=tags[0],
+        ),
+    )
+
+    def test_empty_queryset(self) -> None:
+        """An empty queryset should yield an empty dict"""
+        self.assertEqual(aggregate_entries(Entry.objects.none()), {})
+
+    @override(timezone_for_testing)
+    def test_one_category(self) -> None:
+        """One category should yield a dict with one item"""
+        aggregated = aggregate_entries(Entry.objects.filter(category_id=self.tags[0]))
+        self.assertEqual(
+            aggregated,
+            {
+                self.tags[0].name: {
+                    format_datetime_ecma(self.entries[0].date): self.entries[0].amount,
+                    format_datetime_ecma(self.entries[2].date): self.entries[2].amount,
+                },
+            },
+        )
+
+        aggregated = aggregate_entries(Entry.objects.filter(category_id=self.tags[1]))
+        self.assertEqual(
+            aggregated,
+            {
+                self.tags[1].name: {
+                    format_datetime_ecma(self.entries[1].date): self.entries[1].amount,
+                },
+            },
+        )
+
+    @override(timezone_for_testing)
+    def test_multiple_categories(self) -> None:
+        """Multiple categories should yield a dict with multiple items"""
+        aggregated = aggregate_entries(Entry.objects.all())
+        self.assertEqual(
+            aggregated,
+            {
+                self.tags[0].name: {
+                    format_datetime_ecma(self.entries[0].date): self.entries[0].amount,
+                    format_datetime_ecma(self.entries[2].date): self.entries[2].amount,
+                },
+                self.tags[1].name: {
+                    format_datetime_ecma(self.entries[1].date): self.entries[1].amount,
+                },
+            },
+        )
+
+    @override(timezone_for_testing)
+    def test_prefiltered_queryset(self) -> None:
+        """Aggregation only include entries in the given queryset"""
+        queryset = Entry.objects.filter(category_id=self.tags[0], amount__gte=2.0)
+        aggregated = aggregate_entries(queryset)
+        self.assertEqual(
+            aggregated,
+            {
+                self.tags[0].name: {
+                    format_datetime_ecma(self.entries[2].date): self.entries[2].amount,
+                },
+            },
+        )
+
+    def test_timezone(self) -> None:
+        """Dates should be converted to current timezone before aggregation"""
+        queryset = Entry.objects.filter(category_id=self.tags[1])
+
+        for offset_hours in (-23, -1, 0, 1, 23):
+            with override(timezone(timedelta(hours=offset_hours))):
+                with self.subTest(timezone=get_current_timezone()):
+                    aggregated = aggregate_entries(queryset)
+                    expected_datetime = format_datetime_ecma(
+                        # pylint thinks Entry.date has type DateTimeField, when the
+                        # actual type is datetime, making it complain about using the
+                        # astimezone() method. This is understandable since Django is
+                        # overriding the class attribute with the instance attribute.
+                        # pylint: disable-next=no-member
+                        self.entries[1]
+                        .date.astimezone(get_current_timezone())
+                        .replace(hour=0, minute=0, second=0, microsecond=0)
+                    )
+                    self.assertEqual(
+                        aggregated,
+                        {
+                            self.tags[1].name: {
+                                expected_datetime: self.entries[1].amount,
+                            },
+                        },
+                    )
 
 
 class TestDatetimeFormat(TestCase):
