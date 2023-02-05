@@ -24,45 +24,6 @@ def index(_: HttpRequest) -> HttpResponse:
     return HttpResponse("index")
 
 
-def plot(
-    request: HttpRequest,
-    amount: Optional[int] = None,
-    unit: Optional[str] = None,
-) -> HttpResponse:
-    """Prepare data for visualization and then render the template"""
-    queryset = get_recent_entries(Entry.objects.all(), amount, unit)
-    # Determine unique categories and dates
-    categories = queryset.order_by("category_id").values("category_id").distinct()
-    dates = (
-        queryset.order_by("date")
-        # Assuming USE_TZ is true, the datetime is converted the TIME_ZONE setting
-        # before it's truncated. Source:
-        # https://docs.djangoproject.com/en/dev/ref/models/database-functions/#datetimefield-extracts
-        .annotate(day=TruncDay("date"))
-        .values("day")
-        .distinct()
-    )
-    # For each (category, date) pair, sum the amounts of the corresponding entries
-    aggregated: dict[str, dict[datetime, float]] = {}
-    for cat in categories:
-        aggregated[cat["category_id"]] = {}
-        for day in dates:
-            total = Entry.objects.filter(
-                category=cat["category_id"], date__date=day["day"]
-            ).aggregate(Sum("amount"))
-            if total["amount__sum"]:
-                # Match official ECMAScript date time format defined here:
-                # https://tc39.es/ecma262/#sec-date-time-string-format
-                formatted_date = day["day"].isoformat(timespec="milliseconds")
-                aggregated[cat["category_id"]][formatted_date] = total["amount__sum"]
-
-    return render(
-        request=request,
-        template_name="tracker/plot.html",
-        context={"entries": aggregated},
-    )
-
-
 # These parent *View classes are generic class but don't have __class_getitem__()
 # methods, which prevents one from specifying the type parameter. The
 # django-stubs-ext package has a monkeypatch to address this, but that imposes runtime
@@ -169,6 +130,45 @@ class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, mi
         # want to show a delete link since we're already at that view.
         context["show_delete_link"] = False
         return context
+
+
+def plot(
+    request: HttpRequest,
+    amount: Optional[int] = None,
+    unit: Optional[str] = None,
+) -> HttpResponse:
+    """Prepare data for visualization and then render the template"""
+    queryset = get_recent_entries(Entry.objects.all(), amount, unit)
+    # Determine unique categories and dates
+    categories = queryset.order_by("category_id").values("category_id").distinct()
+    dates = (
+        queryset.order_by("date")
+        # Assuming USE_TZ is true, the datetime is converted the TIME_ZONE setting
+        # before it's truncated. Source:
+        # https://docs.djangoproject.com/en/dev/ref/models/database-functions/#datetimefield-extracts
+        .annotate(day=TruncDay("date"))
+        .values("day")
+        .distinct()
+    )
+    # For each (category, date) pair, sum the amounts of the corresponding entries
+    aggregated: dict[str, dict[datetime, float]] = {}
+    for cat in categories:
+        aggregated[cat["category_id"]] = {}
+        for day in dates:
+            total = Entry.objects.filter(
+                category=cat["category_id"], date__date=day["day"]
+            ).aggregate(Sum("amount"))
+            if total["amount__sum"]:
+                # Match official ECMAScript date time format defined here:
+                # https://tc39.es/ecma262/#sec-date-time-string-format
+                formatted_date = day["day"].isoformat(timespec="milliseconds")
+                aggregated[cat["category_id"]][formatted_date] = total["amount__sum"]
+
+    return render(
+        request=request,
+        template_name="tracker/plot.html",
+        context={"entries": aggregated},
+    )
 
 
 class PreferencesEdit(FormView):  # type: ignore[type-arg]
