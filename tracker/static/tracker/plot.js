@@ -2,6 +2,18 @@ function getFontFamily(element) {
     return window.getComputedStyle(element).getPropertyValue("font-family");
 }
 
+function makeDateFormatter(month = "long", day="numeric") {
+    return (timestamp) => {
+        return new Date(timestamp).toLocaleDateString(
+            undefined,
+            {
+                month: month,
+                day: day,
+            },
+        );
+    };
+}
+
 function initBarChart(element, data) {
     const series = [];
     const dateTotals = new Map();
@@ -34,6 +46,10 @@ function initBarChart(element, data) {
         },
         tooltip: {},
         legend: {},
+        dataZoom: {
+            type: "slider",
+            labelFormatter: makeDateFormatter("short"),
+        },
         xAxis: {
             type: "time",
             name: "Date",
@@ -134,6 +150,8 @@ function initCalendarHeatmap(element, dataByCategory) {
     // Round to end of week (here assumed to stop on Saturday)
     end.setDate(end.getDate() + (6 - end.getDay()));
 
+    const formatDate = makeDateFormatter();
+
     const option = {
         textStyle: {
             fontFamily: getFontFamily(element),
@@ -142,13 +160,7 @@ function initCalendarHeatmap(element, dataByCategory) {
             formatter: params => {
                 const date = params.data[0];
                 const tooltipInfo = [[
-                    new Date(date).toLocaleDateString(
-                        undefined,
-                        {
-                            month: "long",
-                            day: "numeric",
-                        },
-                    ),
+                    formatDate(date),
                 ]];
                 if (dataByDate.has(date)) {
                     dataByDate.get(date).forEach(
