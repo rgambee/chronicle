@@ -1,9 +1,16 @@
+{% load tracker_tags %}
+
 {{ errors }}
 {% if errors and not fields %}
   <div>{% for field in hidden_fields %}{{ field }}{% endfor %}</div>
 {% endif %}
+
 {% for field, errors in fields %}
-  <div {% with classes=field.css_classes %}class="col-auto{{ classes }}"{% endwith %}>
+  {% setvar "col-auto" as col_class %}
+  {% if field.field.widget.input_type == "number" %}
+    {% setvar "col-1" as col_class %}
+  {% endif %}
+  <div {% with classes=field.css_classes %}class="{{ col_class }}{{ classes }}"{% endwith %}>
     {% if field.use_fieldset %}
       <fieldset>
       {% if field.label %}{{ field.legend_tag }}{% endif %}
@@ -19,6 +26,7 @@
     {% endif %}
 </div>
 {% endfor %}
+
 {% if not fields and not errors %}
   {% for field in hidden_fields %}{{ field }}{% endfor %}
 {% endif %}
