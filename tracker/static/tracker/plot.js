@@ -1,4 +1,8 @@
-function configureBarChart(chart, data) {
+function getFontFamily(element) {
+    return window.getComputedStyle(element).getPropertyValue("font-family");
+}
+
+function initBarChart(element, data) {
     const series = [];
     const dateTotals = new Map();
     for (const [cat, dateObj] of Object.entries(data)) {
@@ -22,6 +26,9 @@ function configureBarChart(chart, data) {
     });
 
     const option = {
+        textStyle: {
+            fontFamily: getFontFamily(element),
+        },
         title: {
             text: "Amount by Date",
         },
@@ -37,11 +44,12 @@ function configureBarChart(chart, data) {
         },
         series: series,
     };
-
+    const chart = echarts.init(element);
     chart.setOption(option);
+    return chart;
 }
 
-function configurePieChart(chart, data) {
+function initPieChart(element, data) {
     const categoryTotals = new Map();
     for (const [cat, dateObj] of Object.entries(data)) {
         categoryTotals.set(cat, 0);
@@ -53,6 +61,9 @@ function configurePieChart(chart, data) {
     categoryTotals.forEach((value, key) => seriesData.push({name: key, value: value}));
 
     const option = {
+        textStyle: {
+            fontFamily: getFontFamily(element),
+        },
         title: {
             text: "Amount Breakdown",
         },
@@ -73,10 +84,12 @@ function configurePieChart(chart, data) {
             data: seriesData,
         },
     };
+    const chart = echarts.init(element);
     chart.setOption(option);
+    return chart;
 }
 
-function configureCalendarHeatmap(chart, dataByCategory) {
+function initCalendarHeatmap(element, dataByCategory) {
     // dataByCategory maps category -> date -> amount.
     // Rearrange it to be date -> category -> amount.
     const dataByDate = new Map();
@@ -122,6 +135,9 @@ function configureCalendarHeatmap(chart, dataByCategory) {
     end.setDate(end.getDate() + (6 - end.getDay()));
 
     const option = {
+        textStyle: {
+            fontFamily: getFontFamily(element),
+        },
         tooltip: {
             formatter: params => {
                 const date = params.data[0];
@@ -165,14 +181,15 @@ function configureCalendarHeatmap(chart, dataByCategory) {
             },
         },
     };
+    const chart = echarts.init(element);
     chart.setOption(option);
+    return chart;
 }
 
 const data = JSON.parse(document.getElementById("my-data").textContent);
-const barChart = echarts.init(document.getElementById("bar-chart"));
-const pieChart = echarts.init(document.getElementById("pie-chart"));
-const heatmapChart = echarts.init(document.getElementById("heatmap-chart"));
-
-configureBarChart(barChart, data);
-configurePieChart(pieChart, data);
-configureCalendarHeatmap(heatmapChart, data);
+const barChartElem = document.getElementById("bar-chart");
+const pieChartElem = document.getElementById("pie-chart");
+const heatmapChartElem = document.getElementById("heatmap-chart");
+initBarChart(barChartElem, data);
+initPieChart(pieChartElem, data);
+initCalendarHeatmap(heatmapChartElem, data);
