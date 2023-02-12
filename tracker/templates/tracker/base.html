@@ -16,13 +16,19 @@
   <body>
     {% block messages %}
       {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        <div class="toast-container">
+          {% for message in messages %}
+            <div class="toast" role="alert" aria-live="polite" aria-atomic="true">
+              <div class="toast-body">
                 {{ message }}
-              </li>
-            {% endfor %}
-        </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        {% load static %}
+        <script type="module" src="{% static 'tracker/toast.js' %}"></script>
       {% endif %}
     {% endblock %}
 
