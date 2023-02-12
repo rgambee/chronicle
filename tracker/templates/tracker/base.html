@@ -56,8 +56,16 @@
       {% endif %}
     {% endblock %}
 
-    <div id="content" class="container-lg">
+    <div class="container-lg d-flex flex-column min-vh-100">
+      <div id="content" class="py-3 flex-grow-1">
         {% block content %}{% endblock %}
+      </div>
+
+      <div class="border-top pt-3">
+        <footer>
+          <p class="text-muted">&copy; 2023 Robert Gambee</p>
+        </footer>
+      </div>
     </div>
 
     <script
