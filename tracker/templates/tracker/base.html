@@ -16,10 +16,21 @@
   <body>
     {% block messages %}
       {% if messages %}
+        {% load tracker_tags %}
         <div class="toast-container position-fixed top-0 end-0 p-3">
           {% for message in messages %}
+            {% setvar "text-bg-body" as toast_class %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+              {% setvar "text-bg-danger" as toast_class %}
+            {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+              {% setvar "text-bg-warning" as toast_class %}
+            {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+              {% setvar "text-bg-success" as toast_class %}
+            {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+              {% setvar "text-bg-info" as toast_class %}
+            {% endif %}
             <div
-              class="toast align-items-center"
+              class="toast align-items-center {{toast_class}}"
               role="alert"
               aria-live="polite"
               aria-atomic="true"
