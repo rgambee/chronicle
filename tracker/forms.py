@@ -6,7 +6,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Model
 from django.db.models.query import QuerySet
-from django.forms.widgets import ChoiceWidget
+from django.forms.widgets import ChoiceWidget, SelectMultiple
 from django.utils import timezone
 
 from tracker.models import Entry, Tag
@@ -73,6 +73,10 @@ class AutocompleteWidget(ChoiceWidget):
         if len(values) > 1:
             logging.warning("Received multiple values to format: %s", values)
         return values[0]
+
+
+class TagsWidget(SelectMultiple):
+    template_name = "tracker/widgets/tags.html"
 
 
 class GetOrCreateChoiceField(forms.ModelChoiceField):
@@ -165,7 +169,11 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
         required=False,
         widget=forms.Textarea(attrs={"autocorrect": "on", "rows": 2, "cols": 20}),
     )
-    tags = GetOrCreateMultipleChoiceField(queryset=None, required=False)
+    tags = GetOrCreateMultipleChoiceField(
+        queryset=None,
+        required=False,
+        widget=TagsWidget(),
+    )
 
     class Meta:
         model = Entry
