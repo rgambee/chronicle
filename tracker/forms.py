@@ -12,23 +12,6 @@ from django.utils import timezone
 from tracker.models import Entry, Tag
 
 
-class NumberInputGFormat(forms.NumberInput):
-    """A NumberInput widget that formats its value using the g format type
-
-    The g (short for general) format leaves off trailing zeros and decimal points from
-    floats. So 1.0 renders as '1', while 1.5 renders as '1.5'.
-
-    See here for details:
-    https://docs.python.org/3/library/string.html#format-specification-mini-language
-    """
-
-    def format_value(self, value: Any) -> Optional[str]:
-        try:
-            return f"{value:g}"
-        except (TypeError, ValueError):
-            return super().format_value(value)
-
-
 class AutocompleteWidget(ChoiceWidget):
     """A text box with autocompletion options"""
 
@@ -152,7 +135,6 @@ class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
 
     amount = forms.FloatField(
         min_value=0.0,
-        widget=NumberInputGFormat(),
     )
     date = forms.DateTimeField(
         initial=timezone.localdate,
