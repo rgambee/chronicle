@@ -7,7 +7,7 @@ function onSubmit(event) {
     event.currentTarget.classList.add("was-validated");
 }
 
-document.querySelectorAll(".style-validation").forEach(
+document.querySelectorAll(".needs-validation").forEach(
     (form) => {
         form.addEventListener("submit", onSubmit);
     },

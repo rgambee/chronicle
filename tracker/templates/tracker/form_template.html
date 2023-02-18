@@ -1,4 +1,4 @@
-<form method="post" class="row{% if validation_styling %} style-validation{% endif %}"{% if validation_styling %} novalidate{% endif %}>
+<form method="post" class="row{% if validation_styling %} needs-validation{% endif %}"{% if validation_styling %} novalidate{% endif %}>
   {% csrf_token %}
   {{ form.as_div }}
   <div class="col-auto"{% if form.fields %} style="padding-top: 2rem"{% endif %}>
