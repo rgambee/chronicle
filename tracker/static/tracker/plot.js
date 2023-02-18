@@ -198,7 +198,7 @@ function initCalendarHeatmap(element, dataByCategory) {
     return chart;
 }
 
-const data = JSON.parse(document.getElementById("my-data").textContent);
+const data = JSON.parse(document.getElementById("tracker-data").textContent);
 const barChartElem = document.getElementById("bar-chart");
 const pieChartElem = document.getElementById("pie-chart");
 const heatmapChartElem = document.getElementById("heatmap-chart");
