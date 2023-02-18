@@ -45,7 +45,9 @@ function initBarChart(element, data) {
             text: "Amount by Date",
         },
         tooltip: {},
-        legend: {},
+        legend: {
+            left: "25%",
+        },
         dataZoom: {
             type: "slider",
             labelFormatter: makeDateFormatter("short"),
@@ -86,9 +88,12 @@ function initPieChart(element, data) {
         tooltip: {
             formatter: "<strong>{b}:</strong> {c} ({d}%)",
         },
-        legend: {},
+        legend: {
+            left: "30%",
+        },
         series: {
             type: "pie",
+            center: ["50%", "55%"],
             label: {
                 formatter: "{bold|{b}}\n{c} ({d}%)",
                 rich: {
