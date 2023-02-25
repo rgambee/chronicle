@@ -6,7 +6,8 @@
     "extends": "eslint:recommended",
     "globals": {
         "bootstrap": "readonly",
-        "echarts": "readonly"
+        "echarts": "readonly",
+        "Tabulator": "readonly"
     },
     "ignorePatterns": [
         "htmlcov/"

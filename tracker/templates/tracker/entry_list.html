@@ -1,5 +1,15 @@
 {% extends "tracker/base.html" %}
 
+{% block header %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.4.4/css/tabulator_bootstrap5.min.css"
+  integrity="sha512-E3brrBS070QzILPd7448M+21NlCrA3fht9RmFvS9GIKo443nGQRF3tVOuK7YcY1gzPQsaks2cP/Ivp/yhoJCNA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+>
+{% endblock %}
+
 {% block title %}Entries{% endblock %}
 
 {% block content %}
@@ -8,7 +18,7 @@
 {% include "tracker/form_template.html" with submit_text="Create" validation_styling=True %}
 
 <h2>Existing Entries</h2>
-<table class="table">
+<table id="entry-table" class="table">
   <tr>
     <th>Date</th>
     <th>Amount</th>
@@ -54,5 +64,15 @@
     {% endif %}
   </span>
 </div>
+
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.4.4/js/tabulator.min.js"
+  integrity="sha512-BGo9xGWI32ZfTMp/ueR3fZKO5nYkPbt3uwMWr+w8w3e72H8A0sTQGO+iqRADwIT0eJkFP1HDgSC82gA4sTuQ6w=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer">
+</script>
+
+{% load static %}
+<script type="module" src="{% static 'tracker/entry_table.js' %}"></script>
 
 {% endblock %}
