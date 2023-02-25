@@ -18,7 +18,7 @@
 {% include "tracker/form_template.html" with submit_text="Create" validation_styling=True %}
 
 <h2>Existing Entries</h2>
-<table id="entry-table" class="table table-sm">
+<table id="id_entry_table" class="table table-sm">
   <tr>
     <th>Date</th>
     <th>Amount</th>
@@ -60,6 +60,45 @@
     {% endif %}
   </span>
 </div>
+
+{# Template used by entry_table.js for range filter for date column #}
+<template id="id_date_range_template">
+  <form>
+    <div class="row mb-2">
+      <label
+        for="id_date_range_start"
+        class="col-sm-2 col-form-label col-form-label-sm"
+      >
+        Start
+      </label>
+      <div class="col-sm-8">
+        <input
+          id="id_date_range_start"
+          type="date"
+          class="form-control form-control-sm"
+          {# Tabulator overrides some Bootstrap styling. Here we override it back to what it'd normally be. #}
+          style="font-size: 0.875rem; padding: 0.25rem;"
+        >
+      </div>
+    </div>
+    <div class="row mb-2">
+      <label
+        for="id_date_range_end"
+        class="col-sm-2 col-form-label col-form-label-sm"
+      >
+        End
+      </label>
+      <div class="col-sm-8">
+        <input
+          id="id_date_range_end"
+          type="date"
+          class="form-control form-control-sm"
+          style="font-size: 0.875rem; padding: 0.25rem;"
+        >
+      </div>
+    </div>
+  </form>
+</template>
 
 {# Luxon is required by Tabulator for datetime parsing and formatting #}
 <script

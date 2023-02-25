@@ -2,14 +2,10 @@
 // https://stackoverflow.com/a/64414478
 
 function rangeEditor(cell, onRendered, success, cancel) {
-    const startInput = document.createElement("input");
-    startInput.setAttribute("type", "date");
-    startInput.className = "form-control";
-    const endInput = startInput.cloneNode();
-
-    const container = document.createElement("span");
-    container.appendChild(startInput);
-    container.appendChild(endInput);
+    const template = document.querySelector("#id_date_range_template");
+    const dateRange = template.content.cloneNode(true);
+    const startInput = dateRange.querySelector("#id_date_range_start");
+    const endInput = dateRange.querySelector("#id_date_range_end");
 
     function buildRange() {
         let start;
@@ -46,7 +42,7 @@ function rangeEditor(cell, onRendered, success, cancel) {
     endInput.addEventListener("blur", buildRange);
     endInput.addEventListener("keydown", onKeypress);
 
-    return container;
+    return dateRange.firstElementChild;
 }
 
 function rangeFilter(dateRange, dateValue) {
@@ -69,7 +65,7 @@ function rangeFilter(dateRange, dateValue) {
 }
 
 new Tabulator(
-    "#entry-table",
+    "#id_entry_table",
     {
         responsiveLayout: "hide",
         columns: [
@@ -82,7 +78,7 @@ new Tabulator(
                     inputFormat:"yyyy-MM-dd",
                     outputFormat:"DD",
                 },
-                width: 175,
+                width: 220,
                 headerFilter: rangeEditor,
                 headerFilterFunc: rangeFilter,
                 headerFilterLiveFilter: false,
