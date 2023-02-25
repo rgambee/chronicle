@@ -6,6 +6,7 @@ new Tabulator(
             {
                 title: "Date",
                 responsive: 10,
+                frozen: true,
                 formatter: "datetime",
                 formatterParams:{
                     inputFormat:"yyyy-MM-dd",
