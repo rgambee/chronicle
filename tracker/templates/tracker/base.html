@@ -20,12 +20,15 @@
         <div class="toast-container position-fixed top-0 end-0 p-3">
           {% for message in messages %}
             {% setvar "text-bg-body" as toast_class %}
+            {% setvar "" as button_close_class %}
             {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
               {% setvar "text-bg-danger" as toast_class %}
+              {% setvar "btn-close-white" as button_close_class %}
             {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
               {% setvar "text-bg-warning" as toast_class %}
             {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
               {% setvar "text-bg-success" as toast_class %}
+              {% setvar "btn-close-white" as button_close_class %}
             {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
               {% setvar "text-bg-info" as toast_class %}
             {% endif %}
@@ -41,7 +44,7 @@
                 </div>
                 <button
                   type="button"
-                  class="btn-close me-2 m-auto"
+                  class="btn-close {{button_close_class}} me-2 m-auto"
                   data-bs-dismiss="toast"
                   aria-label="Close"
                 >
