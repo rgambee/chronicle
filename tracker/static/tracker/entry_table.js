@@ -15,6 +15,7 @@ new Tabulator(
             {
                 title: "Category",
                 responsive: 20,
+                formatter: "html",
             },
             {
                 title: "Tags",
@@ -27,10 +28,12 @@ new Tabulator(
             {
                 title: "Edit",
                 responsive: 50,
+                formatter: "html",
             },
             {
                 title: "Delete",
                 responsive: 50,
+                formatter: "html",
             },
         ],
     },
