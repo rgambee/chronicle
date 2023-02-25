@@ -21,7 +21,6 @@ new Tabulator(
             {
                 title: "Category",
                 responsive: 20,
-                formatter: "html",
                 headerFilter: "input",
             },
             {

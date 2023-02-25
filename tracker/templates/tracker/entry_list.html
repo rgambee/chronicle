@@ -32,11 +32,7 @@
     <tr>
       <td>{{ entry.date|date:"Y-m-d" }}</td>
       <td>{{ entry.amount|floatformat:"-2" }}</td>
-      <td>
-        <a href="{% url 'entries-in-category' entry.category %}">
-          {{ entry.category }}
-        </a>
-      </td>
+      <td>{{ entry.category }}</td>
       <td>{{ entry.tags.all|join:", "|default:"None"|truncatechars:25 }}</td>
       <td>{{ entry.comment|truncatechars:25}}</td>
       <td><a href="{% url 'edit' entry.id %}">Edit</a></td>
