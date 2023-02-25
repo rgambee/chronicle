@@ -6,6 +6,11 @@ new Tabulator(
             {
                 title: "Date",
                 responsive: 10,
+                formatter: "datetime",
+                formatterParams:{
+                    inputFormat:"yyyy-MM-dd",
+                    outputFormat:"DD",
+                },
             },
             {
                 title: "Amount",
