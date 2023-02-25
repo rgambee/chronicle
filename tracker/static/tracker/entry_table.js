@@ -22,14 +22,17 @@ new Tabulator(
                 title: "Category",
                 responsive: 20,
                 formatter: "html",
+                headerFilter: "input",
             },
             {
                 title: "Tags",
                 responsive: 30,
+                headerFilter: "input",
             },
             {
                 title: "Comment",
                 responsive: 40,
+                headerFilter: "input",
             },
             {
                 title: "Edit",
