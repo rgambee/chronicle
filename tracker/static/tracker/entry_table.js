@@ -93,6 +93,7 @@ new Tabulator(
                 headerFilterFunc: rangeFilter,
                 headerFilterLiveFilter: false,
                 editor: "date",
+                validator: "required",
             },
             {
                 title: "Amount",
@@ -103,6 +104,7 @@ new Tabulator(
                     selectContents: true,
                     min: 0,
                 },
+                validator: "required",
             },
             {
                 title: "Category",
@@ -112,6 +114,7 @@ new Tabulator(
                 editorParams: {
                     selectContents: true,
                 },
+                validator: "required",
             },
             {
                 title: "Tags",
