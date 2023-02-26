@@ -6,6 +6,8 @@ function rangeEditor(cell, onRendered, success, cancel) {
     const dateRange = template.content.cloneNode(true);
     const startInput = dateRange.querySelector("#id_date_range_start");
     const endInput = dateRange.querySelector("#id_date_range_end");
+    const startClear = dateRange.querySelector("#id_date_range_start_clear");
+    const endClear = dateRange.querySelector("#id_date_range_end_clear");
 
     function buildRange() {
         let start;
@@ -35,12 +37,20 @@ function rangeEditor(cell, onRendered, success, cancel) {
         }
     }
 
+    function clear(input) {
+        input.value = "";
+        buildRange();
+    }
+
     startInput.addEventListener("change", buildRange);
     startInput.addEventListener("blur", buildRange);
     startInput.addEventListener("keydown", onKeypress);
     endInput.addEventListener("change", buildRange);
     endInput.addEventListener("blur", buildRange);
     endInput.addEventListener("keydown", onKeypress);
+
+    startClear.addEventListener("click", () => clear(startInput));
+    endClear.addEventListener("click", () => clear(endInput));
 
     return dateRange.firstElementChild;
 }
