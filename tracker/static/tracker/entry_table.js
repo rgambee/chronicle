@@ -92,26 +92,45 @@ new Tabulator(
                 headerFilter: rangeEditor,
                 headerFilterFunc: rangeFilter,
                 headerFilterLiveFilter: false,
+                editor: "date",
             },
             {
                 title: "Amount",
-                sorter: "number",
                 responsive: 10,
+                sorter: "number",
+                editor: "number",
+                editorParams: {
+                    selectContents: true,
+                    min: 0,
+                },
             },
             {
                 title: "Category",
                 responsive: 20,
                 headerFilter: "input",
+                editor: "input",
+                editorParams: {
+                    selectContents: true,
+                },
             },
             {
                 title: "Tags",
                 responsive: 30,
                 headerFilter: "input",
+                editor: "input",
+                editorParams: {
+                    selectContents: true,
+                },
             },
             {
                 title: "Comment",
                 responsive: 40,
                 headerFilter: "input",
+                editor: "textarea",
+                editorParams: {
+                    selectContents: true,
+                    shiftEnterSubmit: true,
+                },
             },
             {
                 title: "Edit",
