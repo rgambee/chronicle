@@ -110,6 +110,7 @@ new Tabulator(
                 title: "Category",
                 responsive: 20,
                 headerFilter: "input",
+                headerFilterPlaceholder: "Filter category",
                 editor: "input",
                 editorParams: {
                     selectContents: true,
@@ -120,6 +121,7 @@ new Tabulator(
                 title: "Tags",
                 responsive: 30,
                 headerFilter: "input",
+                headerFilterPlaceholder: "Filter tags",
                 editor: "input",
                 editorParams: {
                     selectContents: true,
@@ -129,6 +131,7 @@ new Tabulator(
                 title: "Comment",
                 responsive: 40,
                 headerFilter: "input",
+                headerFilterPlaceholder: "Filter comment",
                 editor: "textarea",
                 editorParams: {
                     selectContents: true,
