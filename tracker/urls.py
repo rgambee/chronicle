@@ -25,7 +25,7 @@ urlpatterns = [
     ),
     path("edit/<int:pk>/", views.EntryEdit.as_view(), name="edit"),
     path("delete/<int:pk>/", views.EntryDelete.as_view(), name="delete"),
-    path("plot/", views.PlotView.as_view(), name="plot"),
-    path("plot/<int:amount><str:unit>/", views.PlotView.as_view(), name="plot-recent"),
+    path("charts/", views.ChartView.as_view(), name="charts"),
+    path("charts/<int:amount><str:unit>/", views.ChartView.as_view(),name="charts-recent"),
     path("preferences/", views.PreferencesEdit.as_view(), name="preferences"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

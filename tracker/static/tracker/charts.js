@@ -133,7 +133,7 @@ function initCalendarHeatmap(element, dataByCategory) {
         }
     }
 
-    // Convert map to array of [date, totalAmount] pairs for plotting
+    // Convert map to array of [date, totalAmount] pairs for displaying
     const dateTotals = Array.from(
         dataByDate,
         ([date, categoryToAmount]) => [date, categoryToAmount.get(totalKey)],

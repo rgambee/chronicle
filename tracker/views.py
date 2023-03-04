@@ -130,11 +130,11 @@ class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, mi
         return context
 
 
-class PlotView(ListView):  # type: ignore[type-arg]
-    """Visualize entries with plots"""
+class ChartView(ListView):  # type: ignore[type-arg]
+    """Visualize entries with charts"""
 
     model = Entry
-    template_name = "tracker/plot.html"
+    template_name = "tracker/charts.html"
 
     def get_queryset(self) -> QuerySet[Entry]:
         return get_recent_entries(
