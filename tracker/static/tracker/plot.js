@@ -139,21 +139,18 @@ function initCalendarHeatmap(element, dataByCategory) {
         ([date, categoryToAmount]) => [date, categoryToAmount.get(totalKey)],
     ).sort();
 
-    let start = new Date();
     let end = new Date();
     if (dateTotals.length > 0) {
-        start = new Date(dateTotals.at(0).at(0));
         end = new Date(dateTotals.at(-1).at(0));
     }
-    // Round to beginning of week (here assumed to start on Sunday)
-    start.setDate(start.getDate() - start.getDay());
-    // Set end to be at least N weeks later
-    const minWeeks = 4;
-    end = new Date(
-        Math.max(end, new Date(start.getTime() + minWeeks * 7 * 24 * 60 * 60 * 1000)),
-    );
     // Round to end of week (here assumed to stop on Saturday)
     end.setDate(end.getDate() + (6 - end.getDay()));
+    // Set start to be at least N weeks earlier
+    const spanWeeks = 28;
+    // Subtract 1 day since we want to start on a different day of the week
+    // than we end on, e.g. Sunday to Saturday.
+    const spanMilliseconds = (spanWeeks * 7 - 1) * 24 * 60 * 60 * 1000;
+    const start = new Date(end.getTime() - spanMilliseconds);
 
     const formatDate = makeDateFormatter();
 
