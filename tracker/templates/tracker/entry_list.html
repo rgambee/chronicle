@@ -118,6 +118,30 @@
   </form>
 </template>
 
+{# Template used by entry_table.js for filtering amount column #}
+<template id="id_amount_comparison_template">
+  <form>
+    <select
+      id="id_amount_comparison_select"
+      class="form-select"
+      aria-label="Comparison type"
+    >
+      <option value=">=">>=</option>
+      <option value="<="><=</option>
+      <option value="==">==</option>
+    </select>
+    <input
+      id="id_amount_filter"
+      type="number"
+      class="form-control"
+      min="0"
+      step="1"
+      placeholder="Filter amount"
+      aria-label="Filter amount"
+    >
+  </form>
+</template>
+
 {# Luxon is required by Tabulator for datetime parsing and formatting #}
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.2.1/luxon.min.js"

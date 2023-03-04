@@ -74,6 +74,46 @@ function rangeFilter(dateRange, dateValue) {
     return true;
 }
 
+function comparisonEditor(cell, onRendered, success, cancel) {
+    const template = document.querySelector("#id_amount_comparison_template");
+    const comparison = template.content.cloneNode(true);
+    const comparisonSelect = comparison.querySelector("#id_amount_comparison_select");
+    const amountInput = comparison.querySelector("#id_amount_filter");
+
+    function buildComparison() {
+        let filt = () => true;
+        const amount = parseFloat(amountInput.value);
+        if (isNaN(amount)) {
+            success(filt);
+            return;
+        }
+        if (comparisonSelect.value === "==") {
+            console.log("==");
+            filt = (value) => value === amount;
+        } else if (comparisonSelect.value === "<=") {
+            console.log("<=");
+            filt = (value) => value <= amount;
+        } else if (comparisonSelect.value === ">=") {
+            console.log(">=");
+            filt = (value) => value >= amount;
+        } else {
+            console.log("Returning default filter");
+        }
+        // If comparisonSelect.value isn't one of the above, return the default filter,
+        // which matches all values.
+        success(filt);
+    }
+
+    comparisonSelect.addEventListener("change", buildComparison);
+    amountInput.addEventListener("input", buildComparison);
+
+    return comparison.firstElementChild;
+}
+
+function comparisonFilter(compare, value) {
+    return compare(value);
+}
+
 new Tabulator(
     "#id_entry_table",
     {
@@ -104,6 +144,9 @@ new Tabulator(
                     selectContents: true,
                     min: 0,
                 },
+                headerFilter: comparisonEditor,
+                headerFilterFunc: comparisonFilter,
+                headerFilterLiveFilter: true,
                 validator: "required",
             },
             {
