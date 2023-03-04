@@ -7,6 +7,7 @@ from django.db.models import Sum
 from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBase
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -18,8 +19,8 @@ from tracker.models import Entry
 
 
 def index(_: HttpRequest) -> HttpResponse:
-    """Placeholder view for the root url"""
-    return HttpResponse("index")
+    """Redirect to the entry list"""
+    return redirect("entries", permanent=True)
 
 
 # These parent *View classes are generic class but don't have __class_getitem__()
