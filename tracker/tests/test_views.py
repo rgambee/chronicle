@@ -128,7 +128,7 @@ class TestEntryEdit(TrackerTestCase):
         response = Client().post(
             reverse("edit", args=(self.entry_count,)), data=form.data, follow=True
         )
-        self.assertRedirects(response, reverse("entry", args=(self.entry_count,)))
+        self.assertRedirects(response, reverse("entries"))
         self.assertContains(
             response,
             EntryEdit().get_success_message(form.cleaned_data),

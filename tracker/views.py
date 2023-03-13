@@ -92,7 +92,7 @@ class EntryEdit(SuccessMessageMixin, UpdateView):  # type: ignore[type-arg]
 
     model = Entry
     form_class = EntryForm
-    success_view = "new/"
+    success_url = reverse_lazy("entries")
     success_message = "Entry on %(date)s was updated successfully"
 
     def get_success_message(self, cleaned_data: dict[str, Any]) -> str:
