@@ -1,0 +1,25 @@
+{% load tracker_tags %}
+{% setvar ' active" aria-current="page' as nav_link_active %}
+
+<header>
+  <nav class="navbar navbar-expand fixed-top border-bottom bg-white">
+    <div class="container-fluid justify-content-start">
+      <a class="navbar-brand pe-3" href="{% url 'index' %}">
+        <span class="fs-4">Tracker</span>
+      </a>
+      <div class="nav nav-pills">
+        {% for page in navbar_links %}
+          <a
+            class="nav-link{% if navbar_active == page %}{{nav_link_active}}{% endif %}"
+            href="{% url page %}"
+          >
+            {{ page|title }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </nav>
+</header>
+
+{# Empty div so that main content isn't under header #}
+<div class="pt-4 py-5"></div>
