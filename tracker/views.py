@@ -75,6 +75,7 @@ class EntryListView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         return super().get_context_data(
             form=EntryForm(selected_category=self.selected_category),
+            navbar_active="entries",
             **kwargs,
         )
 
@@ -175,6 +176,7 @@ class ChartView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
             # to override get_queryset() to turn a different type, that could cause an
             # issue. But it's unlikely and can be addressed in the future if necessary.
             entries=aggregate_entries(self.object_list),  # type: ignore[arg-type]
+            navbar_active="charts",
             **kwargs,
         )
 

@@ -1,6 +1,9 @@
 {% extends "tracker/base.html" %}
 
 {% block header %}
+{% load tracker_tags %}
+{% setvar ' active" aria-current="page' as nav_link_active %}
+
 <header>
   <nav class="navbar navbar-expand fixed-top border-bottom bg-white">
     <div class="container-fluid justify-content-start">
@@ -10,7 +13,7 @@
       <div class="nav nav-pills">
         {% for page in navbar_links %}
           <a
-            class="nav-link"
+            class="nav-link{% if navbar_active == page %}{{nav_link_active}}{% endif %}"
             href="{% url page %}"
           >
             {{ page|title }}
