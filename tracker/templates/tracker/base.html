@@ -11,6 +11,10 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer"
       />
+      {% block favicon %}
+        {% load static %}
+        <link rel="icon" type="image/png" href="{% static 'tracker/favicon.png' %}">
+      {% endblock %}
       <title>{% block title %}Page Title{% endblock %}</title>
     {% endblock %}
   </head>
