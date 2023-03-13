@@ -8,8 +8,14 @@
         <span class="fs-4">Chronicle</span>
       </a>
       <div class="nav nav-pills">
-        <a class="nav-link active" aria-current="page" href="{% url 'entries' %}">Entries</a>
-        <a class="nav-link" href="{% url 'charts' %}">Charts</a>
+        {% for page in navbar_links %}
+          <a
+            class="nav-link"
+            href="{% url page %}"
+          >
+            {{ page|title }}
+          </a>
+        {% endfor %}
       </div>
     </div>
   </nav>

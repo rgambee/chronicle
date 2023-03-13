@@ -12,6 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
 from django.views.generic import DeleteView, DetailView, FormView, ListView
+from django.views.generic.base import ContextMixin
 from django.views.generic.edit import CreateView, UpdateView
 
 from tracker.forms import EntryForm, PreferencesForm
@@ -23,11 +24,21 @@ def index(_: HttpRequest) -> HttpResponse:
     return redirect("entries", permanent=True)
 
 
+class NavBarLinksMixin(ContextMixin):
+    """Mixin for adding links to navbar"""
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        return super().get_context_data(
+            navbar_links=["entries", "charts"],
+            **kwargs,
+        )
+
+
 # These parent *View classes are generic class but don't have __class_getitem__()
 # methods, which prevents one from specifying the type parameter. The
 # django-stubs-ext package has a monkeypatch to address this, but that imposes runtime
 # dependencies.
-class EntryDetailView(DetailView):  # type: ignore[type-arg]
+class EntryDetailView(NavBarLinksMixin, DetailView):  # type: ignore[type-arg]
     """View the contents of a single entry"""
 
     model = Entry
@@ -41,7 +52,7 @@ class EntryDetailView(DetailView):  # type: ignore[type-arg]
         return context
 
 
-class EntryListView(ListView):  # type: ignore[type-arg]
+class EntryListView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
     """View a list of many entries"""
 
     model = Entry
@@ -68,7 +79,11 @@ class EntryListView(ListView):  # type: ignore[type-arg]
         )
 
 
-class EntryCreate(SuccessMessageMixin, CreateView):  # type: ignore[type-arg]
+class EntryCreate(
+    NavBarLinksMixin,
+    SuccessMessageMixin,
+    CreateView,  # type: ignore[type-arg]
+):
     """Create a new entry using a form"""
 
     model = Entry
@@ -87,7 +102,11 @@ class EntryCreate(SuccessMessageMixin, CreateView):  # type: ignore[type-arg]
         return self.success_message % dict(date=cleaned_data["date"].date())
 
 
-class EntryEdit(SuccessMessageMixin, UpdateView):  # type: ignore[type-arg]
+class EntryEdit(
+    NavBarLinksMixin,
+    SuccessMessageMixin,
+    UpdateView,  # type: ignore[type-arg]
+):
     """Edit an existing entry using a form"""
 
     model = Entry
@@ -115,7 +134,11 @@ class EntryListAndCreate(View):
         return view(*args, **kwargs)
 
 
-class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, misc]
+class EntryDelete(  # type: ignore[misc]
+    NavBarLinksMixin,
+    SuccessMessageMixin,
+    DeleteView,  # type: ignore[type-arg]
+):
     """Delete an entry, after asking for confirmation"""
 
     model = Entry
@@ -131,7 +154,7 @@ class EntryDelete(SuccessMessageMixin, DeleteView):  # type: ignore[type-arg, mi
         return context
 
 
-class ChartView(ListView):  # type: ignore[type-arg]
+class ChartView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
     """Visualize entries with charts"""
 
     model = Entry
@@ -156,7 +179,7 @@ class ChartView(ListView):  # type: ignore[type-arg]
         )
 
 
-class PreferencesEdit(FormView):  # type: ignore[type-arg]
+class PreferencesEdit(NavBarLinksMixin, FormView):  # type: ignore[type-arg]
     """View for editing user preferences"""
 
     template_name = "tracker/preferences.html"
