@@ -1,5 +1,24 @@
 {% extends "tracker/base.html" %}
 
+{% block header %}
+<header>
+  <nav class="navbar navbar-expand fixed-top border-bottom bg-white">
+    <div class="container-fluid justify-content-start">
+      <a class="navbar-brand pe-3" href="{% url 'index' %}">
+        <span class="fs-4">Chronicle</span>
+      </a>
+      <div class="nav nav-pills">
+        <a class="nav-link active" aria-current="page" href="{% url 'entries' %}">Entries</a>
+        <a class="nav-link" href="{% url 'charts' %}">Charts</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+{# Empty div so that main content isn't under header #}
+<div class="pt-4 py-5"></div>
+{% endblock %}
+
 {% block footer %}
 <footer class="d-flex flex-row justify-content-between border-top pt-3">
   <p class="text-muted">&copy; 2023 Robert Gambee</p>

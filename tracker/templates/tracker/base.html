@@ -16,6 +16,8 @@
   <body>
     {% include "tracker/messages.html" %}
 
+    {% block header %}{% endblock %}
+
     <div class="container-lg d-flex flex-column min-vh-100">
       <div id="content" class="py-3 flex-grow-1">
         {% block content %}{% endblock %}
