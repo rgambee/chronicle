@@ -4,9 +4,11 @@
 <header>
   <nav class="navbar navbar-expand fixed-top border-bottom bg-white">
     <div class="container-fluid justify-content-start">
-      <a class="navbar-brand pe-3" href="{% url 'index' %}">
-        <span class="fs-4">Tracker</span>
-      </a>
+      {% block navbranding %}
+        <a class="navbar-brand pe-3" href="{% url 'index' %}">
+          <span class="fs-4">Tracker</span>
+        </a>
+      {% endblock %}
       <div class="nav nav-pills">
         {% for page in navbar_links %}
           <a
