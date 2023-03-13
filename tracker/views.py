@@ -58,6 +58,7 @@ class EntryListView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
 
     model = Entry
     paginate_by = 100
+    template_name = "tracker/entry_list.html"
     context_object_name = "entries"
     selected_category: Optional[str] = None
 
@@ -90,7 +91,6 @@ class EntryCreate(
 
     model = Entry
     form_class = EntryForm
-    template_name = "tracker/entry_list.html"
     success_message = "Entry on %(date)s was created successfully"
 
     def get_success_url(self) -> str:
