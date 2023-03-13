@@ -45,11 +45,12 @@ class EntryDetailView(NavBarLinksMixin, DetailView):  # type: ignore[type-arg]
     context_object_name = "entry"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        # This view uses the same template as EntryDelete. In this view, we want to show
-        # a link to point to let the user delete this entry.
-        context["show_delete_link"] = True
-        return context
+        return super().get_context_data(
+            # This view uses the same template as EntryDelete. In this view, we want to
+            # show a link to point to let the user delete this entry.
+            show_delete_link=True,
+            **kwargs,
+        )
 
 
 class EntryListView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
@@ -148,11 +149,12 @@ class EntryDelete(  # type: ignore[misc]
     success_message = "Entry was deleted successfully"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        # This view uses the same template as EntryDetailView. In this view, we don't
-        # want to show a delete link since we're already at that view.
-        context["show_delete_link"] = False
-        return context
+        return super().get_context_data(
+            # This view uses the same template as EntryDetailView. In this view, we
+            # don't want to show a delete link since we're already at that view.
+            show_delete_link=False,
+            **kwargs,
+        )
 
 
 class ChartView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
