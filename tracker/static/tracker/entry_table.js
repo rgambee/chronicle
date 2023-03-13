@@ -74,7 +74,7 @@ function rangeFilter(dateRange, dateValue) {
     return true;
 }
 
-function comparisonEditor(cell, onRendered, success, cancel) {
+function comparisonEditor(cell, onRendered, success) {
     const template = document.querySelector("#id_amount_comparison_template");
     const comparison = template.content.cloneNode(true);
     const comparisonSelect = comparison.querySelector("#id_amount_comparison_select");
