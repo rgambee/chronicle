@@ -1,18 +1,19 @@
 {% load tracker_tags %}
-{% setvar ' active" aria-current="page' as nav_link_active %}
+{% setvar ' active bg-white text-primary" aria-current="page' as nav_link_active %}
+{% setvar ' text-white' as nav_link_inactive %}
 
 <header>
-  <nav class="navbar navbar-expand fixed-top border-bottom bg-white">
+  <nav class="navbar navbar-expand fixed-top border-bottom bg-primary">
     <div class="container-fluid justify-content-start">
       {% block navbranding %}
         <a class="navbar-brand pe-3" href="{% url 'index' %}">
-          <span class="fs-4">Tracker</span>
+          <span class="text-white fs-4">Tracker</span>
         </a>
       {% endblock %}
       <div class="nav nav-pills">
         {% for page in navbar_links %}
           <a
-            class="nav-link{% if navbar_active == page %}{{nav_link_active}}{% endif %}"
+            class="nav-link{% if navbar_active == page %}{{nav_link_active}}{% else %}{{nav_link_inactive}}{% endif %}"
             href="{% url page %}"
           >
             {{ page|title }}
