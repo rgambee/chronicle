@@ -1,5 +1,9 @@
 # Chronicle
 
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+
 Chronicle is a web app that helps you track how you allocate resources. My
 motivation for creating it was to track how I spend my time, hence the name,
 but it works equally well for tracking money.
