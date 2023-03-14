@@ -120,7 +120,6 @@ const table = new Tabulator(
         layout: "fitColumns",
         responsiveLayout: "hide",
         selectable: true,
-        selectableRangeMode: "click",
         columns: [
             {
                 responsive: 35,
