@@ -4,9 +4,9 @@
 
 <header>
   <nav class="navbar navbar-expand fixed-top border-bottom bg-primary">
-    <div class="container-fluid justify-content-start">
+    <div class="container-lg justify-content-start">
       {% block navbranding %}
-        <a class="navbar-brand text-white px-3 fs-4" href="{% url 'index' %}">
+        <a class="navbar-brand text-white pe-3 fs-4" href="{% url 'index' %}">
           {% block navbranding_logo %}
             {% include "tracker/clipboard.svg" %}
           {% endblock %}
