@@ -70,6 +70,29 @@ has finished initializing it. When the JS is ready, it sets the table to visible
   </span>
 </div>
 
+{# Template used by entry_table.js for selecting and deleting visible entries #}
+<template id="id_header_select_template">
+  <div class="row gy-2">
+    <div class="column">
+      <input
+        id="id_select_visible_checkbox"
+        type="checkbox"
+        title="Select Visible"
+      >
+    </div>
+    <div class="column">
+      <button
+        id="id_delete_selected_btn"
+        type="button"
+        title="Delete Selected"
+        class="btn btn-sm btn-outline-danger"
+      >
+        {% include "tracker/trashcan.svg" %}
+      </button>
+    </div>
+  </div>
+</template>
+
 {# Template used by entry_table.js for range filter for date column #}
 <template id="id_date_range_template">
   <form>
