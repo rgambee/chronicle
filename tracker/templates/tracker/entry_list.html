@@ -19,7 +19,11 @@
 {% include "tracker/form_template.html" with submit_text="Create" validation_styling=True %}
 
 <h2 class="pt-2">Existing Entries</h2>
-<table id="id_entry_table" class="table table-sm">
+{% comment %}
+The table is initially hidden so that it isn't shown before the associated JavaScript
+has finished initializing it. When the JS is ready, it sets the table to visible.
+{% endcomment %}
+<table id="id_entry_table" class="table table-sm" style="visibility: hidden;">
   <thead>
     <tr>
       <th>Date</th>

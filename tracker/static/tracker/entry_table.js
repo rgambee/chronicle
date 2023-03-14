@@ -114,7 +114,7 @@ function comparisonFilter(compare, value) {
     return compare(value);
 }
 
-new Tabulator(
+const table = new Tabulator(
     "#id_entry_table",
     {
         responsiveLayout: "hide",
@@ -204,5 +204,13 @@ new Tabulator(
                 formatter: "html",
             },
         ],
+    },
+);
+
+// Make the table visible once it's built
+table.on(
+    "tableBuilt",
+    () => {
+        document.querySelector("#id_entry_table").style.visibility = "visible";
     },
 );
