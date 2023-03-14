@@ -117,11 +117,14 @@ function comparisonFilter(compare, value) {
 const table = new Tabulator(
     "#id_entry_table",
     {
+        layout: "fitColumns",
         responsiveLayout: "hide",
         selectable: true,
         selectableRangeMode: "click",
         columns: [
             {
+                responsive: 35,
+                width: 40,
                 formatter: "rowSelection",
                 titleFormatter: "rowSelection",
                 titleFormatterParams: {
@@ -134,13 +137,13 @@ const table = new Tabulator(
             {
                 title: "Date",
                 responsive: 10,
+                width: 220,
                 frozen: true,
                 formatter: "datetime",
                 formatterParams:{
                     inputFormat:"yyyy-MM-dd",
                     outputFormat:"DD",
                 },
-                width: 220,
                 headerFilter: rangeEditor,
                 headerFilterFunc: rangeFilter,
                 headerFilterLiveFilter: false,
@@ -149,6 +152,8 @@ const table = new Tabulator(
             },
             {
                 title: "Amount",
+                minWidth: 97,
+                widthGrow: 1,
                 responsive: 10,
                 sorter: "number",
                 editor: "number",
@@ -163,6 +168,8 @@ const table = new Tabulator(
             },
             {
                 title: "Category",
+                minWidth: 70,
+                widthGrow: 2,
                 responsive: 20,
                 headerFilter: "input",
                 headerFilterPlaceholder: "Filter category",
@@ -174,6 +181,8 @@ const table = new Tabulator(
             },
             {
                 title: "Tags",
+                minWidth: 70,
+                widthGrow: 3,
                 responsive: 30,
                 headerFilter: "input",
                 headerFilterPlaceholder: "Filter tags",
@@ -184,6 +193,8 @@ const table = new Tabulator(
             },
             {
                 title: "Comment",
+                minWidth: 70,
+                widthGrow: 5,
                 responsive: 40,
                 headerFilter: "input",
                 headerFilterPlaceholder: "Filter comment",
@@ -196,10 +207,12 @@ const table = new Tabulator(
             {
                 title: "Edit",
                 responsive: 50,
+                width: 45,
                 formatter: "html",
             },
             {
                 title: "Delete",
+                width: 65,
                 responsive: 50,
                 formatter: "html",
             },
