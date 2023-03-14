@@ -20,15 +20,18 @@
 
 <h2 class="pt-2">Existing Entries</h2>
 <table id="id_entry_table" class="table table-sm">
-  <tr>
-    <th>Date</th>
-    <th>Amount</th>
-    <th>Category</th>
-    <th>Tags</th>
-    <th>Comment</th>
-    <th>Edit</th>
-    <th>Delete</th>
-  </tr>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Amount</th>
+      <th>Category</th>
+      <th>Tags</th>
+      <th>Comment</th>
+      <th>Edit</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+  <tbody>
   {% for entry in entries %}
     <tr>
       <td>{{ entry.date|date:"Y-m-d" }}</td>
@@ -40,6 +43,7 @@
       <td><a href="{% url 'delete' entry.id %}">Delete</a></td>
     </tr>
   {% endfor %}
+  </tbody>
 </table>
 
 <div class="pagination">
