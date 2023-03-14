@@ -118,7 +118,19 @@ new Tabulator(
     "#id_entry_table",
     {
         responsiveLayout: "hide",
+        selectable: true,
+        selectableRangeMode: "click",
         columns: [
+            {
+                formatter: "rowSelection",
+                titleFormatter: "rowSelection",
+                titleFormatterParams: {
+                    rowRange: "active",
+                },
+                hozAlign: "center",
+                headerHozAlign: "center",
+                headerSort: false,
+            },
             {
                 title: "Date",
                 responsive: 10,
