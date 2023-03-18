@@ -1,25 +1,3 @@
-function headerSelector(cell, formatterParams) {
-    const template = document.querySelector("#id_header_select_template");
-    const container = template.content.cloneNode(true);
-    const checkbox = container.querySelector("#id_select_visible_checkbox");
-    const button = container.querySelector("#id_delete_selected_btn");
-
-    function onCheckboxChanged() {
-        // Function must be bound to the table so we can access it
-        const table = this;
-        if (table.modules.selectRow.selectedRows.length) {
-            table.deselectRow();
-        } else {
-            table.selectRow(formatterParams.rowRange);
-        }
-    }
-
-    checkbox.addEventListener("change", onCheckboxChanged.bind(this.table));
-    this.table.modules.selectRow.registerHeaderSelectCheckbox(checkbox);
-
-    return container.firstElementChild;
-}
-
 // Custom date filtering based on this answer by Oli Folkerd:
 // https://stackoverflow.com/a/64414478
 
@@ -147,7 +125,7 @@ const table = new Tabulator(
                 responsive: 35,
                 width: 50,
                 formatter: "rowSelection",
-                titleFormatter: headerSelector,
+                titleFormatter: "rowSelection",
                 titleFormatterParams: {
                     rowRange: "active",
                 },
