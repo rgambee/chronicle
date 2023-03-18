@@ -126,117 +126,120 @@ function setupButtonListeners(table) {
     deleteButton.addEventListener("click", deleteSelected.bind(table));
 }
 
-const table = new Tabulator(
-    "#id_entry_table",
-    {
-        layout: "fitColumns",
-        responsiveLayout: "hide",
-        selectable: true,
-        columns: [
-            {
-                responsive: 35,
-                width: 50,
-                formatter: "rowSelection",
-                titleFormatter: "rowSelection",
-                titleFormatterParams: {
-                    rowRange: "active",
+function createTable() {
+    const table = new Tabulator(
+        "#id_entry_table",
+        {
+            layout: "fitColumns",
+            responsiveLayout: "hide",
+            selectable: true,
+            columns: [
+                {
+                    responsive: 35,
+                    width: 50,
+                    formatter: "rowSelection",
+                    titleFormatter: "rowSelection",
+                    titleFormatterParams: {
+                        rowRange: "active",
+                    },
+                    hozAlign: "center",
+                    headerHozAlign: "center",
+                    headerSort: false,
                 },
-                hozAlign: "center",
-                headerHozAlign: "center",
-                headerSort: false,
-            },
-            {
-                title: "Date",
-                responsive: 10,
-                width: 220,
-                frozen: true,
-                formatter: "datetime",
-                formatterParams:{
-                    inputFormat:"yyyy-MM-dd",
-                    outputFormat:"DD",
+                {
+                    title: "Date",
+                    responsive: 10,
+                    width: 220,
+                    frozen: true,
+                    formatter: "datetime",
+                    formatterParams:{
+                        inputFormat:"yyyy-MM-dd",
+                        outputFormat:"DD",
+                    },
+                    headerFilter: rangeEditor,
+                    headerFilterFunc: rangeFilter,
+                    headerFilterLiveFilter: false,
+                    editor: "date",
+                    validator: "required",
                 },
-                headerFilter: rangeEditor,
-                headerFilterFunc: rangeFilter,
-                headerFilterLiveFilter: false,
-                editor: "date",
-                validator: "required",
-            },
-            {
-                title: "Amount",
-                minWidth: 97,
-                widthGrow: 1,
-                responsive: 10,
-                sorter: "number",
-                editor: "number",
-                editorParams: {
-                    selectContents: true,
-                    min: 0,
+                {
+                    title: "Amount",
+                    minWidth: 97,
+                    widthGrow: 1,
+                    responsive: 10,
+                    sorter: "number",
+                    editor: "number",
+                    editorParams: {
+                        selectContents: true,
+                        min: 0,
+                    },
+                    headerFilter: comparisonEditor,
+                    headerFilterFunc: comparisonFilter,
+                    headerFilterLiveFilter: true,
+                    validator: "required",
                 },
-                headerFilter: comparisonEditor,
-                headerFilterFunc: comparisonFilter,
-                headerFilterLiveFilter: true,
-                validator: "required",
-            },
-            {
-                title: "Category",
-                minWidth: 70,
-                widthGrow: 2,
-                responsive: 20,
-                headerFilter: "input",
-                headerFilterPlaceholder: "Filter category",
-                editor: "input",
-                editorParams: {
-                    selectContents: true,
+                {
+                    title: "Category",
+                    minWidth: 70,
+                    widthGrow: 2,
+                    responsive: 20,
+                    headerFilter: "input",
+                    headerFilterPlaceholder: "Filter category",
+                    editor: "input",
+                    editorParams: {
+                        selectContents: true,
+                    },
+                    validator: "required",
                 },
-                validator: "required",
-            },
-            {
-                title: "Tags",
-                minWidth: 70,
-                widthGrow: 3,
-                responsive: 30,
-                headerFilter: "input",
-                headerFilterPlaceholder: "Filter tags",
-                editor: "input",
-                editorParams: {
-                    selectContents: true,
+                {
+                    title: "Tags",
+                    minWidth: 70,
+                    widthGrow: 3,
+                    responsive: 30,
+                    headerFilter: "input",
+                    headerFilterPlaceholder: "Filter tags",
+                    editor: "input",
+                    editorParams: {
+                        selectContents: true,
+                    },
                 },
-            },
-            {
-                title: "Comment",
-                minWidth: 70,
-                widthGrow: 5,
-                responsive: 40,
-                headerFilter: "input",
-                headerFilterPlaceholder: "Filter comment",
-                editor: "textarea",
-                editorParams: {
-                    selectContents: true,
-                    shiftEnterSubmit: true,
+                {
+                    title: "Comment",
+                    minWidth: 70,
+                    widthGrow: 5,
+                    responsive: 40,
+                    headerFilter: "input",
+                    headerFilterPlaceholder: "Filter comment",
+                    editor: "textarea",
+                    editorParams: {
+                        selectContents: true,
+                        shiftEnterSubmit: true,
+                    },
                 },
-            },
-            {
-                title: "Edit",
-                responsive: 50,
-                width: 45,
-                formatter: "html",
-            },
-            {
-                title: "Delete",
-                width: 65,
-                responsive: 50,
-                formatter: "html",
-            },
-        ],
-    },
-);
+                {
+                    title: "Edit",
+                    responsive: 50,
+                    width: 45,
+                    formatter: "html",
+                },
+                {
+                    title: "Delete",
+                    width: 65,
+                    responsive: 50,
+                    formatter: "html",
+                },
+            ],
+        },
+    );
+    // Make the table visible once it's built (it's hidden initially by the HTML)
+    table.on(
+        "tableBuilt",
+        () => {
+            document.querySelector("#id_entry_table").style.visibility = "visible";
+        },
+    );
+    return table;
+}
 
-// Make the table visible once it's built
-table.on(
-    "tableBuilt",
-    () => {
-        document.querySelector("#id_entry_table").style.visibility = "visible";
-    },
-);
-
+const table = createTable();
 setupButtonListeners(table);
