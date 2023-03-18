@@ -140,6 +140,7 @@ function createTable() {
             responsiveLayout: "hide",
             selectable: true,
             history: true,
+            index: "id",
             columns: [
                 {
                     responsive: 35,
@@ -152,6 +153,10 @@ function createTable() {
                     hozAlign: "center",
                     headerHozAlign: "center",
                     headerSort: false,
+                },
+                {
+                    title: "Id",
+                    visible: false,
                 },
                 {
                     title: "Date",

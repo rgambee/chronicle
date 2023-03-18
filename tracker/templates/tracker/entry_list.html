@@ -66,6 +66,7 @@ has finished initializing it. When the JS is ready, it sets the table to visible
 <table id="id_entry_table" class="table table-sm" style="visibility: hidden;">
   <thead>
     <tr>
+      <th>Id</th>
       <th>Date</th>
       <th>Amount</th>
       <th>Category</th>
@@ -78,6 +79,7 @@ has finished initializing it. When the JS is ready, it sets the table to visible
   <tbody>
   {% for entry in entries %}
     <tr>
+      <td>{{ entry.id }}</td>
       <td>{{ entry.date|date:"Y-m-d" }}</td>
       <td>{{ entry.amount|floatformat:"-2" }}</td>
       <td>{{ entry.category }}</td>
