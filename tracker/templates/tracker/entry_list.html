@@ -27,8 +27,35 @@
       title="Delete Selected"
       class="btn btn-sm btn-outline-danger"
     >
-      {% include "tracker/trashcan.svg" %}
+      {% include "tracker/icons/trashcan.svg" %}
       Delete
+    </button>
+    <button
+      id="id_undo_btn"
+      type="button"
+      title="Undo"
+      class="btn btn-sm btn-outline-primary"
+    >
+      {% include "tracker/icons/undo.svg" %}
+      Undo
+    </button>
+    <button
+      id="id_redo_btn"
+      type="button"
+      title="Redo"
+      class="btn btn-sm btn-outline-primary"
+    >
+      {% include "tracker/icons/redo.svg" %}
+      Redo
+    </button>
+    <button
+      id="id_save_changes_btn"
+      type="button"
+      title="Save Changes"
+      class="btn btn-sm btn-outline-primary"
+    >
+      {% include "tracker/icons/save.svg" %}
+      <span class="ps-1">Save</span>
     </button>
   </div>
 </div>
