@@ -185,6 +185,10 @@ function createTable() {
                         selectContents: true,
                         min: 0,
                     },
+                    formatter: "money",
+                    formatterParams: {
+                        precision: 0,
+                    },
                     headerFilter: comparisonEditor,
                     headerFilterFunc: comparisonFilter,
                     headerFilterLiveFilter: true,
