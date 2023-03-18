@@ -124,6 +124,12 @@ function deleteSelected() {
 function setupButtonListeners(table) {
     const deleteButton = document.querySelector("#id_delete_selected_btn");
     deleteButton.addEventListener("click", deleteSelected.bind(table));
+
+    const undoButton = document.querySelector("#id_undo_btn");
+    undoButton.addEventListener("click", () => table.undo());
+
+    const redoButton = document.querySelector("#id_redo_btn");
+    redoButton.addEventListener("click", () => table.redo());
 }
 
 function createTable() {
@@ -133,6 +139,7 @@ function createTable() {
             layout: "fitColumns",
             responsiveLayout: "hide",
             selectable: true,
+            history: true,
             columns: [
                 {
                     responsive: 35,
