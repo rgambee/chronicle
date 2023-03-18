@@ -114,6 +114,18 @@ function comparisonFilter(compare, value) {
     return compare(value);
 }
 
+// Function must be bound to an instance of Tabulator
+function deleteSelected() {
+    const ids = this.getSelectedData().map(row => row.id);
+    console.log("Deleting rows", ids);
+    this.deleteRow(ids);
+}
+
+function setupButtonListeners(table) {
+    const deleteButton = document.querySelector("#id_delete_selected_btn");
+    deleteButton.addEventListener("click", deleteSelected.bind(table));
+}
+
 const table = new Tabulator(
     "#id_entry_table",
     {
@@ -226,3 +238,5 @@ table.on(
         document.querySelector("#id_entry_table").style.visibility = "visible";
     },
 );
+
+setupButtonListeners(table);
