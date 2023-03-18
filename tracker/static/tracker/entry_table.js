@@ -232,18 +232,6 @@ function createTable() {
                         shiftEnterSubmit: true,
                     },
                 },
-                {
-                    title: "Edit",
-                    responsive: 50,
-                    width: 45,
-                    formatter: "html",
-                },
-                {
-                    title: "Delete",
-                    width: 65,
-                    responsive: 50,
-                    formatter: "html",
-                },
             ],
         },
     );

@@ -72,8 +72,6 @@ has finished initializing it. When the JS is ready, it sets the table to visible
       <th>Category</th>
       <th>Tags</th>
       <th>Comment</th>
-      <th>Edit</th>
-      <th>Delete</th>
     </tr>
   </thead>
   <tbody>
@@ -85,8 +83,6 @@ has finished initializing it. When the JS is ready, it sets the table to visible
       <td>{{ entry.category }}</td>
       <td>{{ entry.tags.all|join:", " }}</td>
       <td>{{ entry.comment }}</td>
-      <td><a href="{% url 'edit' entry.id %}">Edit</a></td>
-      <td><a href="{% url 'delete' entry.id %}">Delete</a></td>
     </tr>
   {% endfor %}
   </tbody>
