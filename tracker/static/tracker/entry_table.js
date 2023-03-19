@@ -119,6 +119,49 @@ function deleteSelected() {
     const ids = this.getSelectedData().map(row => row.id);
     console.log("Deleting rows", ids);
     this.deleteRow(ids);
+    // Store deleted rows so they can be sent to server when the user saves changes
+    if (this.deletedRowIds === undefined) {
+        this.deletedRowIds = new Set();
+    }
+    ids.forEach(id => this.deletedRowIds.add(id));
+}
+
+function undoListener(action, component, data) {
+    console.log("undo", action, component, data);
+    if (action !== "rowDelete") {
+        return;
+    }
+    const table = component.getTable();
+    if (table.deletedRowIds !== undefined) {
+        table.deletedRowIds.delete(component.getIndex());
+    }
+}
+
+function redoListener(action, component, data) {
+    console.log("redo", action, component, data);
+    const table = component.getTable();
+    if (table.deletedRowIds !== undefined) {
+        table.deletedRowIds.add(component.getIndex());
+    }
+}
+
+// Function must be bound to an instance of Tabulator
+function saveChanges() {
+    console.log("Deleted rows", this.deletedRowIds);
+    console.log("Edited cells", this.getEditedCells());
+
+    // TODO: send changes to server
+
+    // Clear pending edits now that they've been saved
+    if (this.deletedRowIds !== undefined) {
+        this.deletedRowIds.clear();
+    }
+    this.clearCellEdited();
+    // Don't let undo history span saves. It would be possible to let the user undo a
+    // change even after it's been sent to the server. But that's not worth the added
+    // complexity at this stage. Such a feature could be implemented in the future if
+    // desired.
+    this.clearHistory();
 }
 
 function setupButtonListeners(table) {
@@ -127,9 +170,14 @@ function setupButtonListeners(table) {
 
     const undoButton = document.querySelector("#id_undo_btn");
     undoButton.addEventListener("click", () => table.undo());
+    table.on("historyUndo", undoListener);
 
     const redoButton = document.querySelector("#id_redo_btn");
     redoButton.addEventListener("click", () => table.redo());
+    table.on("historyRedo", redoListener);
+
+    const saveButton = document.querySelector("#id_save_changes_btn");
+    saveButton.addEventListener("click", saveChanges.bind(table));
 }
 
 function createTable() {
