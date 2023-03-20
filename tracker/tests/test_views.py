@@ -403,6 +403,10 @@ class TestSubtractTimedelta(TestCase):
         self.assertEqual(start, datetime(1999, 12, 31, 12, 34, 56))
         start = subtract_timedelta(end, 4, "months")
         self.assertEqual(start, datetime(1999, 12, 1, 12, 34, 56))
+        # Test subtracting from a leap year
+        end = datetime(2000, 2, 29, 12, 34, 56)
+        start = subtract_timedelta(end, 1, "years")
+        self.assertEqual(start, datetime(1999, 3, 1, 12, 34, 56))
 
 
 class TestEntryAggregation(TrackerTestCase):

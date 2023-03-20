@@ -244,27 +244,50 @@ def subtract_timedelta(end: datetime, amount: int, unit: str) -> datetime:
         "minutes"
         "seconds"
     """
+    # Time spans of weeks through seconds are well-defined, and we can rely on the
+    # datetime library for the arithmetic. But years and months don't have fixed
+    # durations, so they require some extra logic. In this case, we want to decrement
+    # the year/month since that's what a person usually means by "one year/month ago".
     if amount < 0:
         raise ValueError("Time delta amount may not be negative")
     if unit == "years":
-        start = end.replace(year=end.year - amount)
+        year = end.year - amount
+        start = datetime_replace(end, year=year)
     elif unit == "months":
         month = (end.month - amount - 1) % 12 + 1
         year = end.year + (end.month - amount - 1) // 12
-        try:
-            start = end.replace(year=year, month=month)
-        except ValueError as err:
-            if str(err) == "day is out of range for month":
-                # Round invalid dates (like February 30th) forward to next valid one
-                year += month // 12
-                month = month % 12 + 1
-                start = end.replace(year=year, month=month, day=1)
-            else:
-                raise
+        start = datetime_replace(end, year=year, month=month)
     else:
         delta = timedelta(**{unit: amount})
         start = end - delta
     return start
+
+
+def datetime_replace(when: datetime, **kwargs: int) -> datetime:
+    """Replace fields of a datetime, rolling forward to avoid invalid dates"""
+    try:
+        # mypy complains that we might try to set the tzinfo field to an int, which
+        # would be a problem and is technically possible given signature of this
+        # function. Admittedly, the signature is incorrect (kwargs elements can have
+        # type int or Optional[tzinfo]), but annotating it correctly would be verbose
+        # and less clear.
+        result = when.replace(**kwargs)  # type: ignore[arg-type]
+    except ValueError as err:
+        if str(err) == "day is out of range for month":
+            # Round invalid dates (like February 30th) forward to next valid one
+            year = kwargs.get("year", when.year)
+            month = kwargs.get("month", when.month)
+            year += month // 12
+            month = month % 12 + 1
+            kwargs.pop("year", None)
+            kwargs.pop("month", None)
+            kwargs.pop("day", None)
+            result = when.replace(
+                year=year, month=month, day=1, **kwargs  # type: ignore[arg-type]
+            )
+        else:
+            raise
+    return result
 
 
 def aggregate_entries(queryset: QuerySet[Entry]) -> dict[str, dict[str, float]]:
