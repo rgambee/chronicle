@@ -4,7 +4,12 @@ from typing import Any, Optional
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query import QuerySet
 from django.forms import Form
-from django.http import HttpRequest, HttpResponse, HttpResponseBase
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBase,
+    HttpResponseRedirect,
+)
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
@@ -20,6 +25,13 @@ from tracker.view_utils import get_recent_entries, prepare_entries_for_serializa
 def index(_: HttpRequest) -> HttpResponse:
     """Redirect to the entry list"""
     return redirect("entries", permanent=True)
+
+
+def update_entries(request: HttpRequest) -> HttpResponse:
+    """Add, edit or delete multiple entries at once"""
+    logging.info("Request: %r", request)
+    logging.info("POST: %r", request.POST)
+    return HttpResponseRedirect(reverse("entries"))
 
 
 class NavBarLinksMixin(ContextMixin):

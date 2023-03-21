@@ -46,6 +46,11 @@ urlpatterns = [
         name="delete",
     ),
     path(
+        "updates/",
+        views.update_entries,
+        name="updates",
+    ),
+    path(
         "charts/",
         views.ChartView.as_view(),
         name="charts",
