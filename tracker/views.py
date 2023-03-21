@@ -14,7 +14,7 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from tracker.forms import EntryForm, PreferencesForm
 from tracker.models import Entry
-from tracker.view_utils import aggregate_entries, get_recent_entries
+from tracker.view_utils import get_recent_entries, prepare_entries_for_serialization
 
 
 def index(_: HttpRequest) -> HttpResponse:
@@ -166,12 +166,7 @@ class ChartView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         return super().get_context_data(
-            # aggregate_entries() expects a QuerySet, while object_list has the more
-            # general type SupportsPagination. In the case of this class, object_list
-            # is indeed a QuerySet, as returned by get_queryset(). If a child class were
-            # to override get_queryset() to turn a different type, that could cause an
-            # issue. But it's unlikely and can be addressed in the future if necessary.
-            entries=aggregate_entries(self.object_list),  # type: ignore[arg-type]
+            entries=prepare_entries_for_serialization(self.object_list),
             navbar_active="charts",
             **kwargs,
         )

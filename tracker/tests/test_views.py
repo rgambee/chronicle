@@ -10,7 +10,7 @@ from django.utils.timezone import make_aware
 
 from tracker.models import Entry, Tag
 from tracker.tests.utils import TrackerTestCase, construct_entry_form
-from tracker.view_utils import aggregate_entries, get_recent_entries
+from tracker.view_utils import get_recent_entries, prepare_entries_for_serialization
 from tracker.views import EntryCreate, EntryDelete, EntryEdit
 
 
@@ -213,12 +213,12 @@ class TestChartView(TrackerTestCase):
     )
 
     def test_get_all(self) -> None:
-        """A general GET request should aggregate all entries"""
+        """A general GET request should include all entries"""
         response = Client().get(reverse("charts"))
         self.assertTemplateUsed(response, "tracker/charts.html")
         self.assertEqual(
             response.context["entries"],
-            aggregate_entries(Entry.objects.all()),
+            prepare_entries_for_serialization(Entry.objects.all()),
         )
 
     @patch("tracker.view_utils.timezone.now")
@@ -229,5 +229,7 @@ class TestChartView(TrackerTestCase):
         self.assertTemplateUsed(response, "tracker/charts.html")
         self.assertEqual(
             response.context["entries"],
-            aggregate_entries(get_recent_entries(Entry.objects.all(), 1, "months")),
+            prepare_entries_for_serialization(
+                get_recent_entries(Entry.objects.all(), 1, "months")
+            ),
         )
