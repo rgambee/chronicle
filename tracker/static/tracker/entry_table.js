@@ -214,18 +214,40 @@ function saveChanges() {
     console.log("Deleted rows", this.deletedRowIds);
     console.log("Edited cells", this.getEditedCells());
 
-    // TODO: send changes to server
+    // TODO: validate edited cells
+    const form = document.querySelector("#id_entry_updates_form");
+    const data = new FormData(form);
+    const updates = UserUpdates.fromTable(this);
+    data.append("updates", JSON.stringify(updates));
+    console.log(JSON.stringify(updates));
 
-    // Clear pending edits now that they've been saved
-    if (this.deletedRowIds !== undefined) {
-        this.deletedRowIds.clear();
+    function onResponse(response) {
+        if (!response.ok) {
+            // TODO: notify user
+            console.error("Received error in response to entry updates");
+            console.info(response);
+            return;
+        }
+        console.info("Updates successful");
+        // Clear pending edits now that they've been saved
+        if (this.deletedRowIds !== undefined) {
+            this.deletedRowIds.clear();
+        }
+        this.clearCellEdited();
+        // Don't let undo history span saves. It would be possible to let the user undo
+        // a change even after it's been sent to the server. But that's not worth the
+        // added complexity at this stage. Such a feature could be implemented in the
+        // future if desired.
+        this.clearHistory();
     }
-    this.clearCellEdited();
-    // Don't let undo history span saves. It would be possible to let the user undo a
-    // change even after it's been sent to the server. But that's not worth the added
-    // complexity at this stage. Such a feature could be implemented in the future if
-    // desired.
-    this.clearHistory();
+
+    fetch(
+        form.action,
+        {
+            method: form.method,
+            body: data,
+        },
+    ).then(onResponse.bind(this)).catch(console.error);
 }
 
 function setupButtonListeners(table) {
