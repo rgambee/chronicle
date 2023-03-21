@@ -1,6 +1,70 @@
+// Class for a single entry
+// Must match the server-side equivalent: tracker.models.Entry
+class Entry {
+    id;
+    amount;
+    date;
+    category;
+    tags;
+    comment;
+
+    constructor(id, amount, date, category, tags, comment) {
+        this.id = Number.parseInt(id);
+        this.amount = Number.parseFloat(amount);
+        this.date = date;
+        this.category = category;
+        this.tags = tags.split(", ");
+        this.comment = comment;
+    }
+
+    static fromRow(rowComponent) {
+        const rowData = rowComponent.getData();
+        return new Entry(
+            rowData.id,
+            rowData.amount,
+            rowData.date,
+            rowData.category,
+            rowData.tags,
+            rowData.comment,
+        );
+    }
+}
+
+// Class to encapsulate user modifications to send back to the server
+class UserUpdates {
+    deletions;
+    edits;
+
+    constructor(deletions, edits) {
+        this.deletions = Array.from(deletions).map(Number.parseInt).filter(
+            n => !Number.isNaN(n),
+        );
+        this.edits = edits;
+    }
+
+    static fromTable(table) {
+        // Use Set to deduplicate rows
+        const editedRowIds = new Set(table.getEditedCells().map(
+            cell => cell.getRow().getIndex(),
+        ));
+        const entries = [];
+        editedRowIds.forEach(
+            id => {
+                if (table.deletedRowIds === undefined || !table.deletedRowIds.has(id)) {
+                    entries.push(Entry.fromRow(table.getRow(id)));
+                }
+            },
+        );
+        return new UserUpdates(
+            table.deletedRowIds || [],
+            entries,
+        );
+    }
+}
+
+
 // Custom date filtering based on this answer by Oli Folkerd:
 // https://stackoverflow.com/a/64414478
-
 function rangeEditor(cell, onRendered, success, cancel) {
     const template = document.querySelector("#id_date_range_template");
     const dateRange = template.content.cloneNode(true);
