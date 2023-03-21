@@ -108,6 +108,17 @@ has finished initializing it. When the JS is ready, it sets the table to visible
   </span>
 </div>
 
+{# Empty form that entry_table.js fills in when sending entry updates. #}
+{# Importantly, it includes the action URL and CSRF token. #}
+<form
+  id="id_entry_updates_form"
+  method="post"
+  action="{% url 'updates' %}"
+  aria-hidden="true"
+>
+  {% csrf_token %}
+</form>
+
 {# Template used by entry_table.js for range filter for date column #}
 <template id="id_date_range_template">
   <form>
