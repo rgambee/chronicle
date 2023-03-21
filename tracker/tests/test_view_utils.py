@@ -1,4 +1,6 @@
+import json
 from datetime import datetime, timedelta, timezone
+from typing import List, Sequence
 from unittest.mock import MagicMock, patch
 
 from django.test import TestCase
@@ -7,9 +9,11 @@ from django.utils.timezone import get_current_timezone, make_aware, override
 from tracker.models import Entry, Tag
 from tracker.tests.utils import TrackerTestCase
 from tracker.view_utils import (
+    SerializableEntry,
     aggregate_entries,
     format_datetime_ecma,
     get_recent_entries,
+    prepare_entries_for_serialization,
     subtract_timedelta,
 )
 
@@ -181,6 +185,32 @@ class TestSubtractTimedelta(TestCase):
         end = datetime(2000, 2, 29, 12, 34, 56)
         start = subtract_timedelta(end, 1, "years")
         self.assertEqual(start, datetime(1999, 3, 1, 12, 34, 56))
+
+
+class TestEntrySerialization(TrackerTestCase):
+    def check_json_serialization(
+        self,
+        serializable: Sequence[SerializableEntry],
+    ) -> None:
+        """Check that SerializableEntries can be JSON-(de)serialized losslessly"""
+        serialized = json.dumps(serializable)
+        deserialized = json.loads(serialized)
+        self.assertEqual(deserialized, serializable)
+
+    def test_empty_queryset(self) -> None:
+        """An empty queryset should yield an empty list"""
+        entries: List[Entry] = []
+        serializable = prepare_entries_for_serialization(entries)
+        self.assertEqual(serializable, [])
+        self.check_json_serialization(serializable)
+
+    def test_nonempty_queryset(self) -> None:
+        """A nonempty queryset should be converted with order preserved"""
+        entries = Entry.objects.all()
+        self.assertGreater(len(entries), 0)
+        serializable = prepare_entries_for_serialization(entries)
+        self.assertEqual(len(serializable), len(entries))
+        self.check_json_serialization(serializable)
 
 
 class TestEntryAggregation(TrackerTestCase):

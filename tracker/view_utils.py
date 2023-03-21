@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Iterable, List, Optional, TypedDict
 
 from django.db.models import Sum
 from django.db.models.query import QuerySet
@@ -8,6 +8,16 @@ from django.http import Http404
 from django.utils import timezone
 
 from tracker.models import Entry
+
+
+class SerializableEntry(TypedDict):
+    """Selected Entry data in a form that's easily JSON-serializable"""
+
+    # Datetimes are converted to Unix timestamps in milliseconds (not seconds) for
+    # convenience when interfacing with JavaScript.
+    timestamp_ms: int
+    amount: float
+    category: str
 
 
 def get_recent_entries(
@@ -95,6 +105,22 @@ def datetime_replace(when: datetime, **kwargs: int) -> datetime:
         else:
             raise
     return result
+
+
+def prepare_entries_for_serialization(
+    entries: Iterable[Entry],
+) -> List[SerializableEntry]:
+    """Transform entries for easy JSON-serialization"""
+    serializable_entries = []
+    for entry in entries:
+        serializable_entries.append(
+            SerializableEntry(
+                timestamp_ms=round(1000 * entry.date.timestamp()),
+                amount=entry.amount,
+                category=entry.category.name,
+            )
+        )
+    return serializable_entries
 
 
 def aggregate_entries(queryset: QuerySet[Entry]) -> dict[str, dict[str, float]]:
