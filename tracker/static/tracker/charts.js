@@ -92,19 +92,45 @@ function initBarChart(element, data) {
     // Sort series by category name
     series.sort((a, b) => a.name > b.name);
 
-    // Array of [timestamp, totalAmount]
-    const dailyTotals = [];
+    // Map of timestamp => totalAmount
+    const dailyTotalsMap = new Map();
     for (const [timestamp, categoriesAndAmounts] of aggregatedByTimestamp.entries()) {
         // Add up the amounts for this timestamp across all categories
         const total = sumAmounts(categoriesAndAmounts);
-        dailyTotals.push([timestamp, total]);
+        dailyTotalsMap.set(timestamp, total);
     }
-    // Sort by timestamp
-    dailyTotals.sort((pairA, pairB) => pairA[0] - pairB[0]);
+    // Convert to array of [timestamp, totalAmount] pairs
+    const dailyTotalsArr = Array.from(dailyTotalsMap.entries());
+    // Sort by timestamp (first element)
+    dailyTotalsArr.sort((pairA, pairB) => pairA[0] - pairB[0]);
+
+    // Compute a moving average
+    const averageWindow = 2 * 7;  // 2 weeks == 14 days
+    const recentAmounts = (new Array(averageWindow)).fill(0);
+    // Array of [timestamp, averageAmount]
+    const averages = [];
+    if (dailyTotalsArr.length > 0) {
+        const start = new Date(dailyTotalsArr[0][0]);
+        const end = new Date(dailyTotalsArr.at(-1)[0]);
+        // `d` is a Date object so we can increment it easily
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            recentAmounts.push(dailyTotalsMap.get(d.getTime()) || 0);
+            recentAmounts.shift();
+            const avg = recentAmounts.reduce((a, b) => a + b) / recentAmounts.length;
+            averages.push([d.getTime(), avg]);
+        }
+    }
+
     series.push({
         name: "Daily Total",
         type: "line",
-        data: dailyTotals,
+        data: dailyTotalsArr,
+    });
+    series.push({
+        name: "2 Week Avg",
+        type: "line",
+        symbol: "none",
+        data: averages,
     });
 
     const option = {
