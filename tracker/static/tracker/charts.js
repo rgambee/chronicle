@@ -22,6 +22,14 @@ function makeDateFormatter(month = "long", day="numeric") {
     };
 }
 
+// Sum the `amount` property of an array of objects
+function sumAmounts(arrayOfObjects) {
+    return arrayOfObjects.reduce(
+        (acc, obj) => acc + obj.amount,
+        0,
+    );
+}
+
 // Convert array of objects to a map with the given property as the key
 function aggregateData(data, keyName) {
     const aggregated = new Map();
@@ -54,7 +62,7 @@ function combineAmounts(data) {
             categoriesAndAmounts, "category",
         );
         for (const [category, amounts] of aggregatedByCategory.entries()) {
-            const total = amounts.reduce((acc, obj) => acc + obj.amount, 0);
+            const total = sumAmounts(amounts);
             combined.push(
                 {
                     // eslint-disable-next-line camelcase
@@ -88,10 +96,7 @@ function initBarChart(element, data) {
     const dailyTotals = [];
     for (const [timestamp, categoriesAndAmounts] of aggregatedByTimestamp.entries()) {
         // Add up the amounts for this timestamp across all categories
-        const total = categoriesAndAmounts.reduce(
-            (acc, obj) => acc + obj.amount,
-            0,
-        );
+        const total = sumAmounts(categoriesAndAmounts);
         dailyTotals.push([timestamp, total]);
     }
     // Sort by timestamp
@@ -138,10 +143,7 @@ function initPieChart(element, data) {
     const seriesData = [];
     for (const [category, timesAndAmounts] of aggregatedByCategory.entries()) {
         // Add up the amounts for this category across all timestamps
-        const total = timesAndAmounts.reduce(
-            (acc, obj) => acc + obj.amount,
-            0,
-        );
+        const total = sumAmounts(timesAndAmounts);
         seriesData.push({name: category, value: total});
     }
     // Sort seriesData by category name
@@ -185,10 +187,7 @@ function initCalendarHeatmap(element, data) {
     // Include total for each timestamp as well as the per-category amounts
     const totalKey = "_total";
     for (const [timestamp, categoriesAndAmounts] of aggregatedByTimestamp.entries()) {
-        const total = categoriesAndAmounts.reduce(
-            (acc, obj) => acc + obj.amount,
-            0,
-        );
+        const total = sumAmounts(categoriesAndAmounts);
         aggregatedByTimestamp.get(timestamp)[totalKey] = total;
     }
 
