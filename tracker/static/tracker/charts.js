@@ -81,6 +81,9 @@ function initBarChart(element, data) {
             data: timesAndAmounts.map(obj => [obj.timestamp_ms, obj.amount]),
         });
     }
+    // Sort series by category name
+    series.sort((a, b) => a.name > b.name);
+
     // Array of [timestamp, totalAmount]
     const dailyTotals = [];
     for (const [timestamp, categoriesAndAmounts] of aggregatedByTimestamp.entries()) {
@@ -141,6 +144,8 @@ function initPieChart(element, data) {
         );
         seriesData.push({name: category, value: total});
     }
+    // Sort seriesData by category name
+    seriesData.sort((a, b) => a.name > b.name);
 
     const option = {
         textStyle: {
