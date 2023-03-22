@@ -2,9 +2,16 @@ import json
 import logging
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Union
 
+from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import model_to_dict
 from django.utils import timezone
 
-from tracker.entry_updates import EntryUpdatesResponse, parse_updates, validate_updates
+from tracker.entry_updates import (
+    EntryUpdatesResponse,
+    apply_updates,
+    parse_updates,
+    validate_updates,
+)
 from tracker.models import Entry, Tag
 from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase
 
@@ -248,3 +255,70 @@ class TestUpdatesValidation(BaseUpdateProcessing):
                     validated_data["edits"][0].cleaned_data["date"],
                     expected_date,
                 )
+
+
+class TestUpdatesApplication(BaseUpdateProcessing):
+    def setUp(self) -> None:
+        # Reset database after each test method
+        Entry.objects.all().delete()
+        Tag.objects.all().delete()
+        self.setUpTestData()
+        self.assertEqual(self.entry_count, len(self.entries))
+        self.assertEqual(Tag.objects.count(), len(self.tags))
+
+    def test_delete_only(self) -> None:
+        """Specified entries should be deleted from the database"""
+        starting_entry_count = self.entry_count
+        apply_updates({"deletions": [1], "edits": []})
+        self.assertEqual(self.entry_count, starting_entry_count - 1)
+        apply_updates({"deletions": [2, 3], "edits": []})
+        self.assertEqual(self.entry_count, starting_entry_count - 3)
+
+    def test_edit_only(self) -> None:
+        """Specified edits should be applied to the database"""
+        starting_entry_count = self.entry_count
+        starting_tag_count = Tag.objects.count()
+        _, validated_data = validate_updates(self.EXAMPLE_UPDATES)
+        validated_data["deletions"] = []
+        apply_updates(validated_data)
+        self.assertEqual(self.entry_count, starting_entry_count)
+        self.assertGreaterEqual(Tag.objects.count(), starting_tag_count)
+        edits = self.EXAMPLE_UPDATES["edits"][0]
+        edited_entry = Entry.objects.get(pk=edits["id"])
+        self.assertEqual(edited_entry.id, edits["id"])
+        self.assertEqual(edited_entry.date.date().isoformat(), edits["date"])
+        self.assertEqual(edited_entry.amount, edits["amount"])
+        self.assertEqual(edited_entry.category.name, edits["category"])
+        self.assertQuerysetEqual(
+            edited_entry.tags.all(),
+            [Tag(t) for t in edits["tags"]],
+            ordered=False,
+        )
+
+    def test_edit_and_delete(self) -> None:
+        """Editing and deleting the same entry should succeed"""
+        starting_entry_count = self.entry_count
+        _, validated_data = validate_updates(self.EXAMPLE_UPDATES)
+        id_to_delete = self.EXAMPLE_UPDATES["edits"][0]["id"]
+        validated_data["deletions"] = [id_to_delete]
+        apply_updates(validated_data)
+        self.assertEqual(self.entry_count, starting_entry_count - 1)
+        with self.assertRaises(ObjectDoesNotExist):
+            Entry.objects.get(pk=id_to_delete)
+
+    def test_database_error(self) -> None:
+        """All changes should be rolled back if an error occurs"""
+        starting_entry_count = self.entry_count
+        _, validated_data = validate_updates(self.EXAMPLE_UPDATES)
+        id_to_edit = self.EXAMPLE_UPDATES["edits"][0]["id"]
+        orignal_entry = model_to_dict(Entry.objects.get(pk=id_to_edit))
+        # Append an invalid ID to force an error
+        validated_data["deletions"].append(999)
+        with self.assertRaises(ObjectDoesNotExist):
+            with self.assertLogs(logger=None, level=logging.ERROR):
+                apply_updates(validated_data)
+        # No entries should have been deleted, even the one with the valid ID
+        self.assertEqual(self.entry_count, starting_entry_count)
+        # No edits to existing entries should have been made
+        current_entry = model_to_dict(Entry.objects.get(pk=id_to_edit))
+        self.assertEqual(current_entry, orignal_entry)

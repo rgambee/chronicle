@@ -3,6 +3,7 @@ import logging
 from typing import Any, Dict, List, Mapping, Tuple
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.db.transaction import atomic
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -67,6 +68,32 @@ def validate_updates(parsed_data: Mapping[str, Any]) -> EntryUpdatesResponse:
         deletions.append(validated_id)
 
     return _success({"edits": forms, "deletions": deletions})
+
+
+def apply_updates(validated_data: Mapping[str, Any]) -> EntryUpdatesResponse:
+    """Apply the requested entry updates"""
+    try:
+        # Use the `atomic` context manager to ensure updates are all-or-nothing: if an
+        # error occurs, any updates will be rolled back.
+        with atomic(durable=True):
+            # Apply edits before deletions. This avoids conflicts in the event that the
+            # same entry should be both edited and deleted.
+            for form in validated_data["edits"]:
+                form.save()
+
+            for entry_id in validated_data["deletions"]:
+                entry = Entry.objects.get(pk=entry_id)
+                entry.delete()
+
+    except Exception:
+        logging.exception("Failed to apply updates")
+        # Re-raise this exception, which will be turned into a response with status code
+        # 500 (internal server error). Since the updates got through parsing and
+        # validation, a failure at this stage is likely a problem on the server's end,
+        # not the client's.
+        raise
+
+    return _success({})
 
 
 def _success(updates_data: Dict[str, Any]) -> EntryUpdatesResponse:
