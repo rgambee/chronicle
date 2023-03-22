@@ -60,7 +60,7 @@ class BaseUpdateProcessing(TrackerTestCase):
         **kwargs: Any,
     ) -> EntryUpdatesResponse:
         """Assert that the function call results in a failure"""
-        with self.assertLogs(logger=None, level=logging.ERROR):
+        with self.assertLogs(level=logging.ERROR):
             response, updates = function_call(*args, **kwargs)
         self.assertFalse(check_response(response))
         self.assertEqual(updates, {})
@@ -338,7 +338,7 @@ class TestUpdatesApplication(BaseUpdateProcessing):
         # Append an invalid ID to force an error
         validated_data["deletions"].append(999)
         with self.assertRaises(ObjectDoesNotExist):
-            with self.assertLogs(logger=None, level=logging.ERROR):
+            with self.assertLogs(level=logging.ERROR):
                 apply_updates(validated_data)
         # No entries should have been deleted, even the one with the valid ID
         self.assertEqual(self.entry_count, starting_entry_count)
@@ -355,12 +355,12 @@ class TestUpdateProcessing(BaseUpdateProcessing):
 
     def test_parsing_failure(self) -> None:
         """A parsing failure should abort the processing routine"""
-        with self.assertLogs(logger=None, level=logging.ERROR):
+        with self.assertLogs(level=logging.ERROR):
             response = process_updates({"updates": ""})
         self.assertFalse(check_response(response))
 
     def test_validation_failure(self) -> None:
         """A validation failure should abort the processing routine"""
-        with self.assertLogs(logger=None, level=logging.ERROR):
+        with self.assertLogs(level=logging.ERROR):
             response = process_updates({"updates": json.dumps({"deletions": [999]})})
         self.assertFalse(check_response(response))
