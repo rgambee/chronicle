@@ -9,7 +9,9 @@ from django.utils import timezone
 from tracker.entry_updates import (
     EntryUpdatesResponse,
     apply_updates,
+    check_response,
     parse_updates,
+    process_updates,
     validate_updates,
 )
 from tracker.models import Entry, Tag
@@ -48,7 +50,7 @@ class BaseUpdateProcessing(TrackerTestCase):
     ) -> EntryUpdatesResponse:
         """Assert that the function call results in a success"""
         response, updates = function_call(*args, **kwargs)
-        self.assertLess(response.status_code, 400)
+        self.assertTrue(check_response(response))
         return response, updates
 
     def base_assert_bad(
@@ -60,7 +62,7 @@ class BaseUpdateProcessing(TrackerTestCase):
         """Assert that the function call results in a failure"""
         with self.assertLogs(logger=None, level=logging.ERROR):
             response, updates = function_call(*args, **kwargs)
-        self.assertGreaterEqual(response.status_code, 400)
+        self.assertFalse(check_response(response))
         self.assertEqual(updates, {})
         return response, updates
 
@@ -322,3 +324,22 @@ class TestUpdatesApplication(BaseUpdateProcessing):
         # No edits to existing entries should have been made
         current_entry = model_to_dict(Entry.objects.get(pk=id_to_edit))
         self.assertEqual(current_entry, orignal_entry)
+
+
+class TestUpdateProcessing(BaseUpdateProcessing):
+    def test_success(self) -> None:
+        """Processing a valid update to make sure all the steps complete"""
+        response = process_updates({"updates": [json.dumps(self.EXAMPLE_UPDATES)]})
+        self.assertTrue(check_response(response))
+
+    def test_parsing_failure(self) -> None:
+        """A parsing failure should abort the processing routine"""
+        with self.assertLogs(logger=None, level=logging.ERROR):
+            response = process_updates({"updates": [""]})
+        self.assertFalse(check_response(response))
+
+    def test_validation_failure(self) -> None:
+        """A validation failure should abort the processing routine"""
+        with self.assertLogs(logger=None, level=logging.ERROR):
+            response = process_updates({"updates": [json.dumps({"deletions": [999]})]})
+        self.assertFalse(check_response(response))

@@ -14,6 +14,50 @@ from tracker.models import Entry
 EntryUpdatesResponse = Tuple[HttpResponse, Dict[str, Any]]
 
 
+def process_updates(form_data: Mapping[str, Any]) -> HttpResponse:
+    """Parse and apply changes from the client
+
+    Changes can be
+        - Deletion of existing entries
+        - Edits to existing entries
+
+    Updates are committed if and only if everything is successful. An error of any sort
+    prevents all modifications from being applied. This avoids ambiguity about which
+    operations completed and which failed.
+
+    Updates are expected to be JSON-encoded within a form. Example:
+        {
+            "updates": [
+                '{
+                    "deletions": [42],
+                    "edits": [
+                        {
+                            "id": 123,
+                            "amount": 5,
+                            "date": "2000-01-23",
+                            "category": "stuff",
+                            "tags": ["red", "green", "blue"],
+                            "comment": "Here's an example of an entry update"
+                        }
+                    ]
+                }'
+            ]
+        }
+
+    Note that each element of "edits" must be a full entry with all fields present. It
+    is not permissible to only include the fields that have changed.
+    """
+
+    response, parsed_data = parse_updates(form_data)
+    if not check_response(response):
+        return response
+    response, validated_data = validate_updates(parsed_data)
+    if not check_response(response):
+        return response
+    response, _ = apply_updates(validated_data)
+    return response
+
+
 def parse_updates(form_data: Mapping[str, Any]) -> EntryUpdatesResponse:
     """Parse the form data and deserialize the enclosed JSON"""
     if "updates" not in form_data:
@@ -94,6 +138,10 @@ def apply_updates(validated_data: Mapping[str, Any]) -> EntryUpdatesResponse:
         raise
 
     return _success({})
+
+
+def check_response(response: HttpResponse) -> bool:
+    return response.status_code < 400
 
 
 def _success(updates_data: Dict[str, Any]) -> EntryUpdatesResponse:
