@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, List, Mapping, Tuple
+from typing import Any, Dict, Mapping, Set, Tuple
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.transaction import atomic
@@ -87,17 +87,18 @@ def validate_updates(parsed_data: Mapping[str, Any]) -> EntryUpdatesResponse:
     IDs to delete refer to existing entries.
     """
     # Validate the edits to existing entries. This includes checking that the IDs refer
-    # to existing entries.
-    forms: List[EditEntryForm] = []
+    # to existing entries. Store them in a dictionary to remove duplicates.
+    forms: Dict[int, EditEntryForm] = {}
     for entry in parsed_data.get("edits", []):
         form = EditEntryForm(entry)
         if not form.is_valid():
             logging.error("Failed to validate entry edit: %r", form.errors)
             return _failure("Failed to validate entry edit")
-        forms.append(form)
+        forms[form.instance.id] = form
 
     # Check that the IDs for deleted entries are valid and refer to existing entries.
-    deletions: List[int] = []
+    # Store them in a set to remove duplicates.
+    deletions: Set[int] = set()
     for unvalidated_id in parsed_data.get("deletions", []):
         try:
             validated_id = int(unvalidated_id)
@@ -109,9 +110,9 @@ def validate_updates(parsed_data: Mapping[str, Any]) -> EntryUpdatesResponse:
         except (ObjectDoesNotExist, MultipleObjectsReturned):
             logging.error("Failed to find Entry corresponding to id %d", validated_id)
             return _failure("Failed to find matching Entry")
-        deletions.append(validated_id)
+        deletions.add(validated_id)
 
-    return _success({"edits": forms, "deletions": deletions})
+    return _success({"edits": list(forms.values()), "deletions": list(deletions)})
 
 
 def apply_updates(validated_data: Mapping[str, Any]) -> EntryUpdatesResponse:

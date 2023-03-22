@@ -156,6 +156,13 @@ class TestUpdatesValidation(BaseUpdateProcessing):
         self.assert_bad(deletions=[0])
         self.assert_bad(deletions=[self.entry_count + 1])
 
+    def test_deletion_duplicate(self) -> None:
+        """Entry IDs to be deleted should be deduplicated"""
+        _, validated_data = self.base_assert_good(
+            validate_updates, {"deletions": [1, 2, 1]}
+        )
+        self.assertCountEqual(validated_data["deletions"], [1, 2])
+
     def test_edit_empty(self) -> None:
         """Edit no entries should result in a success response"""
         data = dict(self.EXAMPLE_UPDATES)
@@ -166,6 +173,28 @@ class TestUpdatesValidation(BaseUpdateProcessing):
         """Editing a non-existent entry should result in a failure response"""
         self.assert_bad(edits={"id": 0})
         self.assert_bad(edits={"id": self.entry_count + 1})
+
+    def test_edit_duplicate(self) -> None:
+        """Entry IDs to edit should be deduplicated"""
+        example_edit = self.EXAMPLE_UPDATES["edits"][0]
+        data = {"edits": [dict(example_edit) for _ in range(3)]}
+        data["edits"][1]["id"] = 3
+        data["edits"][2]["amount"] = 25
+        # Check that the example hasn't been modified
+        self.assertEqual(example_edit["id"], 2)
+
+        _, validated_data = self.base_assert_good(validate_updates, data)
+        self.assertEqual(len(validated_data["edits"]), 2)
+        self.assertNotEqual(
+            validated_data["edits"][0].instance.id,
+            validated_data["edits"][1].instance.id,
+        )
+        # In the event of duplicates, the last entry in the input data should be chosen
+        for form in validated_data["edits"]:
+            if form.instance.id == example_edit["id"]:
+                self.assertEqual(form.cleaned_data["amount"], 25)
+            else:
+                self.assertEqual(form.cleaned_data["amount"], example_edit["amount"])
 
     def test_edit_missing_fields(self) -> None:
         """Leaving out any required fields should result in a failed response
