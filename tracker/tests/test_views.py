@@ -31,10 +31,11 @@ class TestEntryUpdates(TrackerTestCase):
 
     def test_post_valid(self) -> None:
         starting_entry_count = self.entry_count
-        response = Client().post(
-            reverse("updates"),
-            data={"updates": json.dumps({"deletions": [1]})},
-        )
+        with self.assertLogs(level=logging.INFO):
+            response = Client().post(
+                reverse("updates"),
+                data={"updates": json.dumps({"deletions": [1]})},
+            )
         self.assertRedirects(response, reverse("entries"))
         self.assertEqual(self.entry_count, starting_entry_count - 1)
 

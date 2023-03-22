@@ -132,6 +132,11 @@ def apply_updates(validated_data: Mapping[str, Any]) -> EntryUpdatesResponse:
         # not the client's.
         raise
 
+    logging.info(
+        "Successfully applied updates. Deletions: %s. Edits: %s",
+        validated_data["deletions"],
+        [form.instance for form in validated_data["edits"]],
+    )
     return _success({})
 
 

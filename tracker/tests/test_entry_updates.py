@@ -292,9 +292,11 @@ class TestUpdatesApplication(BaseUpdateProcessing):
     def test_delete_only(self) -> None:
         """Specified entries should be deleted from the database"""
         starting_entry_count = self.entry_count
-        apply_updates({"deletions": [1], "edits": []})
+        with self.assertLogs(level=logging.INFO):
+            apply_updates({"deletions": [1], "edits": []})
         self.assertEqual(self.entry_count, starting_entry_count - 1)
-        apply_updates({"deletions": [2, 3], "edits": []})
+        with self.assertLogs(level=logging.INFO):
+            apply_updates({"deletions": [2, 3], "edits": []})
         self.assertEqual(self.entry_count, starting_entry_count - 3)
 
     def test_edit_only(self) -> None:
@@ -303,7 +305,8 @@ class TestUpdatesApplication(BaseUpdateProcessing):
         starting_tag_count = self.tag_count
         _, validated_data = validate_updates(self.EXAMPLE_UPDATES)
         validated_data["deletions"] = []
-        apply_updates(validated_data)
+        with self.assertLogs(level=logging.INFO):
+            apply_updates(validated_data)
         self.assertEqual(self.entry_count, starting_entry_count)
         self.assertGreaterEqual(self.tag_count, starting_tag_count)
         edits = self.EXAMPLE_UPDATES["edits"][0]
@@ -324,7 +327,8 @@ class TestUpdatesApplication(BaseUpdateProcessing):
         _, validated_data = validate_updates(self.EXAMPLE_UPDATES)
         id_to_delete = self.EXAMPLE_UPDATES["edits"][0]["id"]
         validated_data["deletions"] = [id_to_delete]
-        apply_updates(validated_data)
+        with self.assertLogs(level=logging.INFO):
+            apply_updates(validated_data)
         self.assertEqual(self.entry_count, starting_entry_count - 1)
         with self.assertRaises(ObjectDoesNotExist):
             Entry.objects.get(pk=id_to_delete)
@@ -350,7 +354,8 @@ class TestUpdatesApplication(BaseUpdateProcessing):
 class TestUpdateProcessing(BaseUpdateProcessing):
     def test_success(self) -> None:
         """Processing a valid update to make sure all the steps complete"""
-        response = process_updates({"updates": json.dumps(self.EXAMPLE_UPDATES)})
+        with self.assertLogs(level=logging.INFO):
+            response = process_updates({"updates": json.dumps(self.EXAMPLE_UPDATES)})
         self.assertTrue(check_response(response))
 
     def test_parsing_failure(self) -> None:
