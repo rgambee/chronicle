@@ -8,7 +8,7 @@ from django.http import (
     HttpRequest,
     HttpResponse,
     HttpResponseBase,
-    HttpResponseRedirect,
+    HttpResponseNotAllowed,
 )
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
@@ -17,6 +17,7 @@ from django.views.generic import DeleteView, DetailView, FormView, ListView
 from django.views.generic.base import ContextMixin
 from django.views.generic.edit import CreateView, UpdateView
 
+from tracker.entry_updates import process_updates
 from tracker.forms import CreateEntryForm, PreferencesForm
 from tracker.models import Entry
 from tracker.view_utils import get_recent_entries, prepare_entries_for_serialization
@@ -28,10 +29,10 @@ def index(_: HttpRequest) -> HttpResponse:
 
 
 def update_entries(request: HttpRequest) -> HttpResponse:
-    """Add, edit or delete multiple entries at once"""
-    logging.info("Request: %r", request)
-    logging.info("POST: %r", request.POST)
-    return HttpResponseRedirect(reverse("entries"))
+    """Edit or delete multiple existing entries"""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+    return process_updates(request.POST)
 
 
 class NavBarLinksMixin(ContextMixin):
