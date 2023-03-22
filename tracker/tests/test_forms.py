@@ -290,7 +290,7 @@ class TestEditEntryFormValidation(TestCreateEntryFormValidation):
             ),
         )
         self.bad(
-            entry_id=Entry.objects.count() + 1,
+            entry_id=self.entry_count + 1,
             field="id",
             message=(
                 "Select a valid choice. "
@@ -300,7 +300,7 @@ class TestEditEntryFormValidation(TestCreateEntryFormValidation):
 
     def test_queryset_update(self) -> None:
         """Check that the set of allowable ids updates when new entries are created"""
-        starting_entry_count = Entry.objects.count()
+        starting_entry_count = self.entry_count
         new_entry = Entry(amount=4.0, date=SAMPLE_DATE, category=Tag("category1"))
         self.bad(
             entry_id=starting_entry_count + 1,

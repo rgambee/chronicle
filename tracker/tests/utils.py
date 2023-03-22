@@ -24,6 +24,10 @@ class TrackerTestCase(TestCase):
     def entry_count(self) -> int:
         return Entry.objects.count()
 
+    @property
+    def tag_count(self) -> int:
+        return Tag.objects.count()
+
 
 def init_db(
     tags: Optional[Sequence[Tag]] = None,

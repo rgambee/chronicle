@@ -154,7 +154,7 @@ class TestUpdatesValidation(BaseUpdateProcessing):
     def test_deletion_invalid_id(self) -> None:
         """Deleting a non-existent entry should result in a failure response"""
         self.assert_bad(deletions=[0])
-        self.assert_bad(deletions=[Entry.objects.count() + 1])
+        self.assert_bad(deletions=[self.entry_count + 1])
 
     def test_edit_empty(self) -> None:
         """Edit no entries should result in a success response"""
@@ -165,7 +165,7 @@ class TestUpdatesValidation(BaseUpdateProcessing):
     def test_edit_invalid_id(self) -> None:
         """Editing a non-existent entry should result in a failure response"""
         self.assert_bad(edits={"id": 0})
-        self.assert_bad(edits={"id": Entry.objects.count() + 1})
+        self.assert_bad(edits={"id": self.entry_count + 1})
 
     def test_edit_missing_fields(self) -> None:
         """Leaving out any required fields should result in a failed response
@@ -266,7 +266,7 @@ class TestUpdatesApplication(BaseUpdateProcessing):
         Tag.objects.all().delete()
         self.setUpTestData()
         self.assertEqual(self.entry_count, len(self.entries))
-        self.assertEqual(Tag.objects.count(), len(self.tags))
+        self.assertEqual(self.tag_count, len(self.tags))
 
     def test_delete_only(self) -> None:
         """Specified entries should be deleted from the database"""
@@ -279,12 +279,12 @@ class TestUpdatesApplication(BaseUpdateProcessing):
     def test_edit_only(self) -> None:
         """Specified edits should be applied to the database"""
         starting_entry_count = self.entry_count
-        starting_tag_count = Tag.objects.count()
+        starting_tag_count = self.tag_count
         _, validated_data = validate_updates(self.EXAMPLE_UPDATES)
         validated_data["deletions"] = []
         apply_updates(validated_data)
         self.assertEqual(self.entry_count, starting_entry_count)
-        self.assertGreaterEqual(Tag.objects.count(), starting_tag_count)
+        self.assertGreaterEqual(self.tag_count, starting_tag_count)
         edits = self.EXAMPLE_UPDATES["edits"][0]
         edited_entry = Entry.objects.get(pk=edits["id"])
         self.assertEqual(edited_entry.id, edits["id"])

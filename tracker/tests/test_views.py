@@ -154,7 +154,7 @@ class TestListAndCreate(TrackerTestCase):
 
     def test_post(self) -> None:
         """A POST request with valid data should be accepted"""
-        initial_count = Entry.objects.count()
+        initial_count = self.entry_count
         form = construct_entry_form()
         self.assertTrue(form.is_valid())
         response = Client().post(reverse("entries"), data=form.data, follow=True)
@@ -164,7 +164,7 @@ class TestListAndCreate(TrackerTestCase):
             EntryCreate().get_success_message(form.cleaned_data),
             status_code=HTTPStatus.OK,
         )
-        self.assertEqual(Entry.objects.count(), initial_count + 1)
+        self.assertEqual(self.entry_count, initial_count + 1)
 
 
 class TestEntryDelete(TrackerTestCase):
@@ -183,7 +183,7 @@ class TestEntryDelete(TrackerTestCase):
 
     def test_post(self) -> None:
         """A POST request should delete the corresponding object"""
-        initial_count = Entry.objects.count()
+        initial_count = self.entry_count
         response = Client().post(
             reverse("delete", args=(self.entry_count,)), follow=True
         )
@@ -193,7 +193,7 @@ class TestEntryDelete(TrackerTestCase):
             EntryDelete.success_message,
             status_code=HTTPStatus.OK,
         )
-        self.assertEqual(Entry.objects.count(), initial_count - 1)
+        self.assertEqual(self.entry_count, initial_count - 1)
 
     def test_post_nonexistent(self) -> None:
         """A POST request for a nonexistent entry should return a 404"""
