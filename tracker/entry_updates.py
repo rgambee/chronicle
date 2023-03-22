@@ -65,15 +65,9 @@ def parse_updates(form_data: Mapping[str, Any]) -> EntryUpdatesResponse:
         logging.error(message)
         return _failure(message)
     updates = form_data["updates"]
-    if len(updates) == 0:
-        return _success({})
-    if len(updates) > 1:
-        message = "Too many update elements provided"
-        logging.error(message)
-        return _failure(message)
 
     try:
-        decoded_data = json.loads(updates[0])
+        decoded_data = json.loads(updates)
     except json.JSONDecodeError as err:
         logging.error("Failed to parse updates: %r", err)
         return _failure("Failed to parse updates")

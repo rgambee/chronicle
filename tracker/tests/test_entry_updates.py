@@ -78,24 +78,16 @@ class TestUpdatesParsing(BaseUpdateProcessing):
         """A missing "updates" key is invalid"""
         self.assert_bad({})
 
-    def test_empty_updates(self) -> None:
-        """An update list of zero length is acceptable"""
-        self.assert_good({"updates": []})
-
-    def test_multiple_updates(self) -> None:
-        """An update list with more than one element is invalid"""
-        self.assert_bad({"updates": ["{}", "{}"]})
-
     def test_invalid_json(self) -> None:
         """Invalid JSON should be caught and result in a failure response"""
-        self.assert_bad({"updates": [""]})
-        self.assert_bad({"updates": ["{"]})
-        self.assert_bad({"updates": ["{'wrong quotes': 'value'}"]})
-        self.assert_bad({"updates": ['{"trailing comma": "value",}']})
+        self.assert_bad({"updates": ""})
+        self.assert_bad({"updates": "{"})
+        self.assert_bad({"updates": "{'wrong quotes': 'value'}"})
+        self.assert_bad({"updates": '{"trailing comma": "value",}'})
 
     def test_valid_updates(self) -> None:
         """Valid JSON should result in a success response"""
-        self.assert_good({"updates": [json.dumps(self.EXAMPLE_UPDATES)]})
+        self.assert_good({"updates": json.dumps(self.EXAMPLE_UPDATES)})
 
 
 class TestUpdatesValidation(BaseUpdateProcessing):
@@ -358,17 +350,17 @@ class TestUpdatesApplication(BaseUpdateProcessing):
 class TestUpdateProcessing(BaseUpdateProcessing):
     def test_success(self) -> None:
         """Processing a valid update to make sure all the steps complete"""
-        response = process_updates({"updates": [json.dumps(self.EXAMPLE_UPDATES)]})
+        response = process_updates({"updates": json.dumps(self.EXAMPLE_UPDATES)})
         self.assertTrue(check_response(response))
 
     def test_parsing_failure(self) -> None:
         """A parsing failure should abort the processing routine"""
         with self.assertLogs(logger=None, level=logging.ERROR):
-            response = process_updates({"updates": [""]})
+            response = process_updates({"updates": ""})
         self.assertFalse(check_response(response))
 
     def test_validation_failure(self) -> None:
         """A validation failure should abort the processing routine"""
         with self.assertLogs(logger=None, level=logging.ERROR):
-            response = process_updates({"updates": [json.dumps({"deletions": [999]})]})
+            response = process_updates({"updates": json.dumps({"deletions": [999]})})
         self.assertFalse(check_response(response))
