@@ -17,7 +17,7 @@ from django.views.generic import DeleteView, DetailView, FormView, ListView
 from django.views.generic.base import ContextMixin
 from django.views.generic.edit import CreateView, UpdateView
 
-from tracker.forms import EntryForm, PreferencesForm
+from tracker.forms import CreateEntryForm, PreferencesForm
 from tracker.models import Entry
 from tracker.view_utils import get_recent_entries, prepare_entries_for_serialization
 
@@ -82,7 +82,7 @@ class EntryListView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         return super().get_context_data(
-            form=EntryForm(selected_category=self.selected_category),
+            form=CreateEntryForm(selected_category=self.selected_category),
             navbar_active="entries",
             **kwargs,
         )
@@ -96,7 +96,7 @@ class EntryCreate(
     """Create a new entry using a form"""
 
     model = Entry
-    form_class = EntryForm
+    form_class = CreateEntryForm
     success_message = "Entry on %(date)s was created successfully"
 
     def get_success_url(self) -> str:
@@ -118,7 +118,7 @@ class EntryEdit(
     """Edit an existing entry using a form"""
 
     model = Entry
-    form_class = EntryForm
+    form_class = CreateEntryForm
     success_url = reverse_lazy("entries")
     success_message = "Entry on %(date)s was updated successfully"
 

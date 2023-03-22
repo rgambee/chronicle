@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from tracker.forms import (
     AutocompleteWidget,
-    EntryForm,
+    CreateEntryForm,
     GetOrCreateChoiceField,
     GetOrCreateMultipleChoiceField,
 )
@@ -144,7 +144,7 @@ class TestFormValidation(TrackerTestCase):
         category: Optional[str] = None,
         tags: Optional[Sequence[str]] = None,
         **kwargs: Any,
-    ) -> EntryForm:
+    ) -> CreateEntryForm:
         """Create a form with the given fields and assert that it's valid"""
         if category is None:
             category = cls.tags[0].name
@@ -156,7 +156,7 @@ class TestFormValidation(TrackerTestCase):
         """Create a form with the given fields and assert that it's valid"""
         form = self.construct_entry_form(**kwargs)
         # mypy requires the first argument to assertFormError be an instance of
-        # django.forms.Form. tracker.forms.EntryForm is a subclass of
+        # django.forms.Form. tracker.forms.CreateEntryForm is a subclass of
         # django.forms.BaseForm but not Form itself. It's possible the type stub for
         # this function should be edited to accept BaseForms. For now, the
         # `# type: ignore` comment silences the error.
@@ -249,7 +249,7 @@ class TestFormChoices(TrackerTestCase):
 
     def test_category_order(self) -> None:
         """Category choices should be in descending order of prevalence"""
-        form = EntryForm()
+        form = CreateEntryForm()
         category_queryset = form.fields[
             "category"
         ].queryset  # type: ignore[attr-defined]
@@ -260,7 +260,7 @@ class TestFormChoices(TrackerTestCase):
 
     def test_tags_order(self) -> None:
         """Tag choices should be in descending order of prevalence"""
-        form = EntryForm()
+        form = CreateEntryForm()
         tags_queryset = form.fields["tags"].queryset  # type: ignore[attr-defined]
         self.assertQuerysetEqual(
             tags_queryset,

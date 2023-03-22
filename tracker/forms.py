@@ -126,8 +126,8 @@ class GetOrCreateMultipleChoiceField(forms.ModelMultipleChoiceField):
         return self.queryset.filter(**{f"{key_name}__in": value})
 
 
-class EntryForm(forms.ModelForm):  # type: ignore[type-arg]
-    """A form for creating or editing an Entry
+class CreateEntryForm(forms.ModelForm):  # type: ignore[type-arg]
+    """A form for creating an Entry
 
     Most validations are derived from the model. On top of that, amount is required to
     be non-negative.

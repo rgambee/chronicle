@@ -3,7 +3,7 @@ from typing import Optional, Sequence
 from django.test import TestCase
 from django.utils import timezone
 
-from tracker.forms import EntryForm
+from tracker.forms import CreateEntryForm
 from tracker.models import Entry, Tag
 
 SAMPLE_DATE = timezone.make_aware(timezone.datetime(2001, 1, 23))
@@ -57,8 +57,8 @@ def construct_entry_form(
     category: Optional[str] = None,
     tags: Sequence[str] = tuple(),
     comment: str = "Example comment",
-) -> EntryForm:
-    """Construct an EntryForm with some default field values
+) -> CreateEntryForm:
+    """Construct a CreateEntryForm with some default field values
 
     Any field can be overridden.
 
@@ -66,7 +66,7 @@ def construct_entry_form(
     init_db().
 
     If no tags have been added to the database and category is not provided, the
-    returned EntryForm will not pass validation.
+    returned CreateEntryForm will not pass validation.
     """
     if category is None or tags is None:
         existing_tags = Tag.objects.all()
@@ -75,7 +75,7 @@ def construct_entry_form(
                 category = existing_tags[0].name
             if tags is None:
                 tags = [tag.name for tag in existing_tags]
-    return EntryForm(
+    return CreateEntryForm(
         data=dict(
             amount=amount,
             date=date,
