@@ -7,6 +7,7 @@ from django.urls import reverse
 from tracker.forms import (
     AutocompleteWidget,
     CreateEntryForm,
+    EditEntryForm,
     GetOrCreateChoiceField,
     GetOrCreateMultipleChoiceField,
 )
@@ -133,7 +134,7 @@ class TestGetOrCreateMultipleChoiceField(TrackerTestCase):
         )
 
 
-class TestFormValidation(TrackerTestCase):
+class TestCreateEntryFormValidation(TrackerTestCase):
     tags = [Tag("category1"), Tag("tag1"), Tag("tag2")]
     entries = []
 
@@ -145,7 +146,7 @@ class TestFormValidation(TrackerTestCase):
         tags: Optional[Sequence[str]] = None,
         **kwargs: Any,
     ) -> CreateEntryForm:
-        """Create a form with the given fields and assert that it's valid"""
+        """Create a form with the given fields"""
         if category is None:
             category = cls.tags[0].name
         if tags is None:
@@ -231,6 +232,98 @@ class TestFormValidation(TrackerTestCase):
         self.good(comment="")
         self.good(comment="This comment is false.")
         self.good(comment=1)
+
+
+class TestEditEntryFormValidation(TestCreateEntryFormValidation):
+    entries = [
+        Entry(amount=1.0, date=SAMPLE_DATE, category=Tag("category1")),
+        Entry(amount=2.0, date=SAMPLE_DATE, category=Tag("category1")),
+        Entry(amount=3.0, date=SAMPLE_DATE, category=Tag("category1")),
+    ]
+
+    @classmethod
+    def construct_entry_form(
+        cls,
+        *,
+        category: Optional[str] = None,
+        tags: Optional[Sequence[str]] = None,
+        entry_id: Optional[int] = None,
+        **kwargs: Any,
+    ) -> EditEntryForm:
+        """Create a form with the given fields"""
+        data = dict(
+            super().construct_entry_form(category=category, tags=tags, **kwargs).data
+        )
+        if entry_id is not None:
+            data["id"] = entry_id
+        return EditEntryForm(data=data)
+
+    def test_id_valid(self) -> None:
+        """Check that the form is valid when the entry id is (convertible to) an int"""
+        for entry in Entry.objects.all():
+            self.good(entry_id=entry.id)
+            self.good(entry_id=str(entry.id))
+            self.good(entry_id=float(entry.id))
+            self.good(entry_id=entry.id + 0.1)
+
+    def test_id_wrong_type(self) -> None:
+        """Check that in id of the wrong type fails validation"""
+        self.bad(entry_id="", field="id", message="This field is required.")
+        self.bad(
+            entry_id="a",
+            field="id",
+            message=(
+                "Select a valid choice. "
+                "That choice is not one of the available choices."
+            ),
+        )
+        self.bad(entry_id=None, field="id", message="This field is required.")
+
+    def test_id_out_of_range(self) -> None:
+        """Check that an id for a non-existent entry fails validation"""
+        self.bad(
+            entry_id=0,
+            field="id",
+            message=(
+                "Select a valid choice. "
+                "That choice is not one of the available choices."
+            ),
+        )
+        self.bad(
+            entry_id=Entry.objects.count() + 1,
+            field="id",
+            message=(
+                "Select a valid choice. "
+                "That choice is not one of the available choices."
+            ),
+        )
+
+    def test_queryset_update(self) -> None:
+        """Check that the set of allowable ids updates when new entries are created"""
+        starting_entry_count = Entry.objects.count()
+        new_entry = Entry(amount=4.0, date=SAMPLE_DATE, category=Tag("category1"))
+        self.bad(
+            entry_id=starting_entry_count + 1,
+            field="id",
+            message=(
+                "Select a valid choice. "
+                "That choice is not one of the available choices."
+            ),
+        )
+
+        new_entry.save()
+        self.good(entry_id=new_entry.id)
+        self.good(entry_id=starting_entry_count + 1)
+
+        new_entry.delete()
+        self.bad(
+            entry_id=starting_entry_count + 1,
+            field="id",
+            message=(
+                "Select a valid choice. "
+                "That choice is not one of the available choices."
+            ),
+        )
 
 
 class TestFormChoices(TrackerTestCase):

@@ -186,6 +186,12 @@ class CreateEntryForm(forms.ModelForm):  # type: ignore[type-arg]
             self.fields["category"].initial = category_qs[0]
 
 
+class EditEntryForm(CreateEntryForm):
+    """A variation on CreateEntryForm used to modify existing entries"""
+
+    id = forms.ModelChoiceField(queryset=Entry.objects.all())
+
+
 class PreferencesForm(forms.Form):
     week_start = forms.ChoiceField(
         label="Week starts on",
