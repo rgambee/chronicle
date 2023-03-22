@@ -191,6 +191,21 @@ class EditEntryForm(CreateEntryForm):
 
     id = forms.ModelChoiceField(queryset=Entry.objects.all())
 
+    def clean(self) -> None:
+        super().clean()
+        # Change the model instance to the one specified by the `id` field. Somewhat
+        # counterintuitively, that field's `to_python()` method resolves to a model
+        # instance, not the id itself.
+        # Without setting self.instance to an existing model instance, this form would
+        # create a new database entry when saved. That's not what we want since this
+        # form is specifically for modifying existing instances.
+        # Usually, when using a form to modify an existing instance, the instance is
+        # passed to the form's __init__() method. However, since the instance id is a
+        # field within the form, we don't know what instance to use until we create and
+        # validate the form.
+        if self.is_valid():
+            self.instance = self.cleaned_data["id"]
+
 
 class PreferencesForm(forms.Form):
     week_start = forms.ChoiceField(
