@@ -13,6 +13,9 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "except ImportError"
 ]
+skip_covered = true
+skip_empty = true
+sort = "miss"
 
 [tool.django-stubs]
 django_settings_module = "chronicle.settings"
