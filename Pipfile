@@ -6,10 +6,12 @@ name = "pypi"
 [packages]
 django = "~=4.1"
 
-[dev-packages]
+[linters]
 mypy = "*"
 pylint = "*"
 black = "*"
 django-stubs = "*"
 isort = {extras = ["colors"], version = "*"}
+
+[tests]
 coverage = "*"
