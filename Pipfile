@@ -7,11 +7,11 @@ name = "pypi"
 django = "~=4.1"
 
 [linters]
-mypy = "*"
-pylint = "*"
-black = "*"
-django-stubs = "*"
-isort = {extras = ["colors"], version = "*"}
+mypy = "~=1.1"
+pylint = "~=2.17"
+black = "~=23.1"
+django-stubs = "~=1.13"
+isort = {extras = ["colors"], version = "~=5.12"}
 
 [tests]
-coverage = "*"
+coverage = {extras = ["toml"], version = "~=7.2"}
