@@ -103,12 +103,12 @@ class EntryCreate(
     def get_success_url(self) -> str:
         if "category" in self.kwargs:
             return reverse(
-                "entries-in-category", kwargs=dict(category=self.kwargs["category"])
+                "entries-in-category", kwargs={"category": self.kwargs["category"]}
             )
         return reverse("entries")
 
     def get_success_message(self, cleaned_data: dict[str, Any]) -> str:
-        return self.success_message % dict(date=cleaned_data["date"].date())
+        return self.success_message % {"date": cleaned_data["date"].date()}
 
 
 class EntryEdit(
@@ -124,7 +124,7 @@ class EntryEdit(
     success_message = "Entry on %(date)s was updated successfully"
 
     def get_success_message(self, cleaned_data: dict[str, Any]) -> str:
-        return self.success_message % dict(date=cleaned_data["date"].date())
+        return self.success_message % {"date": cleaned_data["date"].date()}
 
 
 class EntryListAndCreate(View):

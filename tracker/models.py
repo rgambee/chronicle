@@ -106,4 +106,4 @@ class Entry(models.Model):
         )
 
     def get_absolute_url(self) -> str:
-        return reverse("entry", kwargs=dict(pk=self.id))
+        return reverse("entry", kwargs={"pk": self.id})

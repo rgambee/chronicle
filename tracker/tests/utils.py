@@ -80,11 +80,11 @@ def construct_entry_form(
             if tags is None:
                 tags = [tag.name for tag in existing_tags]
     return CreateEntryForm(
-        data=dict(
-            amount=amount,
-            date=date,
-            category=category,
-            tags=tags,
-            comment=comment,
-        )
+        data={
+            "amount": amount,
+            "date": date,
+            "category": category,
+            "tags": tags,
+            "comment": comment,
+        }
     )
