@@ -10,8 +10,3 @@ __pycache__/
 htmlcov/
 
 node_modules/
-# This project has a single direct npm dependency: eslint, which is only used for
-# development. Tracking the entire package-lock.json is overkill and creates unhelpful
-# GitHub warnings from dependabot. If any runtime dependencies are added in the future,
-# they should be tracked in package-lock.json.
-package-lock.json
