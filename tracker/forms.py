@@ -49,12 +49,13 @@ class AutocompleteWidget(ChoiceWidget):
         # necessary in this case. And returning a list causes the HTML value to be
         # rendered as `value="['myvalue']"` instead of `value="myvalue"`. Therefore, we
         # return the first element of the list.
+        logger = logging.getLogger(__name__)
         values = super().format_value(value)
         if len(values) < 1:
-            logging.warning("Received no values to format")
+            logger.warning("Received no values to format")
             return ""
         if len(values) > 1:
-            logging.warning("Received multiple values to format: %s", values)
+            logger.warning("Received multiple values to format: %s", values)
         return values[0]
 
 

@@ -33,6 +33,7 @@ def get_recent_entries(
 
     `end` defaults to now.
     """
+    logger = logging.getLogger(__name__)
     if amount is not None and unit is not None:
         if end is None:
             end = timezone.now()
@@ -42,7 +43,7 @@ def get_recent_entries(
             raise Http404("Invalid date range") from err
         queryset = queryset.filter(date__gte=start).filter(date__lte=end)
     elif amount is not None or unit is not None:
-        logging.error("Invalid arguments: amount=%s, unit=%s", amount, unit)
+        logger.error("Invalid arguments: amount=%s, unit=%s", amount, unit)
         raise TypeError("Must provide both amount and unit or neither")
     return queryset
 

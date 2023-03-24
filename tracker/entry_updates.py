@@ -60,16 +60,17 @@ def process_updates(form_data: Mapping[str, Any]) -> HttpResponse:
 
 def parse_updates(form_data: Mapping[str, Any]) -> EntryUpdatesResponse:
     """Parse the form data and deserialize the enclosed JSON"""
+    logger = logging.getLogger(__name__)
     if "updates" not in form_data:
         message = "No 'updates' key"
-        logging.error(message)
+        logger.error(message)
         return _failure(message)
     updates = form_data["updates"]
 
     try:
         decoded_data = json.loads(updates)
     except json.JSONDecodeError as err:
-        logging.error("Failed to parse updates: %r", err)
+        logger.error("Failed to parse updates: %r", err)
         return _failure("Failed to parse updates")
     return _success(decoded_data)
 
@@ -82,11 +83,12 @@ def validate_updates(parsed_data: Mapping[str, Any]) -> EntryUpdatesResponse:
     """
     # Validate the edits to existing entries. This includes checking that the IDs refer
     # to existing entries. Store them in a dictionary to remove duplicates.
+    logger = logging.getLogger(__name__)
     forms: Dict[int, EditEntryForm] = {}
     for entry in parsed_data.get("edits", []):
         form = EditEntryForm(entry)
         if not form.is_valid():
-            logging.error("Failed to validate entry edit: %r", form.errors)
+            logger.error("Failed to validate entry edit: %r", form.errors)
             return _failure("Failed to validate entry edit")
         forms[form.instance.id] = form
 
@@ -97,12 +99,12 @@ def validate_updates(parsed_data: Mapping[str, Any]) -> EntryUpdatesResponse:
         try:
             validated_id = int(unvalidated_id)
         except ValueError as err:
-            logging.error("Failed to convert entry ID to int: %r", err)
+            logger.error("Failed to convert entry ID to int: %r", err)
             return _failure("Failed to convert entry ID to int")
         try:
             Entry.objects.get(pk=validated_id)
         except (ObjectDoesNotExist, MultipleObjectsReturned):
-            logging.error("Failed to find Entry corresponding to id %d", validated_id)
+            logger.error("Failed to find Entry corresponding to id %d", validated_id)
             return _failure("Failed to find matching Entry")
         deletions.add(validated_id)
 
@@ -111,6 +113,7 @@ def validate_updates(parsed_data: Mapping[str, Any]) -> EntryUpdatesResponse:
 
 def apply_updates(validated_data: Mapping[str, Any]) -> EntryUpdatesResponse:
     """Apply the requested entry updates"""
+    logger = logging.getLogger(__name__)
     try:
         # Use the `atomic` context manager to ensure updates are all-or-nothing: if an
         # error occurs, any updates will be rolled back.
@@ -125,14 +128,14 @@ def apply_updates(validated_data: Mapping[str, Any]) -> EntryUpdatesResponse:
                 entry.delete()
 
     except Exception:
-        logging.exception("Failed to apply updates")
+        logger.exception("Failed to apply updates")
         # Re-raise this exception, which will be turned into a response with status code
         # 500 (internal server error). Since the updates got through parsing and
         # validation, a failure at this stage is likely a problem on the server's end,
         # not the client's.
         raise
 
-    logging.info(
+    logger.info(
         "Successfully applied updates. Deletions: %s. Edits: %s",
         validated_data["deletions"],
         [form.instance for form in validated_data["edits"]],
