@@ -19,6 +19,7 @@ django_settings_module = "chronicle.settings"
 
 [tool.isort]
 profile = "black"
+color_output = true
 
 [tool.mypy]
 strict = true
