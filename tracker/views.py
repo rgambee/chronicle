@@ -1,9 +1,7 @@
-import logging
 from typing import Any, Optional
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query import QuerySet
-from django.forms import Form
 from django.http import (
     HttpRequest,
     HttpResponse,
@@ -13,12 +11,12 @@ from django.http import (
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import DeleteView, DetailView, FormView, ListView
+from django.views.generic import DeleteView, DetailView, ListView
 from django.views.generic.base import ContextMixin
 from django.views.generic.edit import CreateView, UpdateView
 
 from tracker.entry_updates import process_updates
-from tracker.forms import CreateEntryForm, PreferencesForm
+from tracker.forms import CreateEntryForm
 from tracker.models import Entry
 from tracker.view_utils import get_recent_entries, prepare_entries_for_serialization
 
@@ -183,23 +181,3 @@ class ChartView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
             navbar_active="charts",
             **kwargs,
         )
-
-
-class PreferencesEdit(NavBarLinksMixin, FormView):  # type: ignore[type-arg]
-    """View for editing user preferences"""
-
-    template_name = "tracker/preferences.html"
-    form_class = PreferencesForm
-    success_url = reverse_lazy("entries")
-
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        logging.info(request.session.items())
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        logging.info(request.session.items())
-        return super().post(request, *args, **kwargs)
-
-    def form_valid(self, form: Form) -> HttpResponse:
-        logging.info(form.cleaned_data)
-        return super().form_valid(form)

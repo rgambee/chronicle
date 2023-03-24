@@ -60,11 +60,6 @@ urlpatterns = [
         views.ChartView.as_view(),
         name="charts-recent",
     ),
-    path(
-        "preferences/",
-        views.PreferencesEdit.as_view(),
-        name="preferences",
-    ),
 ] + static(
     settings.STATIC_URL,
     document_root=settings.STATIC_ROOT,

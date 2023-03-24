@@ -205,13 +205,3 @@ class EditEntryForm(CreateEntryForm):
         # validate the form.
         if self.is_valid():
             self.instance = self.cleaned_data["id"]
-
-
-class PreferencesForm(forms.Form):
-    week_start = forms.ChoiceField(
-        label="Week starts on",
-        choices=(
-            ("Sunday", "Sunday"),
-            ("Monday", "Monday"),
-        ),
-    )
