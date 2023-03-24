@@ -41,11 +41,6 @@ urlpatterns = [
         name="edit",
     ),
     path(
-        "delete/<int:pk>/",
-        views.EntryDelete.as_view(),
-        name="delete",
-    ),
-    path(
         "updates/",
         views.update_entries,
         name="updates",

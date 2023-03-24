@@ -10,8 +10,4 @@
 <p><strong>Tags:</strong> {{ entry.tags.all|join:", "|default:"No tags" }}</p>
 <p><strong>Comment:</strong> {{ entry.comment|default:"No comment" }}</p>
 
-{% if show_delete_link %}
-  <a href="{% url 'delete' entry.id %}">Delete</a>
-{% endif %}
-
 {% endblock %}

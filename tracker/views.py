@@ -11,7 +11,7 @@ from django.http import (
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import DeleteView, DetailView, ListView
+from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -139,27 +139,6 @@ class EntryListAndCreate(View):
     def post(self, *args: Any, **kwargs: Any) -> HttpResponseBase:
         view = EntryCreate.as_view()
         return view(*args, **kwargs)
-
-
-class EntryDelete(  # type: ignore[misc]
-    NavBarLinksMixin,
-    SuccessMessageMixin,
-    DeleteView,  # type: ignore[type-arg]
-):
-    """Delete an entry, after asking for confirmation"""
-
-    model = Entry
-    context_object_name = "entry"
-    success_url = reverse_lazy("entries")
-    success_message = "Entry was deleted successfully"
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        return super().get_context_data(
-            # This view uses the same template as EntryDetailView. In this view, we
-            # don't want to show a delete link since we're already at that view.
-            show_delete_link=False,
-            **kwargs,
-        )
 
 
 class ChartView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]

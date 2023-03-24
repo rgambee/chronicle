@@ -12,7 +12,7 @@ from django.utils.timezone import make_aware
 from tracker.models import Entry, Tag
 from tracker.tests.utils import TrackerTestCase, construct_entry_form
 from tracker.view_utils import get_recent_entries, prepare_entries_for_serialization
-from tracker.views import EntryCreate, EntryDelete, EntryEdit
+from tracker.views import EntryCreate, EntryEdit
 
 
 class TestEntryUpdates(TrackerTestCase):
@@ -191,43 +191,6 @@ class TestListAndCreate(TrackerTestCase):
             status_code=HTTPStatus.OK,
         )
         self.assertEqual(self.entry_count, initial_count + 1)
-
-
-class TestEntryDelete(TrackerTestCase):
-    def test_get(self) -> None:
-        """A GET request should ask for confirmation"""
-        response = Client().get(reverse("delete", args=(self.entry_count,)))
-        self.assertTemplateUsed(response, "tracker/entry_confirm_delete.html")
-        self.assertContains(response, "</form>")
-
-    def test_get_nonexistent(self) -> None:
-        """A GET request for a nonexistent entry should return a 404"""
-        with self.assertLogs(level=logging.WARNING):
-            response = Client().get(reverse("delete", args=(self.entry_count + 1,)))
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertTemplateNotUsed(response, "tracker/entry_confirm_delete.html")
-
-    def test_post(self) -> None:
-        """A POST request should delete the corresponding object"""
-        initial_count = self.entry_count
-        response = Client().post(
-            reverse("delete", args=(self.entry_count,)), follow=True
-        )
-        self.assertRedirects(response, reverse("entries"))
-        self.assertContains(
-            response,
-            EntryDelete.success_message,
-            status_code=HTTPStatus.OK,
-        )
-        self.assertEqual(self.entry_count, initial_count - 1)
-
-    def test_post_nonexistent(self) -> None:
-        """A POST request for a nonexistent entry should return a 404"""
-        with self.assertLogs(level=logging.WARNING):
-            response = Client().post(
-                reverse("delete", args=(self.entry_count + 1,)), follow=True
-            )
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
 
 class TestChartView(TrackerTestCase):
