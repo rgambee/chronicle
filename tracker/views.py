@@ -9,11 +9,11 @@ from django.http import (
     HttpResponseNotAllowed,
 )
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import ContextMixin
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView
 
 from tracker.entry_updates import process_updates
 from tracker.forms import CreateEntryForm
@@ -104,22 +104,6 @@ class EntryCreate(
                 "entries-in-category", kwargs={"category": self.kwargs["category"]}
             )
         return reverse("entries")
-
-    def get_success_message(self, cleaned_data: dict[str, Any]) -> str:
-        return self.success_message % {"date": cleaned_data["date"].date()}
-
-
-class EntryEdit(
-    NavBarLinksMixin,
-    SuccessMessageMixin,
-    UpdateView,  # type: ignore[type-arg]
-):
-    """Edit an existing entry using a form"""
-
-    model = Entry
-    form_class = CreateEntryForm
-    success_url = reverse_lazy("entries")
-    success_message = "Entry on %(date)s was updated successfully"
 
     def get_success_message(self, cleaned_data: dict[str, Any]) -> str:
         return self.success_message % {"date": cleaned_data["date"].date()}

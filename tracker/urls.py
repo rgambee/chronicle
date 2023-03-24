@@ -36,11 +36,6 @@ urlpatterns = [
         name="entries-in-category",
     ),
     path(
-        "edit/<int:pk>/",
-        views.EntryEdit.as_view(),
-        name="edit",
-    ),
-    path(
         "updates/",
         views.update_entries,
         name="updates",

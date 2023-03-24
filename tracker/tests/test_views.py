@@ -12,7 +12,7 @@ from django.utils.timezone import make_aware
 from tracker.models import Entry, Tag
 from tracker.tests.utils import TrackerTestCase, construct_entry_form
 from tracker.view_utils import get_recent_entries, prepare_entries_for_serialization
-from tracker.views import EntryCreate, EntryEdit
+from tracker.views import EntryCreate
 
 
 class TestEntryUpdates(TrackerTestCase):
@@ -129,46 +129,6 @@ class TestEntryList(TrackerTestCase):
             response.context["entries"],
             self.entries[:1],
         )
-
-
-class TestEntryEdit(TrackerTestCase):
-    tags = [Tag("tag1")]
-
-    def test_get(self) -> None:
-        """A GET request should return a form"""
-        response = Client().get(reverse("edit", args=(self.entry_count,)))
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertTemplateUsed(response, "tracker/entry_form.html")
-
-    def test_post_valid(self) -> None:
-        """A POST request with valid data should be accepted"""
-        form = construct_entry_form()
-        self.assertTrue(form.is_valid())
-        response = Client().post(
-            reverse("edit", args=(self.entry_count,)), data=form.data, follow=True
-        )
-        self.assertRedirects(response, reverse("entries"))
-        self.assertContains(
-            response,
-            EntryEdit().get_success_message(form.cleaned_data),
-            status_code=HTTPStatus.OK,
-        )
-
-    def test_post_invalid(self) -> None:
-        """A POST request with invalid data should be returned for edits"""
-        form = construct_entry_form(category="")
-        response = Client().post(
-            reverse("edit", args=(self.entry_count,)), data=form.data
-        )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertTemplateUsed(response, "tracker/entry_form.html")
-
-    def test_post_nonexistent(self) -> None:
-        """Trying to edit a nonexistent entry should return a 404"""
-        with self.assertLogs(level=logging.WARNING):
-            response = Client().get(reverse("edit", args=(self.entry_count + 1,)))
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertTemplateNotUsed(response, "tracker/entry_form.html")
 
 
 class TestListAndCreate(TrackerTestCase):
