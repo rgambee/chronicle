@@ -18,13 +18,13 @@ run locally and offline. There are no plans to host it publicly.
 There are two main pages. The entry list lets you add new entries and see a
 table of past ones. The table can be sorted or filtered however you like.
 
-![Example screenshot of the entry list page](doc/entry-list.png)
+![Example screenshot of the entry list page](docs/entry-list.png)
 
 The second page lets you visualize the data. You can see how your spending has
 changed over time, as both a bar chart and a heat map. The pie chart
 illustrates how your spending is split among various categories.
 
-![Example screenshot of the charts page](doc/charts.png)
+![Example screenshot of the charts page](docs/charts.png)
 
 ## Instructions
 
