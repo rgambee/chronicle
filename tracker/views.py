@@ -11,7 +11,7 @@ from django.http import (
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
-from django.views.generic import DetailView, ListView
+from django.views.generic import ListView
 from django.views.generic.base import ContextMixin
 from django.views.generic.edit import CreateView
 
@@ -47,21 +47,6 @@ class NavBarLinksMixin(ContextMixin):
 # methods, which prevents one from specifying the type parameter. The
 # django-stubs-ext package has a monkeypatch to address this, but that imposes runtime
 # dependencies.
-class EntryDetailView(NavBarLinksMixin, DetailView):  # type: ignore[type-arg]
-    """View the contents of a single entry"""
-
-    model = Entry
-    context_object_name = "entry"
-
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        return super().get_context_data(
-            # This view uses the same template as EntryDelete. In this view, we want to
-            # show a link to point to let the user delete this entry.
-            show_delete_link=True,
-            **kwargs,
-        )
-
-
 class EntryListView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
     """View a list of many entries"""
 

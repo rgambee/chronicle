@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models.query import QuerySet
-from django.urls import reverse
 
 
 def get_empty_tag() -> "Tag":
@@ -104,6 +103,3 @@ class Entry(models.Model):
             f"category={self.category}, "
             f"tags={tags})"
         )
-
-    def get_absolute_url(self) -> str:
-        return reverse("entry", kwargs={"pk": self.id})

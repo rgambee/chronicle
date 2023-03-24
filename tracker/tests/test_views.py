@@ -6,7 +6,6 @@ from unittest.mock import MagicMock, patch
 
 from django.test import Client
 from django.urls import reverse
-from django.urls.exceptions import NoReverseMatch
 from django.utils.timezone import make_aware
 
 from tracker.models import Entry, Tag
@@ -38,38 +37,6 @@ class TestEntryUpdates(TrackerTestCase):
             )
         self.assertRedirects(response, reverse("entries"))
         self.assertEqual(self.entry_count, starting_entry_count - 1)
-
-
-class TestEntryDetail(TrackerTestCase):
-    def test_present(self) -> None:
-        """Viewing an existing entry should return a successful response"""
-        response = Client().get(reverse("entry", args=(self.entry_count,)))
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertTemplateUsed(response, "tracker/entry_detail.html")
-
-    def test_absent(self) -> None:
-        """Viewing a nonexistent entry should return a 404 response"""
-        with self.assertLogs(level=logging.WARNING):
-            response = Client().get(reverse("entry", args=(self.entry_count + 1,)))
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertTemplateNotUsed(response, "tracker/entry_detail.html")
-
-    def test_invalid_reverse(self) -> None:
-        """Attempting to reverse an invalid entries should raise an error"""
-        with self.assertRaises(NoReverseMatch):
-            reverse("entry", args=("abc",))
-
-    def test_invalid_get(self) -> None:
-        """If an invalid entry is somehow accessed, is should return a 404"""
-        # Client.get() strips interior slashes:
-        #   entry/abc  -> entryabc
-        #   entry//abc -> entry/abc
-        # The latter has a higher chance of matching a URL pattern, so it's the better
-        # one to test.
-        with self.assertLogs(level=logging.WARNING):
-            response = Client().get("entry//abc/")
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertTemplateNotUsed(response, "tracker/entry_detail.html")
 
 
 class TestEntryList(TrackerTestCase):

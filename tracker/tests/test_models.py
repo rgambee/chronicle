@@ -54,8 +54,6 @@ class TestEntry(TestCase):
             repr(entry),
             "Entry(date=2001-01-23, amount=1, category=things, tags=[that, this])",
         )
-        url = entry.get_absolute_url()
-        self.assertRegex(url, r"^/entry/[0-9]+/$")
 
 
 # The tests below are divided into separate classes because they require the test

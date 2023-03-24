@@ -11,11 +11,6 @@ urlpatterns = [
         name="index",
     ),
     path(
-        "entry/<int:pk>/",
-        views.EntryDetailView.as_view(),
-        name="entry",
-    ),
-    path(
         "entries/",
         views.EntryListAndCreate.as_view(),
         name="entries",
