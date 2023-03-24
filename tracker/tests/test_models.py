@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.test import TestCase
 from django.utils import timezone
 
@@ -30,7 +32,7 @@ class TestTag(TestCase):
 
 
 class TestEntry(TestCase):
-    SAMPLE_DATE = timezone.make_aware(timezone.datetime(2001, 1, 23))
+    SAMPLE_DATE = timezone.make_aware(datetime(2001, 1, 23))
 
     def test_str(self) -> None:
         """Short representation of Entry should show date and amount"""

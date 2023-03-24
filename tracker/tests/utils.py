@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional, Sequence
 
 from django.test import TestCase
@@ -6,7 +7,7 @@ from django.utils import timezone
 from tracker.forms import CreateEntryForm
 from tracker.models import Entry, Tag
 
-SAMPLE_DATE = timezone.make_aware(timezone.datetime(2001, 1, 23))
+SAMPLE_DATE = timezone.make_aware(datetime(2001, 1, 23))
 
 
 class TrackerTestCase(TestCase):

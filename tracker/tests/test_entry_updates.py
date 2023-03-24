@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Union
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -270,7 +271,7 @@ class TestUpdatesValidation(BaseUpdateProcessing):
         # Date can't be a Unix timestamp
         self.assert_bad(edits={"date": str(int(1e9))})
         # Date can be in various formats
-        expected_date = timezone.make_aware(timezone.datetime(2000, 1, 23))
+        expected_date = timezone.make_aware(datetime(2000, 1, 23))
         for date in ("2000-01-23", "1/23/2000", "23 January 2000"):
             with self.subTest(date=date):
                 validated_data = self.assert_good(edits={"date": date})
