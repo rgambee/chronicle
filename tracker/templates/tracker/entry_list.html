@@ -15,12 +15,27 @@
 
 {% block content %}
 
+{# Change tooltips for certain buttons when demo mode is active #}
+{% load tracker_tags %}
+{% setvar "Create Entry" as create_button_title %}
+{% setvar "Save Changes" as save_button_title %}
+{% if demo_mode|default:False %}
+  {% setvar "Saving disabled in demo mode" as create_button_title %}
+  {% setvar "Saving disabled in demo mode" as save_button_title %}
+{% endif %}
+
 <h2>New Entry</h2>
 <form method="post" class="row needs-validation" novalidate>
   {% csrf_token %}
   {{ form.as_div }}
   <div class="col-auto" style="padding-top: 2rem">
-    <button type="submit" class="btn btn-primary">
+    <button
+      type="submit"
+      title="{{ create_button_title }}"
+      class="btn btn-primary"
+      {% if demo_mode|default:False %}disabled{% endif %}
+      style="pointer-events: auto;" {# Show tooltip even when disabled #}
+    >
       Create
     </button>
   </div>
@@ -59,8 +74,10 @@
     <button
       id="id_save_changes_btn"
       type="button"
-      title="Save Changes"
+      title="{{ save_button_title }}"
       class="btn btn-sm btn-outline-primary"
+      {% if demo_mode|default:False %}disabled{% endif %}
+      style="pointer-events: auto;" {# Show tooltip even when disabled #}
     >
       {% include "tracker/icons/save.svg" %}
       <span class="ps-1">Save</span>
