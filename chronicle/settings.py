@@ -137,3 +137,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# When in demo mode, writes to the database are disabled, and some UI elements
+# are tweaked to make this clear to the user.
+DEMO_MODE = bool(os.environ.get("CHRONICLE_DEMO_MODE", False))

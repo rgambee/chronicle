@@ -1,5 +1,6 @@
 from typing import Any, Optional
 
+from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query import QuerySet
 from django.http import (
@@ -33,12 +34,17 @@ def update_entries(request: HttpRequest) -> HttpResponse:
     return process_updates(request.POST)
 
 
-class NavBarLinksMixin(ContextMixin):
-    """Mixin for adding links to navbar"""
+class TrackerContextMixin(ContextMixin):
+    """Mixin for adding assorted info to the context for templates to use
+
+    * navbar_links: pages that should be linked from the navbar
+    * demo_mode: whether the app is running in read-only, demo mode
+    """
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         return super().get_context_data(
             navbar_links=["entries", "charts"],
+            demo_mode=settings.DEMO_MODE,
             **kwargs,
         )
 
@@ -47,7 +53,7 @@ class NavBarLinksMixin(ContextMixin):
 # methods, which prevents one from specifying the type parameter. The
 # django-stubs-ext package has a monkeypatch to address this, but that imposes runtime
 # dependencies.
-class EntryListView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
+class EntryListView(TrackerContextMixin, ListView):  # type: ignore[type-arg]
     """View a list of many entries"""
 
     model = Entry
@@ -73,7 +79,7 @@ class EntryListView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
 
 
 class EntryCreate(
-    NavBarLinksMixin,
+    TrackerContextMixin,
     SuccessMessageMixin,
     CreateView,  # type: ignore[type-arg]
 ):
@@ -110,7 +116,7 @@ class EntryListAndCreate(View):
         return view(*args, **kwargs)
 
 
-class ChartView(NavBarLinksMixin, ListView):  # type: ignore[type-arg]
+class ChartView(TrackerContextMixin, ListView):  # type: ignore[type-arg]
     """Visualize entries with charts"""
 
     model = Entry
