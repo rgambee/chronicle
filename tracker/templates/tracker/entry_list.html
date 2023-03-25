@@ -16,7 +16,15 @@
 {% block content %}
 
 <h2>New Entry</h2>
-{% include "tracker/form_template.html" with submit_text="Create" validation_styling=True %}
+<form method="post" class="row needs-validation" novalidate>
+  {% csrf_token %}
+  {{ form.as_div }}
+  <div class="col-auto" style="padding-top: 2rem">
+    <button type="submit" class="btn btn-primary">
+      Create
+    </button>
+  </div>
+</form>
 
 <div class="d-flex justify-content-between pt-3 pb-1">
   <h2>Existing Entries</h2>
@@ -216,6 +224,7 @@ has finished initializing it. When the JS is ready, it sets the table to visible
 </script>
 
 {% load static %}
+<script type="module" src="{% static 'tracker/form_validation_styling.js' %}"></script>
 <script type="module" src="{% static 'tracker/entry_table.js' %}"></script>
 
 {% endblock %}
