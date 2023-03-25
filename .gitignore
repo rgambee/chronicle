@@ -10,3 +10,6 @@ __pycache__/
 htmlcov/
 
 node_modules/
+
+# Ignore static mirror of site used for GitHub pages demo
+mirrored/
