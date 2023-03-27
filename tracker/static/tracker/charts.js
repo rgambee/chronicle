@@ -231,6 +231,11 @@ function initCalendarHeatmap(element, data) {
     }
     // Round to end of week (here assumed to stop on Saturday)
     end.setDate(end.getDate() + (6 - end.getDay()));
+    // Set end time to noon to avoid ambiguities when crossing daylight saving
+    // boundaries. If we leave it at midnight, we could calculate the start date as one
+    // day before the one we want if the clocks have moved forward (spring DTS
+    // transition) between the start and end dates.
+    end.setHours(12);
     // Set start to be at least N weeks earlier
     const spanWeeks = 28;
     // Subtract 1 day since we want to start on a different day of the week
