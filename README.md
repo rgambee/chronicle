@@ -47,8 +47,8 @@ environment and install the required packages.
 # Install pipenv
 pip install pipenv
 # Create a virtual environment and install the project dependencies
-# Add --dev for development tools (not required for normal use)
-pipenv install  # --dev
+# Add --categories for development tools (not required for normal use)
+pipenv install  # --categories="packages linters tests"
 # Activate the virtual environment
 pipenv shell
 ```
