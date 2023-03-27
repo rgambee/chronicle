@@ -97,6 +97,29 @@ Start the app with
 In your browser, navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000)
 and enjoy!
 
+### Demo Mode
+
+Chronicle can be started in a read-only, demo mode. In this mode, you can see
+existing entries in the database but not make any changes. The purpose of demo
+mode is for replicating a
+[static version of the site](https://rgambee.github.io/chronicle/) that can be
+hosted on GitHub pages for anyone to view.
+
+To enable demo mode, set the `CHRONICLE_DEMO_MODE` environment variable before
+starting the app.
+
+```bash
+export CHRONICLE_DEMO_MODE=1
+./manage.py runserver
+```
+
+To disable demo mode, unset the environment variable.
+
+```bash
+export CHRONICLE_DEMO_MODE=
+./manage.py runserver
+```
+
 ## Organization
 
 Chronicle follows the organization of a typical, single-app Django project.
