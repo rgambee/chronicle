@@ -26,8 +26,13 @@
         </div>
       </div>
       {% if demo_mode|default:False %}
-      <div>
-        <em class="text-white">Demo mode</em>
+      <div class="text-white">
+        <em class="pe-1">Demo mode</em>
+        <span
+          title="Static site for demostration purposes only. Changes will not be saved."
+        >
+          {% include "tracker/icons/info.svg" %}
+        </span>
       </div>
       {% endif %}
     </div>
