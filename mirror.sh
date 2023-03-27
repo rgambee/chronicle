@@ -28,6 +28,8 @@ PORT="8000"
 MIRROR_DIRECTORY="${REPO}/mirrored/"
 # Use the demo database (which is tracked in git) instead of the default (which isn't)
 export CHRONICLE_DATABASE="${REPO}/demo.sqlite3"
+# Run the app in read-only, demo mode
+export CHRONICLE_DEMO_MODE=1
 
 if [[ "${#}" = 1 ]]
 then
