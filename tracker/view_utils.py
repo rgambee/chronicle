@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timedelta
 from typing import Iterable, List, Optional, TypedDict
 
-from django.db.models import Sum
 from django.db.models.query import QuerySet
 from django.http import Http404
 from django.utils import timezone
@@ -122,34 +121,3 @@ def prepare_entries_for_serialization(
             )
         )
     return serializable_entries
-
-
-def aggregate_entries(queryset: QuerySet[Entry]) -> dict[str, dict[str, float]]:
-    """Group entries first by category, then by date"""
-    # Determine unique categories and dates
-    categories = queryset.order_by("category_id").values("category_id").distinct()
-    dates = queryset.datetimes(field_name="date", kind="day")
-    # For each (category, date) pair, sum the amounts of the corresponding entries
-    aggregated: dict[str, dict[str, float]] = {}
-    for cat in categories:
-        aggregated[cat["category_id"]] = {}
-        for day in dates:
-            total = queryset.filter(
-                category=cat["category_id"],
-                date__date=day.date(),
-            ).aggregate(Sum("amount"))
-            if total["amount__sum"]:
-                formatted_date = format_datetime_ecma(day)
-                aggregated[cat["category_id"]][formatted_date] = total["amount__sum"]
-    return aggregated
-
-
-def format_datetime_ecma(when: datetime) -> str:
-    """Format the given datetime according to the official ECMAScript spec
-
-    This aims to ensure maximum compatibility with different browsers.
-
-    The spec is defined here:
-    https://tc39.es/ecma262/#sec-date-time-string-format
-    """
-    return when.isoformat(timespec="milliseconds")
