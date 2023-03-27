@@ -241,7 +241,7 @@ function initCalendarHeatmap(element, data) {
     const formatDate = makeDateFormatter();
     const option = {
         title: {
-            text: "Amount Breakdown",
+            text: "Activity Heat Map",
         },
         textStyle: {
             fontFamily: getFontFamily(element),
