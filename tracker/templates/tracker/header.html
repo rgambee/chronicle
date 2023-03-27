@@ -4,25 +4,32 @@
 
 <header>
   <nav class="navbar navbar-expand fixed-top border-bottom bg-primary">
-    <div class="container-lg justify-content-start">
-      {% block navbranding %}
-        <a class="navbar-brand text-white pe-3 fs-4" href="{% url 'index' %}">
-          {% block navbranding_logo %}
-            {% include "tracker/icons/clipboard.svg" %}
-          {% endblock %}
-          {% block navbranding_name %}Tracker{% endblock %}
-        </a>
-      {% endblock %}
-      <div class="nav nav-pills">
-        {% for page in navbar_links %}
-          <a
-            class="nav-link{% if navbar_active == page %}{{nav_link_active}}{% else %}{{nav_link_inactive}}{% endif %}"
-            href="{% url page %}"
-          >
-            {{ page|title }}
+    <div class="container-lg justify-content-between">
+      <div class="d-inline-flex flex-wrap">
+        {% block navbranding %}
+          <a class="navbar-brand text-white pe-3 fs-4" href="{% url 'index' %}">
+            {% block navbranding_logo %}
+              {% include "tracker/icons/clipboard.svg" %}
+            {% endblock %}
+            {% block navbranding_name %}Tracker{% endblock %}
           </a>
-        {% endfor %}
+        {% endblock %}
+        <div class="nav nav-pills align-self-center">
+          {% for page in navbar_links %}
+            <a
+              class="nav-link {% if navbar_active == page %}{{nav_link_active}}{% else %}{{nav_link_inactive}}{% endif %}"
+              href="{% url page %}"
+            >
+              {{ page|title }}
+            </a>
+          {% endfor %}
+        </div>
       </div>
+      {% if demo_mode|default:False %}
+      <div>
+        <em class="text-white">Demo mode</em>
+      </div>
+      {% endif %}
     </div>
   </nav>
 </header>

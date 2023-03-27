@@ -15,7 +15,7 @@
         {% load static %}
         <link rel="icon" type="image/png" href="{% static 'tracker/favicon.png' %}">
       {% endblock %}
-      <title>{% block pagetitle %}Page Title{% endblock %}{% block projecttitle %} - Tracker{% endblock %}</title>
+      <title>{% block pagetitle %}Page Title{% endblock %}{% block projecttitle %} - Tracker{% endblock %}{% if demo_mode|default:False %} - Demo{% endif %}</title>
     {% endblock %}
   </head>
   <body>
