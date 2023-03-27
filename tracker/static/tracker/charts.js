@@ -243,6 +243,12 @@ function initCalendarHeatmap(element, data) {
     const spanMilliseconds = (spanWeeks * 7 - 1) * 24 * 60 * 60 * 1000;
     const start = new Date(end.getTime() - spanMilliseconds);
 
+    // Remove entries before the start date. Otherwise, they'll get stacked in the
+    // corner, which looks ugly.
+    while (dailyTotals[0][0] < start.getTime()) {
+        console.log(dailyTotals.shift());
+    }
+
     const formatDate = makeDateFormatter();
     const option = {
         title: {
