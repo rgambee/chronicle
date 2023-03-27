@@ -237,7 +237,7 @@ function initCalendarHeatmap(element, data) {
     // transition) between the start and end dates.
     end.setHours(12);
     // Set start to be at least N weeks earlier
-    const spanWeeks = 28;
+    const spanWeeks = 14;
     // Subtract 1 day since we want to start on a different day of the week
     // than we end on, e.g. Sunday to Saturday.
     const spanMilliseconds = (spanWeeks * 7 - 1) * 24 * 60 * 60 * 1000;
@@ -283,6 +283,7 @@ function initCalendarHeatmap(element, data) {
         },
         calendar: {
             range: [start, end],
+            cellSize: 40,
         },
         visualMap: {
             show: false,
