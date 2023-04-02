@@ -8,13 +8,15 @@
 {% for field, errors in fields %}
   {% setvar "col-auto" as col_class %}
   {% if "tags.html" in field.field.widget.template_name %}
-    {% setvar "col-3" as col_class %}
+    {% setvar "col-3 col-xl-2" as col_class %}
+  {% elif "textarea" in field.field.widget.template_name %}
+    {% setvar "col-6 col-xl-4" as col_class %}
   {% elif field.field.widget.input_type == "number" %}
-    {% setvar "col-1" as col_class %}
+    {% setvar "col-3 col-lg-2 col-xl-1" as col_class %}
   {% elif field.field.widget.input_type == "text" %}
-    {% setvar "col-2" as col_class %}
+    {% setvar "col-3 col-md-2" as col_class %}
   {% endif %}
-  <div {% with classes=field.css_classes %}class="{{ col_class }}{{ classes }}"{% endwith %}>
+  <div class="{{ col_class }}{{ field.css_classes }}">
     {% if field.use_fieldset %}
       <fieldset>
       {% if field.label %}{{ field.legend_tag }}{% endif %}
