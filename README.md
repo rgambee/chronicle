@@ -6,12 +6,16 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Test & Publish](https://github.com/rgambee/chronicle/actions/workflows/publish.yml/badge.svg)](https://github.com/rgambee/chronicle/actions/workflows/publish.yml)
 
-Chronicle is a web app that helps you track how you allocate resources. My
-motivation for creating it was to track how I spend my time, hence the name,
-but it works equally well for tracking money.
+Chronicle is a web app that helps you track how you allocate resources.
+**[Click here](https://rgambee.github.io/chronicle/) to see a demo you can play
+around with.**
 
-Even though Chronicle is a web app that's used via a browser, it's intended to
-run locally and offline. There are no plans to host it publicly.
+The demo is a static, read-only version of the app. To actually use the app for
+yourself, you must run it locally using the instructions in the section below.
+There are no plans to host the dynamic version publicly.
+
+My motivation for creating Chronicle was to track how I spend my time, hence
+the name, but it works equally well for tracking money or other resources.
 
 ## Features
 
@@ -37,6 +41,14 @@ cd chronicle
 
 ### Dependencies
 
+Chronicle requires Python 3.8 or later.
+An [automated workflow](https://github.com/rgambee/chronicle/actions) tests
+compatibility with versions 3.8 through 3.11. Newer Python versions will likely
+work too.
+
+Assuming you have a suitable Python version installed, the next step is to
+install the relevant Python packages. There are a couple of ways to do this.
+
 #### Recommended: `Pipenv`
 
 The recommended way to set up dependencies is using
@@ -46,10 +58,13 @@ environment and install the required packages.
 ```bash
 # Install pipenv
 pip install pipenv
-# Create a virtual environment and install the project dependencies
-# Add --categories for development tools (not required for normal use)
+
+# Run `pipenv install`, which will automatically create a virtual environment
+# and install the primary packages.
+# Add --categories for development tools (not required for normal use).
 pipenv install  # --categories="packages linters tests"
-# Activate the virtual environment
+
+# Activate the virtual environment created by the previous command
 pipenv shell
 ```
 
@@ -62,10 +77,10 @@ use Pipenv, you can just install Django by itself.
 pip install django~=4.1
 ```
 
-#### Optional: npm packages
+#### Optional: JavaScript packages
 
-No npm packages are required to run the app. They're only development tools. If
-you want to install them, run
+No JavaScript packages are required to run the app. They're only development
+tools. If you want to install them, run
 
 ```bash
 npm install
@@ -86,6 +101,8 @@ Or to create a new blank database, run
 ./manage.py migrate
 ```
 
+The new database will be named `db.sqlite3`.
+
 ### Running
 
 Start the app with
@@ -103,7 +120,7 @@ Chronicle can be started in a read-only, demo mode. In this mode, you can see
 existing entries in the database but not make any changes. The purpose of demo
 mode is for replicating a
 [static version of the site](https://rgambee.github.io/chronicle/) that can be
-hosted on GitHub pages for anyone to view.
+hosted on GitHub Pages for anyone to view.
 
 To enable demo mode, set the `CHRONICLE_DEMO_MODE` environment variable before
 starting the app.
@@ -123,9 +140,60 @@ export CHRONICLE_DEMO_MODE=
 ## Organization
 
 Chronicle follows the organization of a typical, single-app Django project.
-Perhaps counter-intuitively, the `chronicle/chronicle/` directory contains very
-little of interest. Most of the code is in `chronicle/tracker/`, which contains
-both the backend and frontend code, along with tests.
+Perhaps counter-intuitively, the `chronicle/` directory contains very little of
+interest.
+
+Most of the code is in the `tracker/` directory:
+
+*   Server-side Python code: `models.py`, `views.py`, `forms.py`, etc.
+*   Client-side JavaScript code: primarily `static/tracker/charts.js`
+    and `static/tracker/entry_table.js`
+*   HTML templates: `templates/tracker/entry_list.html`, etc.
+*   Python tests: `tests/`
+
+## Contributing
+
+First of all, thank you for considering contributing to this project! I wrote
+it largely as a learning exercise for myself, so I'm not expecting it to be
+worked on (or honestly even used) by others. There are many other similar apps
+out there, many of which may be better suited to your needs.
+
+That said, there are some recommended tools for helping with development. If
+you didn't install the development dependencies originally, you'll need to do
+that before proceeding.
+
+```bash
+pipenv install --categories="linters tests"
+
+# Activate the virtual environment if it isn't already active
+pipenv shell
+```
+
+There are a suite of linters for enforcing code style and catching issues. You
+can run through all of them with the `lint.sh` Bash script.
+
+Python tests can be run with
+
+```bash
+./manage.py test
+```
+
+You can also use [Coverage](https://coverage.readthedocs.io/) to generate a
+report of which parts of the codebase are covered by tests.
+
+```bash
+# Run tests and gather data
+coverage run
+# View coverage report in text form
+coverage report
+# Generate HTML report you can explore in a browser
+coverage html
+# Open htmlcov/index.html in a browser
+```
+
+The above checks are run automatically by a GitHub Actions
+[workflow](https://github.com/rgambee/chronicle/actions) every time
+a branch is pushed.
 
 ## Copyright and License
 
