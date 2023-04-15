@@ -286,9 +286,26 @@ function initCalendarHeatmap(element, data) {
             cellSize: 40,
         },
         visualMap: {
+            type: "continuous",
             show: false,
             min: 0,
             max: Math.max(...dailyTotals.map(tsAndTotal => tsAndTotal[1])),
+            inRange: {
+                color: [
+                    "#f1f1f1",
+                    "#dfe6ef",
+                    "#cddbed",
+                    "#bcd0ea",
+                    "#abc5e7",
+                    "#9bbbe1",
+                    "#8db0d8",
+                    "#81a5ce",
+                    "#759ac4",
+                    "#6690bc",
+                    "#5486b7",
+                    "#3d7cb2",
+                ],
+            },
         },
         series: {
             type: "heatmap",
