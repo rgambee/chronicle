@@ -65,7 +65,7 @@ class UserUpdates {
 
 // Custom date filtering based on this answer by Oli Folkerd:
 // https://stackoverflow.com/a/64414478
-function rangeEditor(cell, onRendered, success, cancel) {
+function dateRangeEditor(cell, onRendered, success, cancel) {
     const template = document.querySelector("#id_date_range_template");
     const dateRange = template.content.cloneNode(true);
     const startInput = dateRange.querySelector("#id_date_range_start");
@@ -119,7 +119,7 @@ function rangeEditor(cell, onRendered, success, cancel) {
     return dateRange.firstElementChild;
 }
 
-function rangeFilter(dateRange, dateValue) {
+function dateRangeFilter(dateRange, dateValue) {
     if (!dateValue) {
         // Include empty dates by default
         return true;
@@ -138,44 +138,38 @@ function rangeFilter(dateRange, dateValue) {
     return true;
 }
 
-function comparisonEditor(cell, onRendered, success) {
-    const template = document.querySelector("#id_amount_comparison_template");
+function amountRangeEditor(cell, onRendered, success) {
+    const template = document.querySelector("#id_amount_range_template");
     const comparison = template.content.cloneNode(true);
-    const comparisonSelect = comparison.querySelector("#id_amount_comparison_select");
-    const amountInput = comparison.querySelector("#id_amount_filter");
+    const amountInputMin = comparison.querySelector("#id_amount_range_min");
+    const amountInputMax = comparison.querySelector("#id_amount_range_max");
 
-    function buildComparison() {
-        let filt = () => true;
-        const amount = parseFloat(amountInput.value);
-        if (isNaN(amount)) {
-            success(filt);
-            return;
+    function buildRange() {
+        let amountMin = parseFloat(amountInputMin.value);
+        if (Number.isNaN(amountMin)) {
+            amountMin = 0;
         }
-        if (comparisonSelect.value === "==") {
-            console.log("==");
-            filt = (value) => value === amount;
-        } else if (comparisonSelect.value === "<=") {
-            console.log("<=");
-            filt = (value) => value <= amount;
-        } else if (comparisonSelect.value === ">=") {
-            console.log(">=");
-            filt = (value) => value >= amount;
-        } else {
-            console.log("Returning default filter");
+        let amountMax = parseFloat(amountInputMax.value);
+        if (Number.isNaN(amountMax)) {
+            amountMax = Number.POSITIVE_INFINITY;
         }
-        // If comparisonSelect.value isn't one of the above, return the default filter,
-        // which matches all values.
-        success(filt);
+
+        success(
+            {
+                min: amountMin,
+                max: amountMax,
+            },
+        );
     }
 
-    comparisonSelect.addEventListener("change", buildComparison);
-    amountInput.addEventListener("input", buildComparison);
+    amountInputMin.addEventListener("input", buildRange);
+    amountInputMax.addEventListener("input", buildRange);
 
     return comparison.firstElementChild;
 }
 
-function comparisonFilter(compare, value) {
-    return compare(value);
+function amountRangeFilter(amountRange, amountValue) {
+    return amountRange.min <= amountValue && amountValue <= amountRange.max;
 }
 
 // Function must be bound to an instance of Tabulator
@@ -302,8 +296,8 @@ function createTable() {
                         inputFormat:"yyyy-MM-dd",
                         outputFormat:"DD",
                     },
-                    headerFilter: rangeEditor,
-                    headerFilterFunc: rangeFilter,
+                    headerFilter: dateRangeEditor,
+                    headerFilterFunc: dateRangeFilter,
                     headerFilterLiveFilter: false,
                     editor: "date",
                     validator: "required",
@@ -323,9 +317,9 @@ function createTable() {
                     formatterParams: {
                         precision: 0,
                     },
-                    headerFilter: comparisonEditor,
-                    headerFilterFunc: comparisonFilter,
-                    headerFilterLiveFilter: true,
+                    headerFilter: amountRangeEditor,
+                    headerFilterFunc: amountRangeFilter,
+                    headerFilterLiveFilter: false,
                     validator: "required",
                 },
                 {

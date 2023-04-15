@@ -202,26 +202,42 @@ has finished initializing it. When the JS is ready, it sets the table to visible
 </template>
 
 {# Template used by entry_table.js for filtering amount column #}
-<template id="id_amount_comparison_template">
+<template id="id_amount_range_template">
   <form>
-    <select
-      id="id_amount_comparison_select"
-      class="form-select"
-      aria-label="Comparison type"
-    >
-      <option value=">=">&ge;</option>
-      <option value="<=">&le;</option>
-      <option value="==">=</option>
-    </select>
-    <input
-      id="id_amount_filter"
-      type="number"
-      class="form-control"
-      min="0"
-      step="1"
-      placeholder="Filter amount"
-      aria-label="Filter amount"
-    >
+    <div class="row mb-2">
+      <label
+        for="id_amount_range_min"
+        class="col-4 col-form-label col-form-label-sm"
+      >
+        Min
+      </label>
+      <div class="col-8">
+        <input
+          id="id_amount_range_min"
+          type="number"
+          class="form-control form-control-sm"
+          placeholder="0"
+          style="font-size: 0.875rem; padding: 0.25rem;"
+        >
+      </div>
+    </div>
+    <div class="row mb-2">
+      <label
+        for="id_amount_range_max"
+        class="col-4 col-form-label col-form-label-sm"
+      >
+        Max
+      </label>
+      <div class="col-8">
+        <input
+          id="id_amount_range_max"
+          type="number"
+          class="form-control form-control-sm"
+          placeholder="&infin;"
+          style="font-size: 0.875rem; padding: 0.25rem;"
+        >
+      </div>
+    </div>
   </form>
 </template>
 
