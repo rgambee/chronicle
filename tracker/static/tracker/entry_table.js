@@ -315,7 +315,7 @@ function createTable() {
                     },
                     formatter: "money",
                     formatterParams: {
-                        precision: 0,
+                        precision: false,
                     },
                     headerFilter: amountRangeEditor,
                     headerFilterFunc: amountRangeFilter,
