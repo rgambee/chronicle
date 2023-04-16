@@ -1,12 +1,6 @@
-import logging
-import unittest
 from typing import Any, Optional, Sequence
 
-from django.test import Client
-from django.urls import reverse
-
 from tracker.forms import (
-    AutocompleteWidget,
     CreateEntryForm,
     EditEntryForm,
     GetOrCreateChoiceField,
@@ -14,50 +8,6 @@ from tracker.forms import (
 )
 from tracker.models import Entry, Tag
 from tracker.tests.utils import SAMPLE_DATE, TrackerTestCase, construct_entry_form
-
-
-class TestAutocompleteWidget(TrackerTestCase):
-    tags = [Tag("category1"), Tag("category2"), Tag("category3")]
-    entries = []
-
-    @unittest.skip("Temporarily skip while transitioning away from this widget")
-    def test_render(self) -> None:
-        """Test that the AutocompleteWidget renders to HTML as expected"""
-        response = Client().get(reverse("entries"))
-        self.assertTemplateUsed(response, AutocompleteWidget.template_name)
-        self.assertTemplateUsed(response, AutocompleteWidget.option_template_name)
-        expected_html = """
-        <input
-            type="text"
-            id="id_category"
-            class="form-control"
-            name="category"
-            value="category1"
-            list="id_category_list"
-            spellcheck="true"
-            required=""
-        >
-
-        <datalist id="id_category_list">
-            <option value="category1">category1</option>
-            <option value="category2">category2</option>
-            <option value="category3">category3</option>
-        </datalist>
-        """
-        self.assertContains(response, expected_html, html=True)
-
-    def test_format_value(self) -> None:
-        """Test that the AutocompleteWidget formats the selected value as a string"""
-        widget = AutocompleteWidget()
-        self.assertEqual(widget.format_value("abc"), "abc")
-        self.assertEqual(widget.format_value(["abc"]), "abc")
-        self.assertEqual(widget.format_value(None), "")
-        self.assertEqual(widget.format_value([None]), "")
-        self.assertEqual(widget.format_value(Tag("mytag")), "mytag")
-        with self.assertLogs(level=logging.WARNING):
-            self.assertEqual(widget.format_value([]), "")
-        with self.assertLogs(level=logging.WARNING):
-            self.assertEqual(widget.format_value([1, 2, 3]), "1")
 
 
 class TestGetOrCreateChoiceField(TrackerTestCase):

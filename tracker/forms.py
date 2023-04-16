@@ -1,62 +1,13 @@
-import logging
-import uuid
 from typing import Any, Iterable, Optional
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Model
 from django.db.models.query import QuerySet
-from django.forms.widgets import ChoiceWidget, SelectMultiple
+from django.forms.widgets import SelectMultiple
 from django.utils import timezone
 
 from tracker.models import Entry, Tag
-
-
-class AutocompleteWidget(ChoiceWidget):
-    """A text box with autocompletion options"""
-
-    input_type = "text"
-    template_name = "tracker/widgets/autocomplete.html"
-    option_template_name = "django/forms/widgets/select_option.html"
-    add_id_index = False
-    checked_attribute = {}
-    option_inherits_attrs = False
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        if "list" not in self.attrs:
-            # This needs to be unique. UUID version 1 uses the system clock. Even if two
-            # instances of this class are created very close in time, they'll have
-            # different timestamps.
-            self.attrs["list"] = str(uuid.uuid1().time_low)
-
-    def get_context(
-        self,
-        name: str,
-        value: str,
-        attrs: Optional[dict[str, Any]],
-    ) -> dict[str, Any]:
-        context = super().get_context(name, value, attrs)
-        # Inert the input type into the context for the template to use. The parent
-        # class doesn't do this, presumably because it expects to always be rendered
-        # with a <select> tag.
-        context["widget"] = context.get("widget", {}) | {"type": self.input_type}
-        return context
-
-    def format_value(self, value: Any) -> str:  # type: ignore[override]
-        # ChoiceWidget.format_value() always returns a list for some reason. Perhaps
-        # it's because it needs to support multiple ones being selected? That's not
-        # necessary in this case. And returning a list causes the HTML value to be
-        # rendered as `value="['myvalue']"` instead of `value="myvalue"`. Therefore, we
-        # return the first element of the list.
-        logger = logging.getLogger(__name__)
-        values = super().format_value(value)
-        if len(values) < 1:
-            logger.warning("Received no values to format")
-            return ""
-        if len(values) > 1:
-            logger.warning("Received multiple values to format: %s", values)
-        return values[0]
 
 
 class TagsWidget(SelectMultiple):
