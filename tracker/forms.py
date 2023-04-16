@@ -174,6 +174,8 @@ class CreateEntryForm(forms.ModelForm):  # type: ignore[type-arg]
         selected_category: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        if "label_suffix" not in kwargs:
+            kwargs["label_suffix"] = ""
         super().__init__(*args, **kwargs)
         # Sort the choices for the category and tags by the number of matching Entries,
         # descending so the most common appear fist.

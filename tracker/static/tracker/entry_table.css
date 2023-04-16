@@ -12,3 +12,9 @@
 .tabulator.table-sm .tabulator-row {
     padding: 0;
 }
+
+/* Make the form labels match the table column headers */
+
+.form-label {
+    font-weight: bold;
+}
