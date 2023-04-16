@@ -13,6 +13,24 @@
     padding: 0;
 }
 
+/*
+ * Make the background color of table column headers and rows match one another when
+ * hovering over them. For the rows, this requires setting the background of both the
+ * entire row and the individual cell since Tabulator's styling sets both.
+ */
+
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable.tabulator-col-sorter-element:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.tabulator.table .tabulator-row:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.tabulator.table .tabulator-row:hover .tabulator-cell {
+    background-color: transparent;
+}
+
 /* Make the form labels match the table column headers */
 
 .form-label {
