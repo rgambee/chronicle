@@ -6,6 +6,7 @@ from django.db.models import Model
 from django.db.models.query import QuerySet
 from django.forms.widgets import SelectMultiple
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from tracker.models import Entry, Tag
 
@@ -24,11 +25,29 @@ class GetOrCreateChoiceField(forms.ModelChoiceField):
 
     def to_python(self, value: Any) -> Optional[Model]:
         """Create a new object for this value if it doesn't already exist"""
-        if value not in self.empty_values:
-            if self.queryset is None:
-                raise TypeError("queryset has not been set")
-            key = self.to_field_name or "pk"
-            self.queryset.get_or_create(**{key: value})
+        if value in self.empty_values:
+            return super().to_python(value)
+
+        try:
+            iter(value)
+        except TypeError:
+            pass
+        else:
+            if not isinstance(value, (str, bytes)):
+                # value is a non-string iterable, e.g. a list. Check that it has exactly
+                # one element and extract that element.
+                try:
+                    (value,) = value
+                except ValueError as err:
+                    raise ValidationError(
+                        gettext("Enter a valid string"),
+                        code="invalid",
+                    ) from err
+
+        if self.queryset is None:
+            raise TypeError("queryset has not been set")
+        key = self.to_field_name or "pk"
+        self.queryset.get_or_create(**{key: value})
         return super().to_python(value)
 
 

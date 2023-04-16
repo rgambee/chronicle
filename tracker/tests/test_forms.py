@@ -1,5 +1,7 @@
 from typing import Any, Optional, Sequence
 
+from django.core.exceptions import ValidationError
+
 from tracker.forms import (
     CreateEntryForm,
     EditEntryForm,
@@ -26,6 +28,13 @@ class TestGetOrCreateChoiceField(TrackerTestCase):
         self.assertIsNone(field.to_python(""))
         self.assertIsNone(field.to_python([]))
         self.assertIsNone(field.to_python(None))
+
+    def test_value_list(self) -> None:
+        """Test that lists of values are processed correctly"""
+        field = GetOrCreateChoiceField(queryset=Tag.objects)
+        self.assertEqual(field.to_python([self.tags[0].name]), self.tags[0])
+        with self.assertRaises(ValidationError):
+            field.to_python([tag.name for tag in self.tags])
 
     def test_get_existing(self) -> None:
         """Test an existing category is selected without adding new ones"""

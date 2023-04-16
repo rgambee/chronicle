@@ -231,6 +231,9 @@ class TestUpdatesValidation(BaseUpdateProcessing):
         # String fields don't have to be strings initially; they'll be converted
         for field in ("category", "comment"):
             for value in (123, True, [1, 2, 3]):
+                if field == "category" and isinstance(value, list):
+                    self.assert_bad(edits={field: value})
+                    continue
                 validated_data = self.assert_good(edits={field: value})
                 expected_value: Union[str, Tag] = str(value)
                 if field == "category":
