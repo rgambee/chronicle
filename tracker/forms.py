@@ -136,8 +136,6 @@ class CreateEntryForm(forms.ModelForm):  # type: ignore[type-arg]
         self.fields["tags"].queryset = tag_qs  # type: ignore[attr-defined]
         if selected_category is not None:
             self.fields["category"].initial = selected_category
-        elif category_qs:
-            self.fields["category"].initial = category_qs[0]
 
 
 class EditEntryForm(CreateEntryForm):
