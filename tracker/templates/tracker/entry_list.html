@@ -1,5 +1,7 @@
 {% extends "tracker/base.html" %}
 
+{% load static %}
+
 {% block head %}
 {{ block.super }}
 <link
@@ -8,6 +10,11 @@
   integrity="sha512-E3brrBS070QzILPd7448M+21NlCrA3fht9RmFvS9GIKo443nGQRF3tVOuK7YcY1gzPQsaks2cP/Ivp/yhoJCNA=="
   crossorigin="anonymous"
   referrerpolicy="no-referrer"
+>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'tracker/entry_table.css' %}"
 >
 {% endblock %}
 
@@ -256,7 +263,6 @@ has finished initializing it. When the JS is ready, it sets the table to visible
   referrerpolicy="no-referrer">
 </script>
 
-{% load static %}
 <script type="module" src="{% static 'tracker/form_validation_styling.js' %}"></script>
 <script type="module" src="{% static 'tracker/entry_table.js' %}"></script>
 

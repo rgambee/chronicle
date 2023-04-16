@@ -1,0 +1,14 @@
+/*
+ * Remove padding from rows. The '(tabulator-)table-sm` class, which is applied in the
+ * HTML template, removes vertical padding but not horizontal. That makes the rows
+ * slightly wider than the parent table, causing a horizontal scrollbar to appear. To
+ * avoid that, we explicitly set all padding to 0.
+ */
+
+.tabulator.table-sm .tabulator-headers {
+    padding: 0;
+}
+
+.tabulator.table-sm .tabulator-row {
+    padding: 0;
+}
