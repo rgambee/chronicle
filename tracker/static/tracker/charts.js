@@ -142,7 +142,7 @@ function initBarChart(element, data) {
         },
         tooltip: {},
         legend: {
-            left: "25%",
+            left: "40%",
         },
         dataZoom: {
             type: "slider",
@@ -186,7 +186,7 @@ function initPieChart(element, data) {
             formatter: "<strong>{b}:</strong> {c} ({d}%)",
         },
         legend: {
-            left: "30%",
+            left: "40%",
         },
         series: {
             type: "pie",
