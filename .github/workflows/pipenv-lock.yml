@@ -1,0 +1,21 @@
+name: Pipenv Lock
+on: push
+permissions:
+  contents: read
+
+jobs:
+  lock:
+    name: Lock
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          cache: 'pipenv'
+      - name: Install Pipenv
+        run: python -m pip install --upgrade pipenv
+      - name: Lock Pipfile
+        run: pipenv lock
+      - name: Cat Pipfile.lock
+        run: cat Pipfile.lock
