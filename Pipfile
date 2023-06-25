@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 django = "~=4.1.9"
+backports.zoneinfo = {version = "~=0.2", markers = "python_version < '3.9'"}
 
 [linters]
 mypy = "~=1.1"
