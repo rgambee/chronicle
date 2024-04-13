@@ -13,7 +13,9 @@ class Entry {
         this.amount = Number.parseFloat(amount);
         this.date = date;
         this.category = category;
-        this.tags = tags.split(", ");
+        this.tags = tags.split(", ")
+            .map((tag) => tag.trim())
+            .filter((tag) => tag.length > 0);
         this.comment = comment;
     }
 
