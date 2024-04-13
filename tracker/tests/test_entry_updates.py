@@ -325,6 +325,38 @@ class TestUpdatesApplication(BaseUpdateProcessing):
             ordered=False,
         )
 
+    def test_tag_deletion(self) -> None:
+        """Tags can be removed from existing entries"""
+        # Add a new entry with a tag. This can't be done via the usual DB setup.
+        original_entry = Entry(amount=42.0, date=SAMPLE_DATE, category=Tag("red"))
+        original_entry.save()
+        blue_tag = Tag.objects.get(pk="blue")
+        # pylint: disable-next=no-member
+        original_entry.tags.add(blue_tag)
+        original_entry.save()
+
+        edits = {
+            "id": original_entry.id,
+            "amount": 5,
+            "date": "2000-03-21",
+            "category": "red",
+            "tags": [],
+            "comment": "Here's an example of an entry update",
+        }
+        starting_entry_count = self.entry_count
+        starting_tag_count = self.tag_count
+        _, validated_data = validate_updates({"deletions": [], "edits": [edits]})
+        with self.assertLogs(level=logging.INFO):
+            apply_updates(validated_data)
+        self.assertEqual(self.entry_count, starting_entry_count)
+        self.assertEqual(self.tag_count, starting_tag_count)
+        edited_entry = Entry.objects.get(pk=original_entry.id)
+        self.assertEqual(edited_entry.id, original_entry.id)
+        self.assertEqual(edited_entry.date.date().isoformat(), edits["date"])
+        self.assertEqual(edited_entry.amount, edits["amount"])
+        self.assertEqual(edited_entry.category.name, original_entry.category.name)
+        self.assertQuerysetEqual(edited_entry.tags.all(), [])
+
     def test_edit_and_delete(self) -> None:
         """Editing and deleting the same entry should succeed"""
         starting_entry_count = self.entry_count
