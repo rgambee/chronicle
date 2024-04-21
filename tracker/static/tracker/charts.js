@@ -127,6 +127,7 @@ function initBarChart(element, data) {
             name: category,
             type: "bar",
             data: datesAndAmounts,
+            stack: "group1",
         });
     });
     // Sort series by category name
