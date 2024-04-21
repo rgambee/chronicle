@@ -43,7 +43,7 @@ cd chronicle
 
 Chronicle requires Python 3.9 or later.
 An [automated workflow](https://github.com/rgambee/chronicle/actions) tests
-compatibility with versions 3.9 through 3.11. Newer Python versions will likely
+compatibility with versions 3.9 through 3.12. Newer Python versions will likely
 work too.
 
 Assuming you have a suitable Python version installed, the next step is to
