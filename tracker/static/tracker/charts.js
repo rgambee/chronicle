@@ -246,7 +246,7 @@ function initCalendarHeatmap(element, data) {
     // Remove entries before the start date. Otherwise, they'll get stacked in the
     // corner, which looks ugly.
     while (dailyTotals[0][0] < start.getTime()) {
-        console.log(dailyTotals.shift());
+        dailyTotals.shift();
     }
 
     const formatDate = makeDateFormatter();
