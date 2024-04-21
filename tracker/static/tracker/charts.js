@@ -77,55 +77,61 @@ function combineAmounts(data) {
 }
 
 function initBarChart(element, data) {
-    const series = [];
-    // Map of category => {timestamp, amount}
-    const aggregatedByCategory = aggregateData(data, "category");
-    // Map of timestamp => {category, amount}
+    const allCategories = new Set(aggregateData(data, "category").keys());
+
+    // Map of timestamp => [{category, amount}]
     const aggregatedByTimestamp = aggregateData(data, "timestamp_ms");
-    for (const [category, timesAndAmounts] of aggregatedByCategory.entries()) {
-        series.push({
-            name: category,
-            type: "bar",
-            data: timesAndAmounts.map(obj => [obj.timestamp_ms, obj.amount]),
-        });
-    }
-    // Sort series by category name
-    series.sort((a, b) => a.name > b.name);
+    const startDate = new Date(Math.min(...aggregatedByTimestamp.keys()));
+    const endDate = new Date(Math.max(...aggregatedByTimestamp.keys()));
 
-    // Map of timestamp => totalAmount
-    const dailyTotalsMap = new Map();
-    for (const [timestamp, categoriesAndAmounts] of aggregatedByTimestamp.entries()) {
-        // Add up the amounts for this timestamp across all categories
-        const total = sumAmounts(categoriesAndAmounts);
-        dailyTotalsMap.set(timestamp, total);
+    // Map of category => [[timestamp, amount]]
+    const seriesMap = new Map();
+    for (const category of allCategories) {
+        seriesMap.set(category, []);
     }
-    // Convert to array of [timestamp, totalAmount] pairs
-    const dailyTotalsArr = Array.from(dailyTotalsMap.entries());
-    // Sort by timestamp (first element)
-    dailyTotalsArr.sort((pairA, pairB) => pairA[0] - pairB[0]);
 
-    // Compute a moving average
+    // Set up moving average calculation
     const averageWindow = 2 * 7;  // 2 weeks == 14 days
     const recentAmounts = (new Array(averageWindow)).fill(0);
     // Array of [timestamp, averageAmount]
     const averages = [];
-    if (dailyTotalsArr.length > 0) {
-        const start = new Date(dailyTotalsArr[0][0]);
-        const end = new Date(dailyTotalsArr.at(-1)[0]);
-        // `d` is a Date object so we can increment it easily
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            recentAmounts.push(dailyTotalsMap.get(d.getTime()) || 0);
-            recentAmounts.shift();
-            const avg = recentAmounts.reduce((a, b) => a + b) / recentAmounts.length;
-            averages.push([d.getTime(), avg]);
+
+    // Use Date objects to easily increment one day at a time
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const timestamp = d.getTime();
+        // Initialize each category's amount for this date to 0
+        for (const category of allCategories) {
+            seriesMap.get(category).push([timestamp, 0]);
         }
+        let totalAmountForDate = 0;
+        for (const {category, amount} of aggregatedByTimestamp.get(timestamp) || []) {
+            if (category === undefined || amount === undefined) {
+                continue;
+            }
+            // For this date (which is the last element in this category's array),
+            // increment the amount (which is the second element)
+            seriesMap.get(category).at(-1)[1] += amount;
+            totalAmountForDate += amount;
+        }
+
+        // Update moving average
+        recentAmounts.push(totalAmountForDate);
+        recentAmounts.shift();
+        const avg = recentAmounts.reduce((a, b) => a + b) / recentAmounts.length;
+        averages.push([timestamp, avg]);
     }
 
-    series.push({
-        name: "Daily Total",
-        type: "line",
-        data: dailyTotalsArr,
+    const series = [];
+    seriesMap.forEach((datesAndAmounts, category) => {
+        series.push({
+            name: category,
+            type: "bar",
+            data: datesAndAmounts,
+        });
     });
+    // Sort series by category name
+    series.sort((a, b) => a.name > b.name);
+
     series.push({
         name: "2 Week Avg",
         type: "line",
